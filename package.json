@@ -4,10 +4,13 @@
   "description": "A tool for simulating digital logic circuits",
   "main": "index.js",
   "devDependencies": {
+    "gh-pages": "^6.0.0",
     "typescript": "^5.2.2"
   },
   "scripts": {
-    "build": "tsc --build --clean",
+    "deploy": "gh-pages -d src",
+    "predeploy": "npm run build",
+    "build": "tsc --build",
     "watch": "tsc --watch"
   },
   "author": "Awab Ahmed",
