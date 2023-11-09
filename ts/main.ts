@@ -65,4 +65,4 @@ if ((canvas as HTMLCanvasElement).getContext("2d") != null) {
 //   draw(ctx);
 //   console.debug("Queue: ", scheduler.backEventBuffer);
 // });
-// scheduler.runSim(ctx);
+scheduler.runSim(ctx);

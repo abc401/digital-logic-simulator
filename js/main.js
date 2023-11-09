@@ -43,4 +43,4 @@ else {
 //   draw(ctx);
 //   console.debug("Queue: ", scheduler.backEventBuffer);
 // });
-// scheduler.runSim(ctx);
+scheduler.runSim(ctx);
