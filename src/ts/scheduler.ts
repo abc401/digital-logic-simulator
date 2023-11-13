@@ -1,10 +1,11 @@
 import { Queue } from "./queue.js";
 import { Circuit } from "./circuit.js";
-import { draw } from "./main.js";
 
 export class Scheduler {
-  frontEventBuffer: Queue<Circuit> = new Queue();
-  backEventBuffer: Queue<Circuit> = new Queue();
+  static fps = 60;
+
+  currentFrameEvents: Queue<Circuit> = new Queue();
+  nextFrameEvents: Queue<Circuit> = new Queue();
 
   recurringEvents: Circuit[] = [];
 
@@ -17,27 +18,26 @@ export class Scheduler {
   tick() {
     this.tickNumber += 1;
 
-    let tmp = this.frontEventBuffer;
-    this.frontEventBuffer = this.backEventBuffer;
-    this.backEventBuffer = tmp;
+    let tmp = this.currentFrameEvents;
+    this.currentFrameEvents = this.nextFrameEvents;
+    this.nextFrameEvents = tmp;
 
     for (let i = 0; i < this.recurringEvents.length; i++) {
       this.recurringEvents[i].update(this.recurringEvents[i]);
     }
 
-    let circuit = this.frontEventBuffer.dequeue();
+    let circuit = this.currentFrameEvents.dequeue();
     while (circuit != null) {
       circuit.update(circuit);
-      circuit = this.frontEventBuffer.dequeue();
+      circuit = this.currentFrameEvents.dequeue();
     }
   }
 
   async runSim(ctx: CanvasRenderingContext2D) {
     while (true) {
       this.tick();
-      draw(ctx);
-      console.debug("Queue: ", this.backEventBuffer);
-      await this.sleep(1000 / 30);
+      // console.debug("Queue: ", this.backEventBuffer);
+      await this.sleep(1000 / Scheduler.fps);
     }
   }
 }
