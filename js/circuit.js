@@ -1,11 +1,16 @@
 var Wire = /** @class */ (function () {
-    function Wire(from, fromPinNumber, to, toPinNumber, scheduler) {
+    function Wire(producerCircuit, producerPinNumber, consumerCircuit, consumerPinNumber, scheduler) {
         this.scheduler = scheduler;
-        this.producerCircuit = from;
-        this.producerPinNumber = fromPinNumber;
-        from.producerPins[fromPinNumber].wires.push(this);
-        this.consumerCircuit = to;
-        this.consumerPinNumber = toPinNumber;
+        this.producerCircuit = producerCircuit;
+        this.producerPinNumber = producerPinNumber;
+        producerCircuit.producerPins[producerPinNumber].wires.push(this);
+        this.consumerCircuit = consumerCircuit;
+        this.consumerPinNumber = consumerPinNumber;
+        var producedValue = this.producerCircuit.producerPins[this.producerPinNumber].value;
+        var consumedValue = this.consumerCircuit.consumerPins[this.consumerPinNumber].value;
+        if (producedValue !== consumedValue) {
+            this.propogateValue(producedValue);
+        }
     }
     Wire.prototype.propogateValue = function (value) {
         var consumerPin = this.consumerCircuit.consumerPins[this.consumerPinNumber];
@@ -13,7 +18,7 @@ var Wire = /** @class */ (function () {
             return;
         }
         consumerPin.value = value;
-        this.scheduler.backEventBuffer.enqueue(this.consumerCircuit);
+        this.scheduler.nextFrameEvents.enqueue(this.consumerCircuit);
     };
     Wire.prototype.draw = function (ctx) {
         var fromX = this.producerCircuit.producerPins[this.producerPinNumber].pos_x;
@@ -100,9 +105,6 @@ var ProducerPin = /** @class */ (function () {
 }());
 var Circuit = /** @class */ (function () {
     function Circuit(nConsumerPins, nProducerPins, scheduler, pos_x, pos_y, update, isInput) {
-        if (pos_x === void 0) { pos_x = 0; }
-        if (pos_y === void 0) { pos_y = 0; }
-        if (update === void 0) { update = undefined; }
         if (isInput === void 0) { isInput = false; }
         this.scheduler = scheduler;
         this.pos_x = pos_x;
@@ -121,7 +123,8 @@ var Circuit = /** @class */ (function () {
         for (var i = 0; i < this.producerPins.length; i++) {
             this.producerPins[i] = new ProducerPin(this.pos_x + Circuit.width, this.pos_y + i * 70);
         }
-        this.update = update || (function (_self) { });
+        this.update = update;
+        this.update(this);
         if (isInput) {
             scheduler.recurringEvents.push(this);
         }

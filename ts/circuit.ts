@@ -8,20 +8,28 @@ export class Wire {
   scheduler: Scheduler;
 
   constructor(
-    from: Circuit,
-    fromPinNumber: number,
-    to: Circuit,
-    toPinNumber: number,
+    producerCircuit: Circuit,
+    producerPinNumber: number,
+    consumerCircuit: Circuit,
+    consumerPinNumber: number,
     scheduler: Scheduler
   ) {
     this.scheduler = scheduler;
 
-    this.producerCircuit = from;
-    this.producerPinNumber = fromPinNumber;
-    from.producerPins[fromPinNumber].wires.push(this);
+    this.producerCircuit = producerCircuit;
+    this.producerPinNumber = producerPinNumber;
+    producerCircuit.producerPins[producerPinNumber].wires.push(this);
 
-    this.consumerCircuit = to;
-    this.consumerPinNumber = toPinNumber;
+    this.consumerCircuit = consumerCircuit;
+    this.consumerPinNumber = consumerPinNumber;
+
+    const producedValue =
+      this.producerCircuit.producerPins[this.producerPinNumber].value;
+    const consumedValue =
+      this.consumerCircuit.consumerPins[this.consumerPinNumber].value;
+    if (producedValue !== consumedValue) {
+      this.propogateValue(producedValue);
+    }
   }
 
   propogateValue(value: boolean) {
@@ -31,7 +39,7 @@ export class Wire {
     }
     consumerPin.value = value;
 
-    this.scheduler.backEventBuffer.enqueue(this.consumerCircuit);
+    this.scheduler.nextFrameEvents.enqueue(this.consumerCircuit);
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -138,6 +146,7 @@ export class Circuit {
 
   consumerPins: ConsumerPin[];
   producerPins: ProducerPin[];
+
   update: CircuitUpdateHandeler;
   scheduler: Scheduler;
 
@@ -145,15 +154,14 @@ export class Circuit {
     nConsumerPins: number,
     nProducerPins: number,
     scheduler: Scheduler,
-    pos_x: number = 0,
-    pos_y: number = 0,
-    update: undefined | CircuitUpdateHandeler = undefined,
+    pos_x: number,
+    pos_y: number,
+    update: CircuitUpdateHandeler,
     isInput: boolean = false
   ) {
     this.scheduler = scheduler;
     this.pos_x = pos_x;
     this.pos_y = pos_y;
-
     if (nConsumerPins % 1 !== 0) {
       throw Error(
         `Expected nConsumerPins to be integer but got: ${nConsumerPins}`
@@ -181,7 +189,8 @@ export class Circuit {
         this.pos_y + i * 70
       );
     }
-    this.update = update || ((_self) => {});
+    this.update = update;
+    this.update(this);
 
     if (isInput) {
       scheduler.recurringEvents.push(this);

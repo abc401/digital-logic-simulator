@@ -6,8 +6,6 @@
 }
 
 #main-canvas {
-  /* width: 100vw;
-  height: 99vh; */
   outline: solid red 1px;
   outline-offset: -1px;
 }

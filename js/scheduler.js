@@ -35,11 +35,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 import { Queue } from "./queue.js";
-import { draw } from "./main.js";
 var Scheduler = /** @class */ (function () {
     function Scheduler() {
-        this.frontEventBuffer = new Queue();
-        this.backEventBuffer = new Queue();
+        this.currentFrameEvents = new Queue();
+        this.nextFrameEvents = new Queue();
         this.recurringEvents = [];
         this.tickNumber = 0;
     }
@@ -52,16 +51,16 @@ var Scheduler = /** @class */ (function () {
     };
     Scheduler.prototype.tick = function () {
         this.tickNumber += 1;
-        var tmp = this.frontEventBuffer;
-        this.frontEventBuffer = this.backEventBuffer;
-        this.backEventBuffer = tmp;
+        var tmp = this.currentFrameEvents;
+        this.currentFrameEvents = this.nextFrameEvents;
+        this.nextFrameEvents = tmp;
         for (var i = 0; i < this.recurringEvents.length; i++) {
             this.recurringEvents[i].update(this.recurringEvents[i]);
         }
-        var circuit = this.frontEventBuffer.dequeue();
+        var circuit = this.currentFrameEvents.dequeue();
         while (circuit != null) {
             circuit.update(circuit);
-            circuit = this.frontEventBuffer.dequeue();
+            circuit = this.currentFrameEvents.dequeue();
         }
     };
     Scheduler.prototype.runSim = function (ctx) {
@@ -71,10 +70,10 @@ var Scheduler = /** @class */ (function () {
                     case 0:
                         if (!true) return [3 /*break*/, 2];
                         this.tick();
-                        draw(ctx);
-                        console.debug("Queue: ", this.backEventBuffer);
-                        return [4 /*yield*/, this.sleep(1000 / 30)];
+                        // console.debug("Queue: ", this.backEventBuffer);
+                        return [4 /*yield*/, this.sleep(1000 / Scheduler.fps)];
                     case 1:
+                        // console.debug("Queue: ", this.backEventBuffer);
                         _a.sent();
                         return [3 /*break*/, 0];
                     case 2: return [2 /*return*/];
@@ -82,6 +81,7 @@ var Scheduler = /** @class */ (function () {
             });
         });
     };
+    Scheduler.fps = 60;
     return Scheduler;
 }());
 export { Scheduler };

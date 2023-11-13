@@ -1,22 +1,32 @@
 import { Wire, Circuit } from "./circuit.js";
 import { Scheduler } from "./scheduler.js";
+export var SHOULD_DEBUG = false;
 var scheduler = new Scheduler();
-var Clock1 = new Circuit(0, 1, scheduler, 30, 30, function (self) {
-    var interval = 30;
-    self.producerPins[0].setValue(self.scheduler.tickNumber % interval > interval / 2);
+//---------------------------------------------------------------------
+// S-R Latch
+//---------------------------------------------------------------------
+var r = new Circuit(0, 1, scheduler, 30, 30, function (self) {
+    self.producerPins[0].setValue(true);
 }, true);
-var Or = new Circuit(2, 1, scheduler, 300, 30, function (self) {
-    self.producerPins[0].setValue(self.consumerPins[0].value || self.consumerPins[1].value);
+var s = new Circuit(0, 1, scheduler, 30, 200, function (self) {
+    self.producerPins[0].setValue(true);
+}, true);
+var nor1 = new Circuit(2, 1, scheduler, 350, 80, function (self) {
+    self.producerPins[0].setValue(!(self.consumerPins[0].value && self.consumerPins[1].value));
 });
-var Not = new Circuit(1, 1, scheduler, 150, 100, function (self) {
-    self.producerPins[0].setValue(!self.consumerPins[0].value);
+var nor2 = new Circuit(2, 1, scheduler, 200, 200, function (self) {
+    self.producerPins[0].setValue(!(self.consumerPins[0].value && self.consumerPins[1].value));
 });
-var circuits = [Clock1, Or, Not];
+var circuits = [r, s, nor1, nor2];
 var wires = [
-    new Wire(Clock1, 0, Or, 0, scheduler),
-    new Wire(Clock1, 0, Not, 0, scheduler),
-    new Wire(Not, 0, Or, 1, scheduler),
+    new Wire(r, 0, nor1, 0, scheduler),
+    new Wire(s, 0, nor2, 1, scheduler),
+    new Wire(nor1, 0, nor2, 0, scheduler),
+    new Wire(nor2, 0, nor1, 1, scheduler),
 ];
+//---------------------------------------------------------------------
+// const circuits: Circuit[] = [];
+// const wires: Wire[] = [];
 export function draw(ctx) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     for (var i = 0; i < wires.length; i++) {
@@ -25,7 +35,8 @@ export function draw(ctx) {
     for (var i = 0; i < circuits.length; i++) {
         circuits[i].draw(ctx);
     }
-    console.log("draw");
+    if (SHOULD_DEBUG)
+        console.log("draw");
 }
 var canvas = document.getElementById("main-canvas");
 if (canvas == null) {
@@ -41,6 +52,6 @@ else {
 // document.addEventListener("click", () => {
 //   scheduler.tick();
 //   draw(ctx);
-//   console.debug("Queue: ", scheduler.backEventBuffer);
 // });
+setInterval(function () { return draw(ctx); }, 1000 / 30);
 scheduler.runSim(ctx);
