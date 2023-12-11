@@ -5,20 +5,22 @@ var scheduler = new Scheduler();
 //---------------------------------------------------------------------
 // S-R Latch
 //---------------------------------------------------------------------
+var rValue = true;
+var sValue = true;
 var r = new Circuit(0, 1, scheduler, 30, 30, function (self) {
-    self.producerPins[0].setValue(true);
+    self.producerPins[0].setValue(rValue);
 }, true);
 var s = new Circuit(0, 1, scheduler, 30, 200, function (self) {
-    self.producerPins[0].setValue(true);
+    self.producerPins[0].setValue(sValue);
 }, true);
 var nor1 = new Circuit(2, 1, scheduler, 350, 80, function (self) {
-    self.producerPins[0].setValue(!(self.consumerPins[0].value && self.consumerPins[1].value));
+    self.producerPins[0].setValue(!(self.consumerPins[0].value || self.consumerPins[1].value));
 });
 var nor2 = new Circuit(2, 1, scheduler, 200, 200, function (self) {
-    self.producerPins[0].setValue(!(self.consumerPins[0].value && self.consumerPins[1].value));
+    self.producerPins[0].setValue(!(self.consumerPins[0].value || self.consumerPins[1].value));
 });
-var circuits = [r, s, nor1, nor2];
-var wires = [
+export var circuits = [r, s, nor1, nor2];
+export var wires = [
     new Wire(r, 0, nor1, 0, scheduler),
     new Wire(s, 0, nor2, 1, scheduler),
     new Wire(nor1, 0, nor2, 0, scheduler),
@@ -37,6 +39,30 @@ export function draw(ctx) {
     }
     if (SHOULD_DEBUG)
         console.log("draw");
+}
+var s_input_dom = document.getElementById("s-input");
+if (s_input_dom == null) {
+    console.info("DOM element for s input NOT provided.");
+}
+else {
+    sValue = s_input_dom.checked;
+    console.info("DOM S provided");
+    s_input_dom.onclick = function () {
+        console.debug("S clicked.");
+        sValue = !sValue;
+    };
+}
+var r_input_dom = document.getElementById("r-input");
+if (r_input_dom == null) {
+    console.info("DOM element for r input not provided.");
+}
+else {
+    rValue = r_input_dom.checked;
+    console.info("DOM R provided");
+    r_input_dom.onclick = function () {
+        console.debug("R clicked.");
+        rValue = !rValue;
+    };
 }
 var canvas = document.getElementById("main-canvas");
 if (canvas == null) {
