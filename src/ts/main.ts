@@ -9,6 +9,9 @@ let scheduler = new Scheduler();
 // S-R Latch
 //---------------------------------------------------------------------
 
+let rValue = true;
+let sValue = true;
+
 const r = new Circuit(
   0,
   1,
@@ -16,7 +19,7 @@ const r = new Circuit(
   30,
   30,
   (self) => {
-    self.producerPins[0].setValue(true);
+    self.producerPins[0].setValue(rValue);
   },
   true
 );
@@ -27,24 +30,24 @@ const s = new Circuit(
   30,
   200,
   (self) => {
-    self.producerPins[0].setValue(true);
+    self.producerPins[0].setValue(sValue);
   },
   true
 );
 
 const nor1 = new Circuit(2, 1, scheduler, 350, 80, (self) => {
   self.producerPins[0].setValue(
-    !(self.consumerPins[0].value && self.consumerPins[1].value)
+    !(self.consumerPins[0].value || self.consumerPins[1].value)
   );
 });
 const nor2 = new Circuit(2, 1, scheduler, 200, 200, (self) => {
   self.producerPins[0].setValue(
-    !(self.consumerPins[0].value && self.consumerPins[1].value)
+    !(self.consumerPins[0].value || self.consumerPins[1].value)
   );
 });
 
-const circuits = [r, s, nor1, nor2];
-const wires = [
+export const circuits = [r, s, nor1, nor2];
+export const wires = [
   new Wire(r, 0, nor1, 0, scheduler),
   new Wire(s, 0, nor2, 1, scheduler),
   new Wire(nor1, 0, nor2, 0, scheduler),
@@ -65,6 +68,30 @@ export function draw(ctx: CanvasRenderingContext2D) {
     circuits[i].draw(ctx);
   }
   if (SHOULD_DEBUG) console.log("draw");
+}
+
+let s_input_dom = document.getElementById("s-input");
+if (s_input_dom == null) {
+  console.info("DOM element for s input NOT provided.");
+} else {
+  sValue = (s_input_dom as HTMLInputElement).checked;
+  console.info("DOM S provided");
+  s_input_dom.onclick = () => {
+    console.debug("S clicked.");
+    sValue = !sValue;
+  };
+}
+
+let r_input_dom = document.getElementById("r-input");
+if (r_input_dom == null) {
+  console.info("DOM element for r input not provided.");
+} else {
+  rValue = (r_input_dom as HTMLInputElement).checked;
+  console.info("DOM R provided");
+  r_input_dom.onclick = () => {
+    console.debug("R clicked.");
+    rValue = !rValue;
+  };
 }
 
 let canvas = document.getElementById("main-canvas");
