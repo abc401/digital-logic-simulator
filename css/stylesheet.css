@@ -9,3 +9,7 @@
   outline: solid red 1px;
   outline-offset: -1px;
 }
+
+body {
+  overflow: hidden;
+}
