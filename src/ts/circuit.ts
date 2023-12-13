@@ -1,3 +1,4 @@
+import { Rect } from "./math.js";
 import { Scheduler } from "./scheduler.js";
 
 export class Wire {
@@ -141,27 +142,26 @@ type CircuitUpdateHandeler = (self: Circuit) => void;
 
 export class Circuit {
   static width = 100;
-  pos_x: number;
-  pos_y: number;
+  // pos_x: number;
+  // pos_y: number;
+
+  selected = false;
 
   consumerPins: ConsumerPin[];
   producerPins: ProducerPin[];
 
   update: CircuitUpdateHandeler;
-  scheduler: Scheduler;
+  // scheduler: Scheduler;
 
   constructor(
     nConsumerPins: number,
     nProducerPins: number,
-    scheduler: Scheduler,
-    pos_x: number,
-    pos_y: number,
+    readonly scheduler: Scheduler,
+    public pos_x: number,
+    public pos_y: number,
     update: CircuitUpdateHandeler,
     isInput: boolean = false
   ) {
-    this.scheduler = scheduler;
-    this.pos_x = pos_x;
-    this.pos_y = pos_y;
     if (nConsumerPins % 1 !== 0) {
       throw Error(
         `Expected nConsumerPins to be integer but got: ${nConsumerPins}`
@@ -197,6 +197,17 @@ export class Circuit {
     }
   }
 
+  rect() {
+    return new Rect(
+      this.pos_x,
+      this.pos_y,
+      Circuit.width,
+      this.consumerPins.length > this.producerPins.length
+        ? this.consumerPins.length * 70
+        : this.producerPins.length * 70
+    );
+  }
+
   draw(ctx: CanvasRenderingContext2D) {
     for (let i = 0; i < this.consumerPins.length; i++) {
       this.consumerPins[i].draw(ctx);
@@ -213,5 +224,16 @@ export class Circuit {
         ? this.consumerPins.length * 70
         : this.producerPins.length * 70
     );
+    if (this.selected) {
+      ctx.strokeStyle = "black";
+      ctx.strokeRect(
+        this.pos_x,
+        this.pos_y,
+        Circuit.width,
+        this.consumerPins.length > this.producerPins.length
+          ? this.consumerPins.length * 70
+          : this.producerPins.length * 70
+      );
+    }
   }
 }

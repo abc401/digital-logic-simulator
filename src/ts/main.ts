@@ -1,7 +1,16 @@
 import { Wire, Circuit } from "./circuit.js";
 import { Scheduler, RecurringEvent } from "./scheduler.js";
 
-export const SHOULD_DEBUG = false;
+import { init as canvasInit, ctx } from "./canvas.js";
+canvasInit();
+
+const SHOULD_LOG = false;
+if (!SHOULD_LOG) {
+  console.log = () => {};
+  console.info = () => {};
+  console.debug = () => {};
+  console.error = () => {};
+}
 
 let scheduler = new Scheduler();
 
@@ -46,6 +55,8 @@ const nor2 = new Circuit(2, 1, scheduler, 200, 200, (self) => {
   );
 });
 
+console.log(nor2.rect());
+
 export const circuits = [r, s, nor1, nor2];
 export const wires = [
   new Wire(r, 0, nor1, 0, scheduler),
@@ -67,7 +78,7 @@ export function draw(ctx: CanvasRenderingContext2D) {
   for (let i = 0; i < circuits.length; i++) {
     circuits[i].draw(ctx);
   }
-  if (SHOULD_DEBUG) console.log("draw");
+  if (SHOULD_LOG) console.log("draw");
 }
 
 let s_input_dom = document.getElementById("s-input");
@@ -92,21 +103,6 @@ if (r_input_dom == null) {
     console.debug("R clicked.");
     rValue = !rValue;
   };
-}
-
-let canvas = document.getElementById("main-canvas");
-if (canvas == null) {
-  throw Error("The dom does not contain a canvas");
-}
-
-let ctx: CanvasRenderingContext2D;
-
-if ((canvas as HTMLCanvasElement).getContext("2d") != null) {
-  ctx = (canvas as HTMLCanvasElement).getContext(
-    "2d"
-  ) as CanvasRenderingContext2D;
-} else {
-  throw Error("Could not get 2d context from canvas");
 }
 
 // document.addEventListener("click", () => {
