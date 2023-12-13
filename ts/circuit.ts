@@ -1,40 +1,25 @@
-import { Rect } from "./math.js";
+import { Point, Rect } from "./math.js";
 import { Scheduler } from "./scheduler.js";
 
 export class Wire {
-  producerCircuit: Circuit;
-  producerPinNumber: number;
-  consumerCircuit: Circuit;
-  consumerPinNumber: number;
-  scheduler: Scheduler;
-
   constructor(
-    producerCircuit: Circuit,
-    producerPinNumber: number,
-    consumerCircuit: Circuit,
-    consumerPinNumber: number,
-    scheduler: Scheduler
+    readonly producerCircuit: Circuit,
+    readonly producerPinIndex: number,
+    readonly consumerCircuit: Circuit,
+    readonly consumerPinIndex: number,
+    readonly scheduler: Scheduler
   ) {
-    this.scheduler = scheduler;
+    producerCircuit.producerPins[producerPinIndex].wires.push(this);
 
-    this.producerCircuit = producerCircuit;
-    this.producerPinNumber = producerPinNumber;
-    producerCircuit.producerPins[producerPinNumber].wires.push(this);
-
-    this.consumerCircuit = consumerCircuit;
-    this.consumerPinNumber = consumerPinNumber;
-
-    const producedValue =
-      this.producerCircuit.producerPins[this.producerPinNumber].value;
-    const consumedValue =
-      this.consumerCircuit.consumerPins[this.consumerPinNumber].value;
+    const producedValue = producerCircuit.producerPins[producerPinIndex].value;
+    const consumedValue = consumerCircuit.consumerPins[consumerPinIndex].value;
     if (producedValue !== consumedValue) {
       this.propogateValue(producedValue);
     }
   }
 
   propogateValue(value: boolean) {
-    let consumerPin = this.consumerCircuit.consumerPins[this.consumerPinNumber];
+    let consumerPin = this.consumerCircuit.consumerPins[this.consumerPinIndex];
     if (value === consumerPin.value) {
       return;
     }
@@ -44,22 +29,18 @@ export class Wire {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    const fromX =
-      this.producerCircuit.producerPins[this.producerPinNumber].pos_x;
-    const fromY =
-      this.producerCircuit.producerPins[this.producerPinNumber].pos_y;
-    const toX = this.consumerCircuit.consumerPins[this.consumerPinNumber].pos_x;
-    const toY = this.consumerCircuit.consumerPins[this.consumerPinNumber].pos_y;
+    const from = this.producerCircuit.getProducerPinPos(this.producerPinIndex);
 
-    if (this.producerCircuit.producerPins[this.producerPinNumber].value) {
+    const to = this.consumerCircuit.getConsumerPinPos(this.consumerPinIndex);
+    if (this.producerCircuit.producerPins[this.producerPinIndex].value) {
       ctx.strokeStyle = "blue";
     } else {
       ctx.strokeStyle = "black";
     }
     ctx.lineWidth = 10;
     ctx.beginPath();
-    ctx.moveTo(fromX, fromY);
-    ctx.lineTo(toX, toY);
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
     ctx.closePath();
     ctx.stroke();
   }
@@ -67,22 +48,18 @@ export class Wire {
 
 class ConsumerPin {
   static radius = 10;
-  circuit: Circuit;
+  // parentCircuit: Circuit;
   value: boolean;
-  pos_x: number;
-  pos_y: number;
 
-  constructor(circuit: Circuit, pos_x: number, pos_y: number) {
-    this.circuit = circuit;
+  constructor(readonly parentCircuit: Circuit, readonly pinIndex: number) {
     this.value = false;
-    this.pos_x = pos_x;
-    this.pos_y = pos_y;
   }
 
   draw(ctx: CanvasRenderingContext2D) {
+    const pos = this.parentCircuit.getConsumerPinPos(this.pinIndex);
     ctx.fillStyle = "red";
     ctx.beginPath();
-    ctx.arc(this.pos_x, this.pos_y, ConsumerPin.radius, 0, 2 * Math.PI);
+    ctx.arc(pos.x, pos.y, ConsumerPin.radius, 0, 2 * Math.PI);
     if (this.value) {
       ctx.fillStyle = "red";
       ctx.fill();
@@ -100,14 +77,14 @@ class ProducerPin {
   static radius = 10;
   wires: Wire[];
   value: boolean;
-  pos_x: number;
-  pos_y: number;
 
-  constructor(pos_x: number, pos_y: number, value: boolean = false) {
+  constructor(
+    readonly parentCircuit: Circuit,
+    readonly pinIndex: number,
+    value: boolean = false
+  ) {
     this.wires = [];
     this.value = value;
-    this.pos_x = pos_x;
-    this.pos_y = pos_y;
   }
 
   setValue(value: boolean) {
@@ -122,9 +99,10 @@ class ProducerPin {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
+    const pos = this.parentCircuit.getProducerPinPos(this.pinIndex);
     ctx.fillStyle = "red";
     ctx.beginPath();
-    ctx.arc(this.pos_x, this.pos_y, ConsumerPin.radius, 0, 2 * Math.PI);
+    ctx.arc(pos.x, pos.y, ConsumerPin.radius, 0, 2 * Math.PI);
     if (this.value) {
       ctx.fillStyle = "red";
       ctx.fill();
@@ -175,19 +153,12 @@ export class Circuit {
 
     this.consumerPins = Array(nConsumerPins);
     for (let i = 0; i < this.consumerPins.length; i++) {
-      this.consumerPins[i] = new ConsumerPin(
-        this,
-        this.pos_x,
-        this.pos_y + i * 70
-      );
+      this.consumerPins[i] = new ConsumerPin(this, i);
     }
 
     this.producerPins = Array(nProducerPins);
     for (let i = 0; i < this.producerPins.length; i++) {
-      this.producerPins[i] = new ProducerPin(
-        this.pos_x + Circuit.width,
-        this.pos_y + i * 70
-      );
+      this.producerPins[i] = new ProducerPin(this, i);
     }
     this.update = update;
     this.update(this);
@@ -195,6 +166,14 @@ export class Circuit {
     if (isInput) {
       scheduler.recurringEvents.push(this);
     }
+  }
+
+  getProducerPinPos(pinIndex: number) {
+    return new Point(this.pos_x + Circuit.width, this.pos_y + pinIndex * 70);
+  }
+
+  getConsumerPinPos(pinIndex: number) {
+    return new Point(this.pos_x, this.pos_y + pinIndex * 70);
   }
 
   rect() {
@@ -206,6 +185,11 @@ export class Circuit {
         ? this.consumerPins.length * 70
         : this.producerPins.length * 70
     );
+  }
+
+  setPos(point: Point) {
+    this.pos_x = point.x;
+    this.pos_y = point.y;
   }
 
   draw(ctx: CanvasRenderingContext2D) {
