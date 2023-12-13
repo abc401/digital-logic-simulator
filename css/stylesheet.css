@@ -10,7 +10,7 @@
   outline-offset: -1px;
 }
 
-body {
+#root {
   width: 100vw;
   overflow-x: hidden;
 }
