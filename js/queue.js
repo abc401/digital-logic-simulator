@@ -1,4 +1,3 @@
-import { SHOULD_DEBUG } from "./main.js";
 var QueueNode = /** @class */ (function () {
     function QueueNode(item) {
         this.next = undefined;
@@ -12,8 +11,7 @@ var Queue = /** @class */ (function () {
         this.tail = undefined;
     }
     Queue.prototype.enqueue = function (item) {
-        if (SHOULD_DEBUG)
-            console.log("Enqueueing: ", item);
+        // console.log("Enqueueing: ", item);
         if (this.head == null && this.tail == null) {
             this.head = new QueueNode(item);
             this.tail = this.head;
@@ -23,20 +21,17 @@ var Queue = /** @class */ (function () {
             this.tail = this.tail.next;
         }
         else if (this.head == null) {
-            if (SHOULD_DEBUG)
-                console.debug("Queue: ", this);
+            // console.debug("Queue: ", this);
             throw Error("Queue: Head was null but not tail!");
         }
         else {
-            if (SHOULD_DEBUG)
-                console.debug("Queue: ", this);
+            // console.debug("Queue: ", this);
             throw Error("Queue: Tail was null but not head!");
         }
     };
     Queue.prototype.dequeue = function () {
         if (this.head == null) {
-            if (SHOULD_DEBUG)
-                console.log("Dequeueing: ", undefined);
+            // console.log("Dequeueing: ", undefined);
             return undefined;
         }
         var node = this.head;
@@ -44,9 +39,7 @@ var Queue = /** @class */ (function () {
         if (this.head == null) {
             this.tail = undefined;
         }
-        if (SHOULD_DEBUG) {
-            console.log("Dequeueing: ", node.item);
-        }
+        // console.log("Dequeueing: ", node.item);
         return node.item;
     };
     Queue.prototype.isEmpty = function () {

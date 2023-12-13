@@ -1,5 +1,3 @@
-import { SHOULD_DEBUG } from "./main.js";
-
 class QueueNode<T> {
   item: T;
   next: QueueNode<T> | undefined = undefined;
@@ -13,7 +11,7 @@ export class Queue<T> {
   private tail: QueueNode<T> | undefined = undefined;
 
   enqueue(item: T) {
-    if (SHOULD_DEBUG) console.log("Enqueueing: ", item);
+    // console.log("Enqueueing: ", item);
     if (this.head == null && this.tail == null) {
       this.head = new QueueNode(item);
       this.tail = this.head;
@@ -21,17 +19,17 @@ export class Queue<T> {
       this.tail.next = new QueueNode(item);
       this.tail = this.tail.next;
     } else if (this.head == null) {
-      if (SHOULD_DEBUG) console.debug("Queue: ", this);
+      // console.debug("Queue: ", this);
       throw Error("Queue: Head was null but not tail!");
     } else {
-      if (SHOULD_DEBUG) console.debug("Queue: ", this);
+      // console.debug("Queue: ", this);
       throw Error("Queue: Tail was null but not head!");
     }
   }
 
   dequeue() {
     if (this.head == null) {
-      if (SHOULD_DEBUG) console.log("Dequeueing: ", undefined);
+      // console.log("Dequeueing: ", undefined);
       return undefined;
     }
     let node = this.head;
@@ -39,9 +37,7 @@ export class Queue<T> {
     if (this.head == null) {
       this.tail = undefined;
     }
-    if (SHOULD_DEBUG) {
-      console.log("Dequeueing: ", node.item);
-    }
+    // console.log("Dequeueing: ", node.item);
     return node.item;
   }
 

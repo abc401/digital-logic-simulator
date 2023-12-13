@@ -1,3 +1,4 @@
+import { Rect } from "./math.js";
 var Wire = /** @class */ (function () {
     function Wire(producerCircuit, producerPinNumber, consumerCircuit, consumerPinNumber, scheduler) {
         this.scheduler = scheduler;
@@ -104,11 +105,15 @@ var ProducerPin = /** @class */ (function () {
     return ProducerPin;
 }());
 var Circuit = /** @class */ (function () {
+    // scheduler: Scheduler;
     function Circuit(nConsumerPins, nProducerPins, scheduler, pos_x, pos_y, update, isInput) {
         if (isInput === void 0) { isInput = false; }
         this.scheduler = scheduler;
         this.pos_x = pos_x;
         this.pos_y = pos_y;
+        // pos_x: number;
+        // pos_y: number;
+        this.selected = false;
         if (nConsumerPins % 1 !== 0) {
             throw Error("Expected nConsumerPins to be integer but got: ".concat(nConsumerPins));
         }
@@ -129,6 +134,11 @@ var Circuit = /** @class */ (function () {
             scheduler.recurringEvents.push(this);
         }
     }
+    Circuit.prototype.rect = function () {
+        return new Rect(this.pos_x, this.pos_y, Circuit.width, this.consumerPins.length > this.producerPins.length
+            ? this.consumerPins.length * 70
+            : this.producerPins.length * 70);
+    };
     Circuit.prototype.draw = function (ctx) {
         for (var i = 0; i < this.consumerPins.length; i++) {
             this.consumerPins[i].draw(ctx);
@@ -140,6 +150,12 @@ var Circuit = /** @class */ (function () {
         ctx.fillRect(this.pos_x, this.pos_y, Circuit.width, this.consumerPins.length > this.producerPins.length
             ? this.consumerPins.length * 70
             : this.producerPins.length * 70);
+        if (this.selected) {
+            ctx.strokeStyle = "black";
+            ctx.strokeRect(this.pos_x, this.pos_y, Circuit.width, this.consumerPins.length > this.producerPins.length
+                ? this.consumerPins.length * 70
+                : this.producerPins.length * 70);
+        }
     };
     Circuit.width = 100;
     return Circuit;

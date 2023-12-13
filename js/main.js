@@ -1,6 +1,14 @@
 import { Wire, Circuit } from "./circuit.js";
 import { Scheduler } from "./scheduler.js";
-export var SHOULD_DEBUG = false;
+import { init as canvasInit, ctx } from "./canvas.js";
+canvasInit();
+var SHOULD_LOG = false;
+if (!SHOULD_LOG) {
+    console.log = function () { };
+    console.info = function () { };
+    console.debug = function () { };
+    console.error = function () { };
+}
 var scheduler = new Scheduler();
 //---------------------------------------------------------------------
 // S-R Latch
@@ -19,6 +27,7 @@ var nor1 = new Circuit(2, 1, scheduler, 350, 80, function (self) {
 var nor2 = new Circuit(2, 1, scheduler, 200, 200, function (self) {
     self.producerPins[0].setValue(!(self.consumerPins[0].value || self.consumerPins[1].value));
 });
+console.log(nor2.rect());
 export var circuits = [r, s, nor1, nor2];
 export var wires = [
     new Wire(r, 0, nor1, 0, scheduler),
@@ -37,7 +46,7 @@ export function draw(ctx) {
     for (var i = 0; i < circuits.length; i++) {
         circuits[i].draw(ctx);
     }
-    if (SHOULD_DEBUG)
+    if (SHOULD_LOG)
         console.log("draw");
 }
 var s_input_dom = document.getElementById("s-input");
@@ -63,17 +72,6 @@ else {
         console.debug("R clicked.");
         rValue = !rValue;
     };
-}
-var canvas = document.getElementById("main-canvas");
-if (canvas == null) {
-    throw Error("The dom does not contain a canvas");
-}
-var ctx;
-if (canvas.getContext("2d") != null) {
-    ctx = canvas.getContext("2d");
-}
-else {
-    throw Error("Could not get 2d context from canvas");
 }
 // document.addEventListener("click", () => {
 //   scheduler.tick();
