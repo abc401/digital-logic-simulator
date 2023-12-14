@@ -109,6 +109,9 @@ if (r_input_dom == null) {
 //   scheduler.tick();
 //   draw(ctx);
 // });
+const loggingDom = document.getElementById("logging");
 
-setInterval(() => draw(ctx), 1000 / 30);
+setInterval(function () {
+  draw(ctx);
+}, 1000 / 30);
 scheduler.runSim(ctx);
