@@ -77,5 +77,8 @@ else {
 //   scheduler.tick();
 //   draw(ctx);
 // });
-setInterval(function () { return draw(ctx); }, 1000 / 30);
+var loggingDom = document.getElementById("logging");
+setInterval(function () {
+    draw(ctx);
+}, 1000 / 30);
 scheduler.runSim(ctx);
