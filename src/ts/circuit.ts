@@ -123,7 +123,7 @@ export class Circuit {
   // pos_x: number;
   // pos_y: number;
 
-  selected = false;
+  isBeingHovered = false;
 
   consumerPins: ConsumerPin[];
   producerPins: ProducerPin[];
@@ -208,8 +208,9 @@ export class Circuit {
         ? this.consumerPins.length * 70
         : this.producerPins.length * 70
     );
-    if (this.selected) {
+    if (this.isBeingHovered) {
       ctx.strokeStyle = "black";
+      ctx.lineWidth = 1;
       ctx.strokeRect(
         this.pos_x,
         this.pos_y,

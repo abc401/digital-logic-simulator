@@ -11,6 +11,12 @@
 }
 
 #root {
-  width: 100vw;
-  overflow-x: hidden;
+  /* width: 100vw; */
+  /* overflow-x: hidden; */
+}
+
+body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }

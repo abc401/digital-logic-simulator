@@ -4,7 +4,7 @@ import { Scheduler, RecurringEvent } from "./scheduler.js";
 import { init as canvasInit, ctx } from "./canvas.js";
 canvasInit();
 
-const SHOULD_LOG = false;
+const SHOULD_LOG = true;
 if (!SHOULD_LOG) {
   console.log = () => {};
   console.info = () => {};
@@ -78,7 +78,7 @@ export function draw(ctx: CanvasRenderingContext2D) {
   for (let i = 0; i < circuits.length; i++) {
     circuits[i].draw(ctx);
   }
-  if (SHOULD_LOG) console.log("draw");
+  // console.log("draw");
 }
 
 let s_input_dom = document.getElementById("s-input");
@@ -109,7 +109,6 @@ if (r_input_dom == null) {
 //   scheduler.tick();
 //   draw(ctx);
 // });
-const loggingDom = document.getElementById("logging");
 
 setInterval(function () {
   draw(ctx);
