@@ -23,7 +23,7 @@ function touchCanvasEvents(canvas) {
             return;
         }
         var boundingBox = canvas.getBoundingClientRect();
-        var touch = ev.touches[0];
+        var touch = ev.changedTouches[0];
         var offset = new Point(touch.clientX - boundingBox.x, touch.clientY - boundingBox.y);
         // console.debug(mouse);
         currentlyDragging = getCurrentlySelectedCircuit(offset);
@@ -41,9 +41,9 @@ function touchCanvasEvents(canvas) {
             return;
         }
         var touch = undefined;
-        for (var i = 0; i < ev.touches.length; i++) {
-            touch = ev.touches[i];
-            if (touch.identifier == touchIdentifier) {
+        for (var i = 0; i < ev.changedTouches.length; i++) {
+            if (ev.changedTouches[i].identifier == touchIdentifier) {
+                touch = ev.changedTouches[i];
                 break;
             }
         }
@@ -65,8 +65,8 @@ function touchCanvasEvents(canvas) {
         }
         var touch = undefined;
         for (var i = 0; i < ev.changedTouches.length; i++) {
-            touch = ev.changedTouches[i];
-            if (touch.identifier == touchIdentifier) {
+            if (ev.changedTouches[i].identifier == touchIdentifier) {
+                touch = ev.changedTouches[i];
                 break;
             }
         }

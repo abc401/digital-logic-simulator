@@ -32,7 +32,7 @@ function touchCanvasEvents(canvas: HTMLCanvasElement) {
       return;
     }
     const boundingBox = canvas.getBoundingClientRect();
-    const touch = ev.touches[0];
+    const touch = ev.changedTouches[0];
     const offset = new Point(
       touch.clientX - boundingBox.x,
       touch.clientY - boundingBox.y
@@ -56,9 +56,9 @@ function touchCanvasEvents(canvas: HTMLCanvasElement) {
     }
 
     let touch: Touch | undefined = undefined;
-    for (let i = 0; i < ev.touches.length; i++) {
-      touch = ev.touches[i];
-      if (touch.identifier == touchIdentifier) {
+    for (let i = 0; i < ev.changedTouches.length; i++) {
+      if (ev.changedTouches[i].identifier == touchIdentifier) {
+        touch = ev.changedTouches[i];
         break;
       }
     }
@@ -87,8 +87,8 @@ function touchCanvasEvents(canvas: HTMLCanvasElement) {
     }
     let touch: Touch | undefined = undefined;
     for (let i = 0; i < ev.changedTouches.length; i++) {
-      touch = ev.changedTouches[i];
-      if (touch.identifier == touchIdentifier) {
+      if (ev.changedTouches[i].identifier == touchIdentifier) {
+        touch = ev.changedTouches[i];
         break;
       }
     }

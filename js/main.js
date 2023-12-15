@@ -77,7 +77,6 @@ else {
 //   scheduler.tick();
 //   draw(ctx);
 // });
-var loggingDom = document.getElementById("logging");
 setInterval(function () {
     draw(ctx);
 }, 1000 / 30);
