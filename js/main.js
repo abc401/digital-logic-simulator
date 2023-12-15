@@ -2,7 +2,7 @@ import { Wire, Circuit } from "./circuit.js";
 import { Scheduler } from "./scheduler.js";
 import { init as canvasInit, ctx } from "./canvas.js";
 canvasInit();
-var SHOULD_LOG = false;
+var SHOULD_LOG = true;
 if (!SHOULD_LOG) {
     console.log = function () { };
     console.info = function () { };
@@ -46,8 +46,7 @@ export function draw(ctx) {
     for (var i = 0; i < circuits.length; i++) {
         circuits[i].draw(ctx);
     }
-    if (SHOULD_LOG)
-        console.log("draw");
+    // console.log("draw");
 }
 var s_input_dom = document.getElementById("s-input");
 if (s_input_dom == null) {

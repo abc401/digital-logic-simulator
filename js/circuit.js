@@ -112,7 +112,7 @@ var Circuit = /** @class */ (function () {
         this.pos_y = pos_y;
         // pos_x: number;
         // pos_y: number;
-        this.selected = false;
+        this.isBeingHovered = false;
         if (nConsumerPins % 1 !== 0) {
             throw Error("Expected nConsumerPins to be integer but got: ".concat(nConsumerPins));
         }
@@ -159,8 +159,9 @@ var Circuit = /** @class */ (function () {
         ctx.fillRect(this.pos_x, this.pos_y, Circuit.width, this.consumerPins.length > this.producerPins.length
             ? this.consumerPins.length * 70
             : this.producerPins.length * 70);
-        if (this.selected) {
+        if (this.isBeingHovered) {
             ctx.strokeStyle = "black";
+            ctx.lineWidth = 1;
             ctx.strokeRect(this.pos_x, this.pos_y, Circuit.width, this.consumerPins.length > this.producerPins.length
                 ? this.consumerPins.length * 70
                 : this.producerPins.length * 70);
