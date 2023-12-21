@@ -1,32 +1,53 @@
 import { Circuit } from "./circuit.js";
 import { circuits } from "./main.js";
-import { Point, pointRectIntersection } from "./math.js";
+import { Point, clamp, pointRectIntersection } from "./math.js";
 
 export let canvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
+export let zoomScale = 1;
+export let panOffset = new Point(0, 0);
+
+export let isPanning = false;
+
+export function worldToScreen(coord: Point) {
+  return new Point(
+    coord.x * zoomScale + panOffset.x,
+    coord.y * zoomScale + panOffset.y
+  );
+}
+
+export function screenToWorld(coord: Point) {
+  return new Point(
+    (coord.x - panOffset.x) / zoomScale,
+    (coord.y - panOffset.y) / zoomScale
+  );
+}
 
 const loggingDom = document.getElementById("logging");
 if (loggingDom == null) {
   console.info("No logging dom!");
 }
 
-let selectedCircuit: Circuit | undefined = undefined;
-let mouseOffsetWrtRect: Point;
+let circuitBeingDragged: Circuit | undefined = undefined;
+let dragOffset: Point;
 let touchIdentifier: number | undefined = undefined;
 
 function getCircuitUnderMouse(mouse: Point) {
   for (let i = 0; i < circuits.length; i++) {
-    const circuitRect = circuits[i].rect();
+    const circuitRect = circuits[i].screenRect();
     if (pointRectIntersection(mouse, circuitRect)) {
-      mouseOffsetWrtRect = new Point(
-        circuitRect.x - mouse.x,
-        circuitRect.y - mouse.y
-      );
+      dragOffset = new Point(circuitRect.x - mouse.x, circuitRect.y - mouse.y);
       circuits[i].isBeingHovered = true;
       return circuits[i];
     }
   }
   return undefined;
+}
+
+enum MouseButton {
+  Primary = 0,
+  Auxiliary = 1,
+  Secondary = 2,
 }
 
 function getRelevantTouch(ev: TouchEvent, relevantIdentifier: number) {
@@ -52,10 +73,16 @@ export function init() {
 
   // -----------------------------------------------------------
   canvas.addEventListener("mousedown", (ev) => {
+    if (ev.button != MouseButton.Primary) {
+      console.debug("Event button is other than primary");
+      console.debug("Event button: ", ev.button);
+      return;
+    }
+
     let offset = new Point(ev.offsetX, ev.offsetY);
-    selectedCircuit = getCircuitUnderMouse(offset);
-    if (selectedCircuit == null) {
-      console.log("Selected circuit = null");
+    circuitBeingDragged = getCircuitUnderMouse(offset);
+    if (circuitBeingDragged == null) {
+      isPanning = true;
       return;
     }
     if (loggingDom != null) {
@@ -79,8 +106,8 @@ export function init() {
       touch.clientX - boundingBox.x,
       touch.clientY - boundingBox.y
     );
-    selectedCircuit = getCircuitUnderMouse(offset);
-    if (selectedCircuit == null) {
+    circuitBeingDragged = getCircuitUnderMouse(offset);
+    if (circuitBeingDragged == null) {
       return;
     }
 
@@ -93,8 +120,13 @@ export function init() {
   // -----------------------------------------------------------
 
   canvas.addEventListener("mousemove", (ev) => {
-    if (selectedCircuit == null) {
-      let mouse = new Point(ev.offsetX, ev.offsetY);
+    let mouse = new Point(ev.offsetX, ev.offsetY);
+    if (isPanning) {
+      panOffset = panOffset.add(new Point(ev.movementX, ev.movementY));
+      new Point(panOffset.x + ev.movementX, panOffset.y + ev.movementY);
+      return;
+    }
+    if (circuitBeingDragged == null) {
       const selected = getCircuitUnderMouse(mouse);
       for (let i = 0; i < circuits.length; i++) {
         circuits[i].isBeingHovered = false;
@@ -107,11 +139,12 @@ export function init() {
     if (loggingDom != null) {
       loggingDom.innerHTML = "clicked<br>moving";
     }
-    selectedCircuit.pos_x = ev.offsetX + mouseOffsetWrtRect.x;
-    selectedCircuit.pos_y = ev.offsetY + mouseOffsetWrtRect.y;
+    circuitBeingDragged.pos = screenToWorld(
+      new Point(ev.offsetX, ev.offsetY).add(dragOffset)
+    );
   });
   canvas.addEventListener("touchmove", (ev) => {
-    if (touchIdentifier == null || selectedCircuit == null) {
+    if (touchIdentifier == null || circuitBeingDragged == null) {
       return;
     }
 
@@ -131,23 +164,32 @@ export function init() {
       touch.clientY - boundingBox.y
     );
 
-    selectedCircuit.pos_x = offset.x + mouseOffsetWrtRect.x;
-    selectedCircuit.pos_y = offset.y + mouseOffsetWrtRect.y;
+    circuitBeingDragged.pos = screenToWorld(offset.add(dragOffset));
   });
   // -----------------------------------------------------------
 
   canvas.addEventListener("mouseup", (ev) => {
-    if (selectedCircuit == null) {
+    if (ev.button != MouseButton.Primary) {
       return;
+    }
+    if (circuitBeingDragged != null && isPanning) {
+      throw Error("Dragging circuit and Panning at the same time");
+    }
+
+    if (isPanning) {
+      isPanning = false;
+      return;
+    }
+    if (circuitBeingDragged != null) {
+      circuitBeingDragged.isBeingHovered = false;
+      circuitBeingDragged = undefined;
     }
     if (loggingDom != null) {
       loggingDom.innerHTML = "";
     }
-    selectedCircuit.isBeingHovered = false;
-    selectedCircuit = undefined;
   });
   const touchend = (ev: TouchEvent) => {
-    if (touchIdentifier == null || selectedCircuit == null) {
+    if (touchIdentifier == null || circuitBeingDragged == null) {
       return;
     }
     if (getRelevantTouch(ev, touchIdentifier) == null) {
@@ -159,11 +201,24 @@ export function init() {
     }
 
     ev.preventDefault();
-    selectedCircuit.isBeingHovered = false;
-    selectedCircuit = undefined;
+    circuitBeingDragged.isBeingHovered = false;
+    circuitBeingDragged = undefined;
     touchIdentifier = undefined;
   };
   canvas.addEventListener("touchend", touchend);
   canvas.addEventListener("touchcancel", touchend);
   // -----------------------------------------------------------
+
+  canvas.addEventListener("wheel", function (ev) {
+    let worldMouse = screenToWorld(new Point(ev.offsetX, ev.offsetY));
+    zoomScale -= ev.deltaY * 0.001;
+    zoomScale = clamp(zoomScale, 0.2, Infinity);
+    panOffset = new Point(
+      ev.offsetX - worldMouse.x * zoomScale,
+      ev.offsetY - worldMouse.y * zoomScale
+    );
+    console.log("panOffset: ", panOffset);
+    ev.preventDefault();
+    console.log("Zoom Amount: ", zoomScale);
+  });
 }

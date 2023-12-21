@@ -1,5 +1,6 @@
 import { Point, Rect } from "./math.js";
 import { Scheduler } from "./scheduler.js";
+import { zoomScale, panOffset, worldToScreen } from "./canvas.js";
 
 export class Wire {
   constructor(
@@ -37,7 +38,7 @@ export class Wire {
     } else {
       ctx.strokeStyle = "black";
     }
-    ctx.lineWidth = 10;
+    ctx.lineWidth = 10 * zoomScale;
     ctx.beginPath();
     ctx.moveTo(from.x, from.y);
     ctx.lineTo(to.x, to.y);
@@ -59,7 +60,7 @@ class ConsumerPin {
     const pos = this.parentCircuit.getConsumerPinPos(this.pinIndex);
     ctx.fillStyle = "red";
     ctx.beginPath();
-    ctx.arc(pos.x, pos.y, ConsumerPin.radius, 0, 2 * Math.PI);
+    ctx.arc(pos.x, pos.y, ConsumerPin.radius * zoomScale, 0, 2 * Math.PI);
     if (this.value) {
       ctx.fillStyle = "red";
       ctx.fill();
@@ -102,7 +103,7 @@ class ProducerPin {
     const pos = this.parentCircuit.getProducerPinPos(this.pinIndex);
     ctx.fillStyle = "red";
     ctx.beginPath();
-    ctx.arc(pos.x, pos.y, ConsumerPin.radius, 0, 2 * Math.PI);
+    ctx.arc(pos.x, pos.y, ConsumerPin.radius * zoomScale, 0, 2 * Math.PI);
     if (this.value) {
       ctx.fillStyle = "red";
       ctx.fill();
@@ -120,8 +121,9 @@ type CircuitUpdateHandeler = (self: Circuit) => void;
 
 export class Circuit {
   static width = 100;
-  // pos_x: number;
-  // pos_y: number;
+  static pinToPinDist = 70;
+
+  public pos: Point;
 
   isBeingHovered = false;
 
@@ -135,8 +137,8 @@ export class Circuit {
     nConsumerPins: number,
     nProducerPins: number,
     readonly scheduler: Scheduler,
-    public pos_x: number,
-    public pos_y: number,
+    pos_x: number,
+    pos_y: number,
     update: CircuitUpdateHandeler,
     isInput: boolean = false
   ) {
@@ -160,6 +162,7 @@ export class Circuit {
     for (let i = 0; i < this.producerPins.length; i++) {
       this.producerPins[i] = new ProducerPin(this, i);
     }
+    this.pos = new Point(pos_x, pos_y);
     this.update = update;
     this.update(this);
 
@@ -169,17 +172,36 @@ export class Circuit {
   }
 
   getProducerPinPos(pinIndex: number) {
-    return new Point(this.pos_x + Circuit.width, this.pos_y + pinIndex * 70);
+    const rect = this.screenRect();
+    return new Point(
+      rect.x + rect.width,
+      rect.y + pinIndex * Circuit.pinToPinDist * zoomScale
+    );
   }
 
   getConsumerPinPos(pinIndex: number) {
-    return new Point(this.pos_x, this.pos_y + pinIndex * 70);
+    return worldToScreen(new Point(this.pos.x, this.pos.y + pinIndex * 70));
+    // pos.x * zoomScale + panOffset.x,
+    // pos.y * zoomScale + panOffset.y,
+    // ConsumerPin.radius * zoomScale,
+    // 0,
+    // 2 * Math.PI
   }
 
-  rect() {
+  screenRect() {
     return new Rect(
-      this.pos_x,
-      this.pos_y,
+      this.pos.x * zoomScale + panOffset.x,
+      this.pos.y * zoomScale + panOffset.y,
+      Circuit.width * zoomScale,
+      (this.consumerPins.length > this.producerPins.length
+        ? this.consumerPins.length * 70
+        : this.producerPins.length * 70) * zoomScale
+    );
+  }
+  worldRect() {
+    return new Rect(
+      this.pos.x,
+      this.pos.y,
       Circuit.width,
       this.consumerPins.length > this.producerPins.length
         ? this.consumerPins.length * 70
@@ -188,8 +210,7 @@ export class Circuit {
   }
 
   setPos(point: Point) {
-    this.pos_x = point.x;
-    this.pos_y = point.y;
+    this.pos = point;
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -199,25 +220,22 @@ export class Circuit {
     for (let i = 0; i < this.producerPins.length; i++) {
       this.producerPins[i].draw(ctx);
     }
+    const boundingRect = this.screenRect();
     ctx.fillStyle = "cyan";
     ctx.fillRect(
-      this.pos_x,
-      this.pos_y,
-      Circuit.width,
-      this.consumerPins.length > this.producerPins.length
-        ? this.consumerPins.length * 70
-        : this.producerPins.length * 70
+      boundingRect.x,
+      boundingRect.y,
+      boundingRect.width,
+      boundingRect.height
     );
     if (this.isBeingHovered) {
       ctx.strokeStyle = "black";
       ctx.lineWidth = 1;
       ctx.strokeRect(
-        this.pos_x,
-        this.pos_y,
-        Circuit.width,
-        this.consumerPins.length > this.producerPins.length
-          ? this.consumerPins.length * 70
-          : this.producerPins.length * 70
+        boundingRect.x,
+        boundingRect.y,
+        boundingRect.width,
+        boundingRect.height
       );
     }
   }

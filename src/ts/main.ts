@@ -1,7 +1,7 @@
 import { Wire, Circuit } from "./circuit.js";
 import { Scheduler, RecurringEvent } from "./scheduler.js";
 
-import { init as canvasInit, ctx } from "./canvas.js";
+import { init as canvasInit, ctx, panOffset } from "./canvas.js";
 canvasInit();
 
 const SHOULD_LOG = true;
@@ -55,7 +55,7 @@ const nor2 = new Circuit(2, 1, scheduler, 200, 200, (self) => {
   );
 });
 
-console.log(nor2.rect());
+console.log(nor2.worldRect());
 
 export const circuits = [r, s, nor1, nor2];
 export const wires = [

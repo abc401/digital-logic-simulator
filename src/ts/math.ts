@@ -1,5 +1,9 @@
 export class Point {
   constructor(readonly x: number, readonly y: number) {}
+
+  add(other: Point) {
+    return new Point(this.x + other.x, this.y + other.y);
+  }
 }
 
 export class Rect {
@@ -21,4 +25,10 @@ export function pointRectIntersection(point: Point, rect: Rect) {
     return true;
   }
   return false;
+}
+
+export function clamp(value: number, min: number, max: number) {
+  if (value < min) return min;
+  if (value > max) return max;
+  return value;
 }
