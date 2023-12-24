@@ -1,5 +1,5 @@
 import { Wire, Circuit } from "./circuit.js";
-import { Scheduler, RecurringEvent } from "./scheduler.js";
+import { Scheduler } from "./scheduler.js";
 
 import { init as canvasInit, ctx } from "./canvas.js";
 canvasInit();
@@ -10,6 +10,34 @@ if (!SHOULD_LOG) {
   console.info = () => {};
   console.debug = () => {};
   console.error = () => {};
+}
+
+export const loggingDom = document.getElementById("logging");
+if (loggingDom == null) {
+  console.info("No logging dom!");
+}
+
+export function domLog(message: string) {
+  if (loggingDom == null) {
+    return;
+  }
+  loggingDom.innerHTML += `${message}<br>`;
+}
+
+export function assert(
+  condition: boolean,
+  message: string | undefined = undefined
+) {
+  if (condition) {
+    return;
+  }
+  if (message == null) {
+    domLog("Assertion failed");
+    throw Error();
+  } else {
+    domLog(message);
+  }
+  throw Error(message);
 }
 
 let scheduler = new Scheduler();
@@ -55,7 +83,7 @@ const nor2 = new Circuit(2, 1, scheduler, 200, 200, (self) => {
   );
 });
 
-console.log(nor2.rect());
+console.log(nor2.worldRect());
 
 export const circuits = [r, s, nor1, nor2];
 export const wires = [
@@ -78,7 +106,6 @@ export function draw(ctx: CanvasRenderingContext2D) {
   for (let i = 0; i < circuits.length; i++) {
     circuits[i].draw(ctx);
   }
-  // console.log("draw");
 }
 
 let s_input_dom = document.getElementById("s-input");

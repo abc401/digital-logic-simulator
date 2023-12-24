@@ -1,47 +1,43 @@
-class QueueNode<T> {
-  item: T;
-  next: QueueNode<T> | undefined = undefined;
-
-  constructor(item: T) {
-    this.item = item;
-  }
-}
 export class Queue<T> {
-  private head: QueueNode<T> | undefined = undefined;
-  private tail: QueueNode<T> | undefined = undefined;
+  readonly items = new Array<T>();
+  private head = 0;
+  private tail = 0;
+
+  private resize(newSize: number) {
+    let newItems = new Array<T>(newSize);
+    for (
+      let newIdx = 0, oldIdx = this.head;
+      newIdx < this.items.length;
+      newIdx++, oldIdx = (oldIdx + 1) % this.items.length
+    ) {
+      newItems[newIdx] = this.items[oldIdx];
+    }
+    this.head = 0;
+    this.tail = this.items.length;
+  }
 
   enqueue(item: T) {
-    // console.log("Enqueueing: ", item);
-    if (this.head == null && this.tail == null) {
-      this.head = new QueueNode(item);
-      this.tail = this.head;
-    } else if (this.head != null && this.tail != null) {
-      this.tail.next = new QueueNode(item);
-      this.tail = this.tail.next;
-    } else if (this.head == null) {
-      // console.debug("Queue: ", this);
-      throw Error("Queue: Head was null but not tail!");
-    } else {
-      // console.debug("Queue: ", this);
-      throw Error("Queue: Tail was null but not head!");
+    if (this.isFull()) {
+      this.resize(this.items.length * 2);
     }
+
+    this.items[this.tail] = item;
+    this.tail = (this.tail + 1) % this.items.length;
   }
 
   dequeue() {
-    if (this.head == null) {
-      // console.log("Dequeueing: ", undefined);
+    if (this.isEmpty()) {
       return undefined;
     }
-    let node = this.head;
-    this.head = this.head.next;
-    if (this.head == null) {
-      this.tail = undefined;
-    }
-    // console.log("Dequeueing: ", node.item);
-    return node.item;
+    let result = this.items[this.head];
+    this.head = (this.head + 1) % this.items.length;
+    return result;
   }
 
+  isFull() {
+    return (this.tail + 1) % this.items.length === this.head;
+  }
   isEmpty() {
-    return this.head == null;
+    return this.head == this.tail;
   }
 }

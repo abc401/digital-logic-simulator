@@ -1,4 +1,5 @@
-import { Point, Rect } from "./math.js";
+import { Vec2, Rect } from "./math.js";
+import { zoomScale, panOffset, worldToScreen } from "./canvas.js";
 var Wire = /** @class */ (function () {
     function Wire(producerCircuit, producerPinIndex, consumerCircuit, consumerPinIndex, scheduler) {
         this.producerCircuit = producerCircuit;
@@ -30,7 +31,7 @@ var Wire = /** @class */ (function () {
         else {
             ctx.strokeStyle = "black";
         }
-        ctx.lineWidth = 10;
+        ctx.lineWidth = 10 * zoomScale;
         ctx.beginPath();
         ctx.moveTo(from.x, from.y);
         ctx.lineTo(to.x, to.y);
@@ -50,7 +51,7 @@ var ConsumerPin = /** @class */ (function () {
         var pos = this.parentCircuit.getConsumerPinPos(this.pinIndex);
         ctx.fillStyle = "red";
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y, ConsumerPin.radius, 0, 2 * Math.PI);
+        ctx.arc(pos.x, pos.y, ConsumerPin.radius * zoomScale, 0, 2 * Math.PI);
         if (this.value) {
             ctx.fillStyle = "red";
             ctx.fill();
@@ -87,7 +88,7 @@ var ProducerPin = /** @class */ (function () {
         var pos = this.parentCircuit.getProducerPinPos(this.pinIndex);
         ctx.fillStyle = "red";
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y, ConsumerPin.radius, 0, 2 * Math.PI);
+        ctx.arc(pos.x, pos.y, ConsumerPin.radius * zoomScale, 0, 2 * Math.PI);
         if (this.value) {
             ctx.fillStyle = "red";
             ctx.fill();
@@ -108,10 +109,6 @@ var Circuit = /** @class */ (function () {
     function Circuit(nConsumerPins, nProducerPins, scheduler, pos_x, pos_y, update, isInput) {
         if (isInput === void 0) { isInput = false; }
         this.scheduler = scheduler;
-        this.pos_x = pos_x;
-        this.pos_y = pos_y;
-        // pos_x: number;
-        // pos_y: number;
         this.isBeingHovered = false;
         if (nConsumerPins % 1 !== 0) {
             throw Error("Expected nConsumerPins to be integer but got: ".concat(nConsumerPins));
@@ -127,6 +124,7 @@ var Circuit = /** @class */ (function () {
         for (var i = 0; i < this.producerPins.length; i++) {
             this.producerPins[i] = new ProducerPin(this, i);
         }
+        this.pos = new Vec2(pos_x, pos_y);
         this.update = update;
         this.update(this);
         if (isInput) {
@@ -134,19 +132,29 @@ var Circuit = /** @class */ (function () {
         }
     }
     Circuit.prototype.getProducerPinPos = function (pinIndex) {
-        return new Point(this.pos_x + Circuit.width, this.pos_y + pinIndex * 70);
+        var rect = this.screenRect();
+        return new Vec2(rect.x + rect.width, rect.y + pinIndex * Circuit.pinToPinDist * zoomScale);
     };
     Circuit.prototype.getConsumerPinPos = function (pinIndex) {
-        return new Point(this.pos_x, this.pos_y + pinIndex * 70);
+        return worldToScreen(new Vec2(this.pos.x, this.pos.y + pinIndex * 70));
+        // pos.x * zoomScale + panOffset.x,
+        // pos.y * zoomScale + panOffset.y,
+        // ConsumerPin.radius * zoomScale,
+        // 0,
+        // 2 * Math.PI
     };
-    Circuit.prototype.rect = function () {
-        return new Rect(this.pos_x, this.pos_y, Circuit.width, this.consumerPins.length > this.producerPins.length
+    Circuit.prototype.screenRect = function () {
+        return new Rect(this.pos.x * zoomScale + panOffset.x, this.pos.y * zoomScale + panOffset.y, Circuit.width * zoomScale, (this.consumerPins.length > this.producerPins.length
+            ? this.consumerPins.length * 70
+            : this.producerPins.length * 70) * zoomScale);
+    };
+    Circuit.prototype.worldRect = function () {
+        return new Rect(this.pos.x, this.pos.y, Circuit.width, this.consumerPins.length > this.producerPins.length
             ? this.consumerPins.length * 70
             : this.producerPins.length * 70);
     };
     Circuit.prototype.setPos = function (point) {
-        this.pos_x = point.x;
-        this.pos_y = point.y;
+        this.pos = point;
     };
     Circuit.prototype.draw = function (ctx) {
         for (var i = 0; i < this.consumerPins.length; i++) {
@@ -155,19 +163,17 @@ var Circuit = /** @class */ (function () {
         for (var i = 0; i < this.producerPins.length; i++) {
             this.producerPins[i].draw(ctx);
         }
+        var boundingRect = this.screenRect();
         ctx.fillStyle = "cyan";
-        ctx.fillRect(this.pos_x, this.pos_y, Circuit.width, this.consumerPins.length > this.producerPins.length
-            ? this.consumerPins.length * 70
-            : this.producerPins.length * 70);
+        ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
         if (this.isBeingHovered) {
             ctx.strokeStyle = "black";
             ctx.lineWidth = 1;
-            ctx.strokeRect(this.pos_x, this.pos_y, Circuit.width, this.consumerPins.length > this.producerPins.length
-                ? this.consumerPins.length * 70
-                : this.producerPins.length * 70);
+            ctx.strokeRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
         }
     };
     Circuit.width = 100;
+    Circuit.pinToPinDist = 70;
     return Circuit;
 }());
 export { Circuit };

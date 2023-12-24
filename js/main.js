@@ -9,6 +9,30 @@ if (!SHOULD_LOG) {
     console.debug = function () { };
     console.error = function () { };
 }
+export var loggingDom = document.getElementById("logging");
+if (loggingDom == null) {
+    console.info("No logging dom!");
+}
+export function domLog(message) {
+    if (loggingDom == null) {
+        return;
+    }
+    loggingDom.innerHTML += "".concat(message, "<br>");
+}
+export function assert(condition, message) {
+    if (message === void 0) { message = undefined; }
+    if (condition) {
+        return;
+    }
+    if (message == null) {
+        domLog("Assertion failed");
+        throw Error();
+    }
+    else {
+        domLog(message);
+    }
+    throw Error(message);
+}
 var scheduler = new Scheduler();
 //---------------------------------------------------------------------
 // S-R Latch
@@ -27,7 +51,7 @@ var nor1 = new Circuit(2, 1, scheduler, 350, 80, function (self) {
 var nor2 = new Circuit(2, 1, scheduler, 200, 200, function (self) {
     self.producerPins[0].setValue(!(self.consumerPins[0].value || self.consumerPins[1].value));
 });
-console.log(nor2.rect());
+console.log(nor2.worldRect());
 export var circuits = [r, s, nor1, nor2];
 export var wires = [
     new Wire(r, 0, nor1, 0, scheduler),
@@ -46,7 +70,6 @@ export function draw(ctx) {
     for (var i = 0; i < circuits.length; i++) {
         circuits[i].draw(ctx);
     }
-    // console.log("draw");
 }
 var s_input_dom = document.getElementById("s-input");
 if (s_input_dom == null) {
