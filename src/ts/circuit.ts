@@ -1,4 +1,4 @@
-import { Point, Rect } from "./math.js";
+import { Vec2, Rect } from "./math.js";
 import { Scheduler } from "./scheduler.js";
 import { zoomScale, panOffset, worldToScreen } from "./canvas.js";
 
@@ -123,7 +123,7 @@ export class Circuit {
   static width = 100;
   static pinToPinDist = 70;
 
-  public pos: Point;
+  public pos: Vec2;
 
   isBeingHovered = false;
 
@@ -162,7 +162,7 @@ export class Circuit {
     for (let i = 0; i < this.producerPins.length; i++) {
       this.producerPins[i] = new ProducerPin(this, i);
     }
-    this.pos = new Point(pos_x, pos_y);
+    this.pos = new Vec2(pos_x, pos_y);
     this.update = update;
     this.update(this);
 
@@ -173,14 +173,14 @@ export class Circuit {
 
   getProducerPinPos(pinIndex: number) {
     const rect = this.screenRect();
-    return new Point(
+    return new Vec2(
       rect.x + rect.width,
       rect.y + pinIndex * Circuit.pinToPinDist * zoomScale
     );
   }
 
   getConsumerPinPos(pinIndex: number) {
-    return worldToScreen(new Point(this.pos.x, this.pos.y + pinIndex * 70));
+    return worldToScreen(new Vec2(this.pos.x, this.pos.y + pinIndex * 70));
     // pos.x * zoomScale + panOffset.x,
     // pos.y * zoomScale + panOffset.y,
     // ConsumerPin.radius * zoomScale,
@@ -209,7 +209,7 @@ export class Circuit {
     );
   }
 
-  setPos(point: Point) {
+  setPos(point: Vec2) {
     this.pos = point;
   }
 

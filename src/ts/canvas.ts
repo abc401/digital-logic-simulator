@@ -1,43 +1,76 @@
 import { Circuit } from "./circuit.js";
-import { circuits } from "./main.js";
-import { Point, clamp, pointRectIntersection } from "./math.js";
+import { assert, circuits, domLog } from "./main.js";
+import { Rect, Vec2, clamp, pointRectIntersection } from "./math.js";
 
 export let canvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
 export let zoomScale = 1;
-export let panOffset = new Point(0, 0);
+const MAX_ZOOM = Infinity;
+const MIN_ZOOM = 0.2;
+export let panOffset = new Vec2(0, 0);
 
-export let isPanning = false;
+let isPanning = false;
+let isDragging = false;
+let isZooming = false;
 
-export function worldToScreen(coord: Point) {
-  return new Point(
+let circuitBeingDragged: Circuit | undefined = undefined;
+let dragOffset: Vec2;
+
+type TouchIdentifier = number;
+let touches = new Array<TouchIdentifier>();
+let previousLocationOfTouches = new Map<TouchIdentifier, Vec2>();
+
+const panningDom = document.getElementById("panning");
+const draggingDom = document.getElementById("dragging");
+const zoomingDom = document.getElementById("zooming");
+
+function setPanning(value: boolean) {
+  if (panningDom != null) {
+    (panningDom as HTMLInputElement).checked = value;
+  }
+  if (!isPanning && value) {
+    domLog("Panning");
+  }
+  isPanning = value;
+}
+function setDragging(value: boolean) {
+  if (draggingDom != null) {
+    (draggingDom as HTMLInputElement).checked = value;
+  }
+  if (!isDragging && value) {
+    domLog("Dragging");
+  }
+  isDragging = value;
+}
+function setZooming(value: boolean) {
+  if (zoomingDom != null) {
+    (zoomingDom as HTMLInputElement).checked = value;
+  }
+  if (!isZooming && value) {
+    domLog("Zooming");
+  }
+  isZooming = value;
+}
+
+export function worldToScreen(coord: Vec2) {
+  return new Vec2(
     coord.x * zoomScale + panOffset.x,
     coord.y * zoomScale + panOffset.y
   );
 }
 
-export function screenToWorld(coord: Point) {
-  return new Point(
+export function screenToWorld(coord: Vec2) {
+  return new Vec2(
     (coord.x - panOffset.x) / zoomScale,
     (coord.y - panOffset.y) / zoomScale
   );
 }
 
-const loggingDom = document.getElementById("logging");
-if (loggingDom == null) {
-  console.info("No logging dom!");
-}
-
-let circuitBeingDragged: Circuit | undefined = undefined;
-let dragOffset: Point;
-let touchIdentifier: number | undefined = undefined;
-
-function getCircuitUnderMouse(mouse: Point) {
+function getCircuitUnderMouse(mouse: Vec2) {
   for (let i = 0; i < circuits.length; i++) {
     const circuitRect = circuits[i].screenRect();
     if (pointRectIntersection(mouse, circuitRect)) {
-      dragOffset = new Point(circuitRect.x - mouse.x, circuitRect.y - mouse.y);
-      circuits[i].isBeingHovered = true;
+      dragOffset = new Vec2(circuitRect.x - mouse.x, circuitRect.y - mouse.y);
       return circuits[i];
     }
   }
@@ -61,110 +94,207 @@ function getRelevantTouch(ev: TouchEvent, relevantIdentifier: number) {
 
 export function init() {
   let canvas_ = document.getElementById("main-canvas");
-  if (canvas_ == null) {
-    throw Error("The dom does not contain a canvas");
-  }
+  assert(canvas_ != null, "The dom does not contain a canvas");
   canvas = canvas_ as HTMLCanvasElement;
+
   let ctx_ = canvas.getContext("2d");
-  if (ctx_ == null) {
-    throw Error("Could not get 2d context from canvas");
-  }
+  assert(ctx_ != null, "Could not get 2d context from canvas");
   ctx = ctx_ as CanvasRenderingContext2D;
 
   // -----------------------------------------------------------
   canvas.addEventListener("mousedown", (ev) => {
+    setZooming(false);
     if (ev.button != MouseButton.Primary) {
-      console.debug("Event button is other than primary");
-      console.debug("Event button: ", ev.button);
       return;
     }
 
-    let offset = new Point(ev.offsetX, ev.offsetY);
+    let offset = new Vec2(ev.offsetX, ev.offsetY);
     circuitBeingDragged = getCircuitUnderMouse(offset);
     if (circuitBeingDragged == null) {
-      isPanning = true;
+      setPanning(true);
       return;
     }
-    if (loggingDom != null) {
-      console.log("inner html: ", loggingDom.innerHTML);
-      console.log("clicked");
-      loggingDom.innerHTML = "<p>clicked</p>";
-      console.log("Inner html: ", loggingDom.innerHTML);
-      console.log("loggingDom: ", loggingDom);
-      return;
-    }
-    console.log("logging dom was empty.");
+    setDragging(true);
   });
 
   canvas.addEventListener("touchstart", (ev) => {
-    if (touchIdentifier != null) {
+    if (isDragging || isZooming) {
+      ev.preventDefault();
       return;
     }
     const boundingBox = canvas.getBoundingClientRect();
-    const touch = ev.changedTouches[0];
-    const offset = new Point(
-      touch.clientX - boundingBox.x,
-      touch.clientY - boundingBox.y
-    );
-    circuitBeingDragged = getCircuitUnderMouse(offset);
-    if (circuitBeingDragged == null) {
-      return;
-    }
+    for (let i = 0; i < ev.changedTouches.length && touches.length < 2; i++) {
+      const touch = ev.changedTouches[i];
+      touches.push(touch.identifier);
 
-    if (loggingDom != null) {
-      loggingDom.innerHTML = "touching";
+      const offset = new Vec2(
+        touch.clientX - boundingBox.x,
+        touch.clientY - boundingBox.y
+      );
+      previousLocationOfTouches.set(touch.identifier, offset);
+    }
+    if (touches.length === 2) {
+      setPanning(false);
+      setZooming(true);
     }
     ev.preventDefault();
-    touchIdentifier = touch.identifier;
   });
   // -----------------------------------------------------------
 
   canvas.addEventListener("mousemove", (ev) => {
-    let mouse = new Point(ev.offsetX, ev.offsetY);
+    let mouse = new Vec2(ev.offsetX, ev.offsetY);
     if (isPanning) {
-      panOffset = panOffset.add(new Point(ev.movementX, ev.movementY));
-      new Point(panOffset.x + ev.movementX, panOffset.y + ev.movementY);
+      panOffset = panOffset.add(new Vec2(ev.movementX, ev.movementY));
       return;
     }
-    if (circuitBeingDragged == null) {
-      const selected = getCircuitUnderMouse(mouse);
-      for (let i = 0; i < circuits.length; i++) {
-        circuits[i].isBeingHovered = false;
+    if (isDragging) {
+      if (circuitBeingDragged == null) {
+        domLog("[mousemove] isDragging && circuitBeingDragged == null");
+        throw Error();
       }
-      if (selected != null) {
-        selected.isBeingHovered = true;
-      }
+      circuitBeingDragged.pos = screenToWorld(
+        new Vec2(ev.offsetX, ev.offsetY).add(dragOffset)
+      );
       return;
     }
-    if (loggingDom != null) {
-      loggingDom.innerHTML = "clicked<br>moving";
+
+    const selected = getCircuitUnderMouse(mouse);
+    for (let i = 0; i < circuits.length; i++) {
+      circuits[i].isBeingHovered = false;
     }
-    circuitBeingDragged.pos = screenToWorld(
-      new Point(ev.offsetX, ev.offsetY).add(dragOffset)
-    );
+    if (selected != null) {
+      selected.isBeingHovered = true;
+    }
   });
   canvas.addEventListener("touchmove", (ev) => {
-    if (touchIdentifier == null || circuitBeingDragged == null) {
-      return;
-    }
-
-    const touch = getRelevantTouch(ev, touchIdentifier);
-    if (touch == null) {
-      return;
-    }
-
-    if (loggingDom != null) {
-      loggingDom.innerHTML = "touching<br>moving";
-    }
-    ev.preventDefault();
-
-    const boundingBox = canvas.getBoundingClientRect();
-    const offset = new Point(
-      touch.clientX - boundingBox.x,
-      touch.clientY - boundingBox.y
+    assert(
+      touches.length > 0 && touches.length <= 2,
+      `[touchmove] touches.length = ${touches.length}`
     );
 
-    circuitBeingDragged.pos = screenToWorld(offset.add(dragOffset));
+    const boundingBox = canvas.getBoundingClientRect();
+
+    if (!(isPanning || isZooming || isDragging)) {
+      if (touches.length === 2) {
+        setZooming(true);
+      } else {
+        const touch = getRelevantTouch(ev, touches[0]);
+        if (touch == null) {
+          return;
+        }
+
+        const touchLocation = new Vec2(
+          touch.clientX - boundingBox.x,
+          touch.clientY - boundingBox.y
+        );
+        const circuit = getCircuitUnderMouse(touchLocation);
+        if (circuit == null) {
+          setPanning(true);
+        } else {
+          setDragging(true);
+          circuitBeingDragged = circuit;
+        }
+      }
+    }
+
+    if (isPanning) {
+      let touch = getRelevantTouch(ev, touches[0]);
+      if (touch == null) {
+        return;
+      }
+      const touchLocation = new Vec2(
+        touch.clientX - boundingBox.x,
+        touch.clientY - boundingBox.y
+      );
+      const previousLocation = previousLocationOfTouches.get(touch.identifier);
+      if (previousLocation == null) {
+        domLog(
+          `[touchmove] Touch id(${touch.identifier}) was registered but its previous location was not.`
+        );
+        throw Error(
+          `[touchmove] Touch id(${touch.identifier}) was registered but its previous location was not.`
+        );
+      }
+      previousLocationOfTouches.set(touch.identifier, touchLocation);
+      panOffset = panOffset.add(touchLocation.sub(previousLocation));
+    } else if (isDragging) {
+      if (circuitBeingDragged == null) {
+        domLog("[touchmove] Dragging, but circuitBeingDragged == null");
+        throw Error();
+      }
+      let touch = getRelevantTouch(ev, touches[0]);
+      if (touch == null) {
+        return;
+      }
+      const offset = new Vec2(
+        touch.clientX - boundingBox.x,
+        touch.clientY - boundingBox.y
+      );
+      circuitBeingDragged.pos = screenToWorld(offset.add(dragOffset));
+    } else if (isZooming) {
+      let touch0 = getRelevantTouch(ev, touches[0]);
+      let touch1 = getRelevantTouch(ev, touches[1]);
+
+      if (touch0 == null && touch1 == null) {
+        return;
+      }
+
+      let tmp0 = previousLocationOfTouches.get(touches[0]);
+      let tmp1 = previousLocationOfTouches.get(touches[1]);
+
+      if (tmp0 == null || tmp1 == null) {
+        domLog("[touchmove] tmp0 == null || tmp1 == null");
+        throw Error();
+      }
+
+      let touch0PreviousLoc = tmp0;
+      let touch1PreviousLoc = tmp1;
+
+      const zoomRectPrevious = Rect.fromEndPoints(
+        touch0PreviousLoc,
+        touch1PreviousLoc
+      )
+        .forceAspectRatio(1)
+        .withMidPoint(touch0PreviousLoc.lerp(touch1PreviousLoc, 1 / 2));
+
+      let touch0ScreenPos =
+        touch0 != null
+          ? new Vec2(
+              touch0.clientX - boundingBox.x,
+              touch0.clientY - boundingBox.y
+            )
+          : touch0PreviousLoc;
+      let touch1ScreenPos =
+        touch1 != null
+          ? new Vec2(
+              touch1.clientX - boundingBox.x,
+              touch1.clientY - boundingBox.y
+            )
+          : touch1PreviousLoc;
+
+      previousLocationOfTouches.set(touches[0], touch0ScreenPos);
+      previousLocationOfTouches.set(touches[1], touch1ScreenPos);
+
+      const zoomRectCurrent = Rect.fromEndPoints(
+        touch0ScreenPos,
+        touch1ScreenPos
+      )
+        .forceAspectRatio(1)
+        .withMidPoint(touch0ScreenPos.lerp(touch1ScreenPos, 1 / 2));
+
+      const zoomOrigin = zoomRectCurrent.midPoint();
+      const zoomOriginInWorld = screenToWorld(zoomOrigin);
+
+      zoomScale *= zoomRectCurrent.width / zoomRectPrevious.width;
+      zoomScale = clamp(zoomScale, MIN_ZOOM, MAX_ZOOM);
+
+      panOffset = zoomOrigin.sub(zoomOriginInWorld.scalarMul(zoomScale));
+      panOffset = panOffset.add(
+        zoomRectCurrent.midPoint().sub(zoomRectPrevious.midPoint())
+      );
+    }
+
+    ev.preventDefault();
   });
   // -----------------------------------------------------------
 
@@ -172,53 +302,93 @@ export function init() {
     if (ev.button != MouseButton.Primary) {
       return;
     }
-    if (circuitBeingDragged != null && isPanning) {
-      throw Error("Dragging circuit and Panning at the same time");
-    }
 
     if (isPanning) {
-      isPanning = false;
+      setPanning(false);
       return;
     }
-    if (circuitBeingDragged != null) {
+    if (isDragging) {
+      if (circuitBeingDragged == null) {
+        throw Error();
+      }
       circuitBeingDragged.isBeingHovered = false;
       circuitBeingDragged = undefined;
-    }
-    if (loggingDom != null) {
-      loggingDom.innerHTML = "";
+      setDragging(false);
     }
   });
   const touchend = (ev: TouchEvent) => {
-    if (touchIdentifier == null || circuitBeingDragged == null) {
-      return;
-    }
-    if (getRelevantTouch(ev, touchIdentifier) == null) {
-      return;
+    assert(
+      touches.length > 0 && touches.length <= 2,
+      `[touchend] touches.length = ${touches.length}`
+    );
+
+    if (isPanning || isDragging) {
+      const touch = getRelevantTouch(ev, touches[0]);
+      if (touch == null) {
+        return;
+      }
+
+      assert(
+        touches.length === 1,
+        `[touchend] ${
+          isPanning ? "Panning" : "Dragging"
+        }, but touches.length = ${touches.length}`
+      );
+      if (isPanning) {
+        setPanning(false);
+      } else {
+        if (circuitBeingDragged == null) {
+          throw Error("Dragging, but circuitBeingDragged == null");
+        }
+        setDragging(false);
+        circuitBeingDragged.isBeingHovered = false;
+        circuitBeingDragged = undefined;
+      }
+
+      previousLocationOfTouches.delete(touch.identifier);
+      touches = new Array();
     }
 
-    if (loggingDom != null) {
-      loggingDom.innerHTML = "";
+    if (isZooming) {
+      assert(
+        touches.length === 2,
+        `[touchend] Zooming, but touches.length = ${touches.length}`
+      );
+      setZooming(false);
+      const touch0 = getRelevantTouch(ev, touches[0]);
+      const touch1 = getRelevantTouch(ev, touches[1]);
+
+      if (touch0 == null && touch1 == null) {
+        return;
+      }
+      if (touch1 != null) {
+        previousLocationOfTouches.delete(touch1.identifier);
+        touches.pop();
+      }
+      if (touch0 != null) {
+        previousLocationOfTouches.delete(touch0.identifier);
+        touches.shift();
+      }
+      if (touches.length === 1) {
+        setPanning(true);
+      }
     }
 
     ev.preventDefault();
-    circuitBeingDragged.isBeingHovered = false;
-    circuitBeingDragged = undefined;
-    touchIdentifier = undefined;
   };
   canvas.addEventListener("touchend", touchend);
   canvas.addEventListener("touchcancel", touchend);
   // -----------------------------------------------------------
 
   canvas.addEventListener("wheel", function (ev) {
-    let worldMouse = screenToWorld(new Point(ev.offsetX, ev.offsetY));
+    setZooming(true);
+    let worldMouse = screenToWorld(new Vec2(ev.offsetX, ev.offsetY));
     zoomScale -= ev.deltaY * 0.001;
-    zoomScale = clamp(zoomScale, 0.2, Infinity);
-    panOffset = new Point(
+    zoomScale = clamp(zoomScale, MIN_ZOOM, MAX_ZOOM);
+    panOffset = new Vec2(
       ev.offsetX - worldMouse.x * zoomScale,
       ev.offsetY - worldMouse.y * zoomScale
     );
-    console.log("panOffset: ", panOffset);
     ev.preventDefault();
-    console.log("Zoom Amount: ", zoomScale);
   });
 }
