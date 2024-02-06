@@ -1,3 +1,7 @@
+export interface BoundingBox {
+  pointIntersection(point: Vec2): boolean;
+}
+
 export class Vec2 {
   constructor(readonly x: number, readonly y: number) {}
 
@@ -10,7 +14,11 @@ export class Vec2 {
   }
 
   scalarMul(scalar: number) {
-    return new Vec2(scalar * this.x, scalar * this.y);
+    return new Vec2(this.x * scalar, this.y * scalar);
+  }
+
+  scalarDiv(scalar: number) {
+    return new Vec2(this.x / scalar, this.y / scalar);
   }
 
   lerp(other: Vec2, t: number) {
@@ -18,24 +26,29 @@ export class Vec2 {
   }
 }
 
-export class Rect {
+export class Rect implements BoundingBox {
   constructor(
-    readonly x: number,
-    readonly y: number,
-    readonly width: number,
-    readonly height: number
+    public x: number,
+    public y: number,
+    public w: number,
+    public h: number
   ) {}
 
-  pos() {
+  get xy() {
     return new Vec2(this.x, this.y);
   }
 
-  dim() {
-    return new Vec2(this.width, this.height);
+  get wh() {
+    return new Vec2(this.w, this.h);
+  }
+
+  set xy(xy: Vec2) {
+    this.x = xy.x;
+    this.y = xy.y;
   }
 
   aspectRatio() {
-    return this.width / this.height;
+    return this.w / this.h;
   }
 
   static fromEndPoints(p1: Vec2, p2: Vec2) {
@@ -51,35 +64,35 @@ export class Rect {
     return new Rect(
       this.x,
       this.y,
-      this.width > this.height ? this.width : aspectRatio * this.height,
-      this.width > this.height ? this.width / aspectRatio : this.height
+      this.w > this.h ? this.w : aspectRatio * this.h,
+      this.w > this.h ? this.w / aspectRatio : this.h
     );
   }
 
   midPoint() {
-    return new Vec2(this.x + this.width / 2, this.y + this.height / 2);
+    return new Vec2(this.x + this.w / 2, this.y + this.h / 2);
   }
 
   withMidPoint(midPoint: Vec2) {
     return new Rect(
-      midPoint.x - this.width / 2,
-      midPoint.y - this.height / 2,
-      this.width,
-      this.height
+      midPoint.x - this.w / 2,
+      midPoint.y - this.h / 2,
+      this.w,
+      this.h
     );
   }
-}
 
-export function pointRectIntersection(point: Vec2, rect: Rect) {
-  if (
-    point.x >= rect.x &&
-    point.x <= rect.x + rect.width &&
-    point.y >= rect.y &&
-    point.y <= rect.y + rect.height
-  ) {
-    return true;
+  pointIntersection(point: Vec2): boolean {
+    if (
+      point.x >= this.x &&
+      point.x <= this.x + this.w &&
+      point.y >= this.y &&
+      point.y <= this.y + this.h
+    ) {
+      return true;
+    }
+    return false;
   }
-  return false;
 }
 
 export function clamp(value: number, min: number, max: number) {

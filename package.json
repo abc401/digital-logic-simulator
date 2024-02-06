@@ -5,13 +5,14 @@
   "main": "index.js",
   "devDependencies": {
     "gh-pages": "^6.0.0",
+    "tsc-alias": "^1.8.8",
     "typescript": "^5.2.2"
   },
   "scripts": {
     "deploy": "gh-pages -d src",
     "predeploy": "npm run build",
-    "build": "tsc --build",
-    "watch": "tsc --watch"
+    "build": "tsc && tsc-alias",
+    "watch": "tsc && (concurrently \"tsc -w\" \"tsc-alias -w\")"
   },
   "author": "Awab Ahmed",
   "license": "MIT"

@@ -1,10 +1,10 @@
 import { Circuit } from "./circuit.js";
 import { assert, circuits, domLog } from "./main.js";
-import { Rect, Vec2, clamp, pointRectIntersection } from "./math.js";
+import { Rect, Vec2, clamp } from "./math.js";
 
 export let canvas: HTMLCanvasElement;
 export let ctx: CanvasRenderingContext2D;
-export let zoomScale = 1;
+export let zoomLevel = 1;
 const MAX_ZOOM = Infinity;
 const MIN_ZOOM = 0.2;
 export let panOffset = new Vec2(0, 0);
@@ -54,22 +54,22 @@ function setZooming(value: boolean) {
 
 export function worldToScreen(coord: Vec2) {
   return new Vec2(
-    coord.x * zoomScale + panOffset.x,
-    coord.y * zoomScale + panOffset.y
+    coord.x * zoomLevel + panOffset.x,
+    coord.y * zoomLevel + panOffset.y
   );
 }
 
 export function screenToWorld(coord: Vec2) {
   return new Vec2(
-    (coord.x - panOffset.x) / zoomScale,
-    (coord.y - panOffset.y) / zoomScale
+    (coord.x - panOffset.x) / zoomLevel,
+    (coord.y - panOffset.y) / zoomLevel
   );
 }
 
 function getCircuitUnderMouse(mouse: Vec2) {
   for (let i = 0; i < circuits.length; i++) {
     const circuitRect = circuits[i].screenRect();
-    if (pointRectIntersection(mouse, circuitRect)) {
+    if (circuitRect.pointIntersection(mouse)) {
       dragOffset = new Vec2(circuitRect.x - mouse.x, circuitRect.y - mouse.y);
       return circuits[i];
     }
@@ -92,7 +92,7 @@ function getRelevantTouch(ev: TouchEvent, relevantIdentifier: number) {
   return undefined;
 }
 
-export function init() {
+export function createCanvas() {
   let canvas_ = document.getElementById("main-canvas");
   assert(canvas_ != null, "The dom does not contain a canvas");
   canvas = canvas_ as HTMLCanvasElement;
@@ -100,6 +100,10 @@ export function init() {
   let ctx_ = canvas.getContext("2d");
   assert(ctx_ != null, "Could not get 2d context from canvas");
   ctx = ctx_ as CanvasRenderingContext2D;
+}
+
+export function init() {
+  createCanvas();
 
   // -----------------------------------------------------------
   canvas.addEventListener("mousedown", (ev) => {
@@ -152,7 +156,7 @@ export function init() {
         domLog("[mousemove] isDragging && circuitBeingDragged == null");
         throw Error();
       }
-      circuitBeingDragged.pos = screenToWorld(
+      circuitBeingDragged.rect.xy = screenToWorld(
         new Vec2(ev.offsetX, ev.offsetY).add(dragOffset)
       );
       return;
@@ -230,7 +234,7 @@ export function init() {
         touch.clientX - boundingBox.x,
         touch.clientY - boundingBox.y
       );
-      circuitBeingDragged.pos = screenToWorld(offset.add(dragOffset));
+      circuitBeingDragged.rect.xy = screenToWorld(offset.add(dragOffset));
     } else if (isZooming) {
       let touch0 = getRelevantTouch(ev, touches[0]);
       let touch1 = getRelevantTouch(ev, touches[1]);
@@ -285,10 +289,10 @@ export function init() {
       const zoomOrigin = zoomRectCurrent.midPoint();
       const zoomOriginInWorld = screenToWorld(zoomOrigin);
 
-      zoomScale *= zoomRectCurrent.width / zoomRectPrevious.width;
-      zoomScale = clamp(zoomScale, MIN_ZOOM, MAX_ZOOM);
+      zoomLevel *= zoomRectCurrent.w / zoomRectPrevious.w;
+      zoomLevel = clamp(zoomLevel, MIN_ZOOM, MAX_ZOOM);
 
-      panOffset = zoomOrigin.sub(zoomOriginInWorld.scalarMul(zoomScale));
+      panOffset = zoomOrigin.sub(zoomOriginInWorld.scalarMul(zoomLevel));
       panOffset = panOffset.add(
         zoomRectCurrent.midPoint().sub(zoomRectPrevious.midPoint())
       );
@@ -383,11 +387,11 @@ export function init() {
   canvas.addEventListener("wheel", function (ev) {
     setZooming(true);
     let worldMouse = screenToWorld(new Vec2(ev.offsetX, ev.offsetY));
-    zoomScale -= ev.deltaY * 0.001;
-    zoomScale = clamp(zoomScale, MIN_ZOOM, MAX_ZOOM);
+    zoomLevel -= ev.deltaY * 0.001;
+    zoomLevel = clamp(zoomLevel, MIN_ZOOM, MAX_ZOOM);
     panOffset = new Vec2(
-      ev.offsetX - worldMouse.x * zoomScale,
-      ev.offsetY - worldMouse.y * zoomScale
+      ev.offsetX - worldMouse.x * zoomLevel,
+      ev.offsetY - worldMouse.y * zoomLevel
     );
     ev.preventDefault();
   });

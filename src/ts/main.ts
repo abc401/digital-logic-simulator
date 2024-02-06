@@ -1,7 +1,10 @@
 import { Wire, Circuit } from "./circuit.js";
 import { Scheduler } from "./scheduler.js";
 
-import { init as canvasInit, ctx } from "./canvas.js";
+import { canvas, createCanvas as canvasInit, ctx } from "./canvas.js";
+import { SceneManager, VirtualObject } from "./scene-manager.js";
+import { ViewManager } from "./view-manager.js";
+import { InteractivityManager } from "@src/interactivity/manager.js";
 canvasInit();
 
 const SHOULD_LOG = true;
@@ -21,7 +24,7 @@ export function domLog(message: string) {
   if (loggingDom == null) {
     return;
   }
-  loggingDom.innerHTML += `${message}<br>`;
+  loggingDom.innerHTML = `${message}<br>`;
 }
 
 export function assert(
@@ -40,7 +43,10 @@ export function assert(
   throw Error(message);
 }
 
-let scheduler = new Scheduler();
+export let scheduler = new Scheduler();
+export let sceneManager = new SceneManager();
+export let viewManager = new ViewManager();
+export let interactivityManager = new InteractivityManager(canvas);
 
 //---------------------------------------------------------------------
 // S-R Latch
@@ -52,7 +58,6 @@ let sValue = true;
 const r = new Circuit(
   0,
   1,
-  scheduler,
   30,
   30,
   (self) => {
@@ -63,7 +68,6 @@ const r = new Circuit(
 const s = new Circuit(
   0,
   1,
-  scheduler,
   30,
   200,
   (self) => {
@@ -72,25 +76,25 @@ const s = new Circuit(
   true
 );
 
-const nor1 = new Circuit(2, 1, scheduler, 350, 80, (self) => {
+const nor1 = new Circuit(2, 1, 350, 80, (self) => {
   self.producerPins[0].setValue(
     !(self.consumerPins[0].value || self.consumerPins[1].value)
   );
 });
-const nor2 = new Circuit(2, 1, scheduler, 200, 200, (self) => {
+const nor2 = new Circuit(2, 1, 200, 200, (self) => {
   self.producerPins[0].setValue(
     !(self.consumerPins[0].value || self.consumerPins[1].value)
   );
 });
 
-console.log(nor2.worldRect());
+console.log(nor2.rect);
 
 export const circuits = [r, s, nor1, nor2];
 export const wires = [
-  new Wire(r, 0, nor1, 0, scheduler),
-  new Wire(s, 0, nor2, 1, scheduler),
-  new Wire(nor1, 0, nor2, 0, scheduler),
-  new Wire(nor2, 0, nor1, 1, scheduler),
+  new Wire(r, 0, nor1, 0),
+  new Wire(s, 0, nor2, 1),
+  new Wire(nor1, 0, nor2, 0),
+  new Wire(nor2, 0, nor1, 1),
 ];
 
 //---------------------------------------------------------------------

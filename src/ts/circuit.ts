@@ -1,14 +1,14 @@
 import { Vec2, Rect } from "./math.js";
-import { Scheduler } from "./scheduler.js";
-import { zoomScale, panOffset, worldToScreen } from "./canvas.js";
+import { zoomLevel, panOffset, worldToScreen } from "./canvas.js";
+import { ConcreteObjectKind, VirtualObject } from "./scene-manager.js";
+import { sceneManager, scheduler, viewManager } from "./main.js";
 
 export class Wire {
   constructor(
     readonly producerCircuit: Circuit,
     readonly producerPinIndex: number,
     readonly consumerCircuit: Circuit,
-    readonly consumerPinIndex: number,
-    readonly scheduler: Scheduler
+    readonly consumerPinIndex: number
   ) {
     producerCircuit.producerPins[producerPinIndex].wires.push(this);
 
@@ -26,7 +26,7 @@ export class Wire {
     }
     consumerPin.value = value;
 
-    this.scheduler.nextFrameEvents.enqueue(this.consumerCircuit);
+    scheduler.nextFrameEvents.enqueue(this.consumerCircuit);
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -38,7 +38,8 @@ export class Wire {
     } else {
       ctx.strokeStyle = "black";
     }
-    ctx.lineWidth = 10 * zoomScale;
+
+    ctx.lineWidth = 10 * viewManager.zoomLevel;
     ctx.beginPath();
     ctx.moveTo(from.x, from.y);
     ctx.lineTo(to.x, to.y);
@@ -47,7 +48,7 @@ export class Wire {
   }
 }
 
-class ConsumerPin {
+export class ConsumerPin {
   static radius = 10;
   // parentCircuit: Circuit;
   value: boolean;
@@ -60,7 +61,13 @@ class ConsumerPin {
     const pos = this.parentCircuit.getConsumerPinPos(this.pinIndex);
     ctx.fillStyle = "red";
     ctx.beginPath();
-    ctx.arc(pos.x, pos.y, ConsumerPin.radius * zoomScale, 0, 2 * Math.PI);
+    ctx.arc(
+      pos.x,
+      pos.y,
+      ConsumerPin.radius * viewManager.zoomLevel,
+      0,
+      2 * Math.PI
+    );
     if (this.value) {
       ctx.fillStyle = "red";
       ctx.fill();
@@ -74,7 +81,7 @@ class ConsumerPin {
   }
 }
 
-class ProducerPin {
+export class ProducerPin {
   static radius = 10;
   wires: Wire[];
   value: boolean;
@@ -103,7 +110,13 @@ class ProducerPin {
     const pos = this.parentCircuit.getProducerPinPos(this.pinIndex);
     ctx.fillStyle = "red";
     ctx.beginPath();
-    ctx.arc(pos.x, pos.y, ConsumerPin.radius * zoomScale, 0, 2 * Math.PI);
+    ctx.arc(
+      pos.x,
+      pos.y,
+      ConsumerPin.radius * viewManager.zoomLevel,
+      0,
+      2 * Math.PI
+    );
     if (this.value) {
       ctx.fillStyle = "red";
       ctx.fill();
@@ -117,13 +130,13 @@ class ProducerPin {
   }
 }
 
-type CircuitUpdateHandeler = (self: Circuit) => void;
+export type CircuitUpdateHandeler = (self: Circuit) => void;
 
 export class Circuit {
   static width = 100;
   static pinToPinDist = 70;
 
-  public pos: Vec2;
+  rect: Rect;
 
   isBeingHovered = false;
 
@@ -131,12 +144,10 @@ export class Circuit {
   producerPins: ProducerPin[];
 
   update: CircuitUpdateHandeler;
-  // scheduler: Scheduler;
 
   constructor(
     nConsumerPins: number,
     nProducerPins: number,
-    readonly scheduler: Scheduler,
     pos_x: number,
     pos_y: number,
     update: CircuitUpdateHandeler,
@@ -162,25 +173,38 @@ export class Circuit {
     for (let i = 0; i < this.producerPins.length; i++) {
       this.producerPins[i] = new ProducerPin(this, i);
     }
-    this.pos = new Vec2(pos_x, pos_y);
+
     this.update = update;
     this.update(this);
 
     if (isInput) {
       scheduler.recurringEvents.push(this);
     }
+
+    this.rect = new Rect(
+      pos_x,
+      pos_y,
+      Circuit.width,
+      this.consumerPins.length > this.producerPins.length
+        ? this.consumerPins.length * 70
+        : this.producerPins.length * 70
+    );
+
+    sceneManager.track(this.getVirtualObject());
   }
 
   getProducerPinPos(pinIndex: number) {
     const rect = this.screenRect();
     return new Vec2(
-      rect.x + rect.width,
-      rect.y + pinIndex * Circuit.pinToPinDist * zoomScale
+      rect.x + rect.w,
+      rect.y + pinIndex * Circuit.pinToPinDist * zoomLevel
     );
   }
 
   getConsumerPinPos(pinIndex: number) {
-    return worldToScreen(new Vec2(this.pos.x, this.pos.y + pinIndex * 70));
+    return viewManager.worldToScreen(
+      new Vec2(this.rect.x, this.rect.y + pinIndex * 70)
+    );
     // pos.x * zoomScale + panOffset.x,
     // pos.y * zoomScale + panOffset.y,
     // ConsumerPin.radius * zoomScale,
@@ -188,29 +212,19 @@ export class Circuit {
     // 2 * Math.PI
   }
 
-  screenRect() {
-    return new Rect(
-      this.pos.x * zoomScale + panOffset.x,
-      this.pos.y * zoomScale + panOffset.y,
-      Circuit.width * zoomScale,
-      (this.consumerPins.length > this.producerPins.length
-        ? this.consumerPins.length * 70
-        : this.producerPins.length * 70) * zoomScale
-    );
-  }
-  worldRect() {
-    return new Rect(
-      this.pos.x,
-      this.pos.y,
-      Circuit.width,
-      this.consumerPins.length > this.producerPins.length
-        ? this.consumerPins.length * 70
-        : this.producerPins.length * 70
-    );
+  getVirtualObject() {
+    return new VirtualObject(ConcreteObjectKind.Circuit, this, this.rect);
   }
 
-  setPos(point: Vec2) {
-    this.pos = point;
+  screenRect() {
+    return new Rect(
+      this.rect.x * viewManager.zoomLevel + viewManager.panOffset.x,
+      this.rect.y * viewManager.zoomLevel + viewManager.panOffset.y,
+      Circuit.width * viewManager.zoomLevel,
+      (this.consumerPins.length > this.producerPins.length
+        ? this.consumerPins.length * 70
+        : this.producerPins.length * 70) * viewManager.zoomLevel
+    );
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -225,8 +239,8 @@ export class Circuit {
     ctx.fillRect(
       boundingRect.x,
       boundingRect.y,
-      boundingRect.width,
-      boundingRect.height
+      boundingRect.w,
+      boundingRect.h
     );
     if (this.isBeingHovered) {
       ctx.strokeStyle = "black";
@@ -234,8 +248,8 @@ export class Circuit {
       ctx.strokeRect(
         boundingRect.x,
         boundingRect.y,
-        boundingRect.width,
-        boundingRect.height
+        boundingRect.w,
+        boundingRect.h
       );
     }
   }
