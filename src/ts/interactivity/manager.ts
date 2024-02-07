@@ -5,9 +5,31 @@ export let zoomLevel = 1;
 export let panOffset = new Vec2(0, 0);
 
 export enum MouseButton {
-  Primary = 0,
-  Auxiliary = 1,
+  None = 0,
+  Primary = 1,
   Secondary = 2,
+  Auxiliary = 4,
+  Fourth = 8,
+  Fifth = 16,
+}
+
+function encodeMouseButton(button: number) {
+  if (button === 0) {
+    return MouseButton.Primary;
+  }
+  if (button === 1) {
+    return MouseButton.Auxiliary;
+  }
+  if (button === 2) {
+    return MouseButton.Secondary;
+  }
+  if (button === 3) {
+    return MouseButton.Fourth;
+  }
+  if (button === 4) {
+    return MouseButton.Fifth;
+  }
+  throw Error(`Unexpected Mouse Button: ${button}`);
 }
 
 export enum ActionKind {
@@ -42,7 +64,15 @@ export class MouseUpPayload implements ActionPayload {
 }
 
 export class MouseMovePayload implements ActionPayload {
-  constructor(readonly loc: Vec2, readonly movement: Vec2) {}
+  constructor(
+    readonly loc: Vec2,
+    readonly movement: Vec2,
+    readonly buttons: number
+  ) {}
+}
+
+export class ScrollPayload implements ActionPayload {
+  constructor(readonly loc: Vec2, readonly delta: Vec2) {}
 }
 
 export interface InteractivityManagerState {
@@ -58,44 +88,39 @@ export class InteractivityManager {
     this.state = new Home();
 
     canvas.addEventListener("mousedown", (ev) => {
-      this.state.update(
-        this,
-        new Action(
-          ActionKind.MouseDown,
-          new MouseDownPayload(
-            new Vec2(ev.offsetX, ev.offsetY),
-            ev.button,
-            ev.buttons
-          )
-        )
+      let payload = new MouseDownPayload(
+        new Vec2(ev.offsetX, ev.offsetY),
+        encodeMouseButton(ev.button),
+        ev.buttons
       );
+      this.state.update(this, new Action(ActionKind.MouseDown, payload));
     });
 
     canvas.addEventListener("mouseup", (ev) => {
-      if (ev.button & ev.buttons) {
-        console.log("[MouseUp] ev.button is included in ev.buttons");
-      }
-
-      this.state.update(
-        this,
-        new Action(
-          ActionKind.MouseUp,
-          new MouseUpPayload(ev.button, ev.buttons)
-        )
+      let payload = new MouseUpPayload(
+        encodeMouseButton(ev.button),
+        ev.buttons
       );
+
+      this.state.update(this, new Action(ActionKind.MouseUp, payload));
     });
 
     canvas.addEventListener("mousemove", (ev) => {
-      this.state.update(
-        this,
-        new Action(
-          ActionKind.MouseMove,
-          new MouseMovePayload(
-            new Vec2(ev.offsetX, ev.offsetY),
-            new Vec2(ev.movementX, ev.movementY)
-          )
-        )
+      let payload = new MouseMovePayload(
+        new Vec2(ev.offsetX, ev.offsetY),
+        new Vec2(ev.movementX, ev.movementY),
+        ev.buttons
       );
+      this.state.update(this, new Action(ActionKind.MouseMove, payload));
+    });
+    canvas.addEventListener("wheel", (ev) => {
+      let payload = new ScrollPayload(
+        new Vec2(ev.offsetX, ev.offsetY),
+        new Vec2(ev.deltaX, ev.deltaY)
+      );
+      this.state.update(this, new Action(ActionKind.Scroll, payload));
+
+      ev.preventDefault();
     });
   }
 }
