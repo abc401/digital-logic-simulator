@@ -136,7 +136,7 @@ export class Circuit {
   static width = 100;
   static pinToPinDist = 70;
 
-  rect: Rect;
+  rectW: Rect;
 
   isBeingHovered = false;
 
@@ -181,7 +181,7 @@ export class Circuit {
       scheduler.recurringEvents.push(this);
     }
 
-    this.rect = new Rect(
+    this.rectW = new Rect(
       pos_x,
       pos_y,
       Circuit.width,
@@ -203,7 +203,7 @@ export class Circuit {
 
   getConsumerPinPos(pinIndex: number) {
     return viewManager.worldToScreen(
-      new Vec2(this.rect.x, this.rect.y + pinIndex * 70)
+      new Vec2(this.rectW.x, this.rectW.y + pinIndex * 70)
     );
     // pos.x * zoomScale + panOffset.x,
     // pos.y * zoomScale + panOffset.y,
@@ -213,13 +213,13 @@ export class Circuit {
   }
 
   getVirtualObject() {
-    return new VirtualObject(ConcreteObjectKind.Circuit, this, this.rect);
+    return new VirtualObject(ConcreteObjectKind.Circuit, this, this.rectW);
   }
 
   screenRect() {
     return new Rect(
-      this.rect.x * viewManager.zoomLevel + viewManager.panOffset.x,
-      this.rect.y * viewManager.zoomLevel + viewManager.panOffset.y,
+      this.rectW.x * viewManager.zoomLevel + viewManager.panOffset.x,
+      this.rectW.y * viewManager.zoomLevel + viewManager.panOffset.y,
       Circuit.width * viewManager.zoomLevel,
       (this.consumerPins.length > this.producerPins.length
         ? this.consumerPins.length * 70

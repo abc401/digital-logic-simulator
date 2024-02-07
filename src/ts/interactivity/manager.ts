@@ -1,8 +1,6 @@
 import { Vec2 } from "@src/math.js";
 import { Home } from "./states/home.js";
-
-export let zoomLevel = 1;
-export let panOffset = new Vec2(0, 0);
+import { viewManager } from "@src/main.js";
 
 export enum MouseButton {
   None = 0,
@@ -53,7 +51,7 @@ export class Action {
 
 export class MouseDownPayload implements ActionPayload {
   constructor(
-    readonly loc: Vec2,
+    readonly locScr: Vec2,
     readonly button: number,
     readonly buttons: number
   ) {}
@@ -65,14 +63,10 @@ export class MouseUpPayload implements ActionPayload {
 
 export class MouseMovePayload implements ActionPayload {
   constructor(
-    readonly loc: Vec2,
-    readonly movement: Vec2,
+    readonly locScr: Vec2,
+    readonly deltaScr: Vec2,
     readonly buttons: number
   ) {}
-}
-
-export class ScrollPayload implements ActionPayload {
-  constructor(readonly loc: Vec2, readonly delta: Vec2) {}
 }
 
 export interface InteractivityManagerState {
@@ -114,11 +108,10 @@ export class InteractivityManager {
       this.state.update(this, new Action(ActionKind.MouseMove, payload));
     });
     canvas.addEventListener("wheel", (ev) => {
-      let payload = new ScrollPayload(
+      viewManager.zoom(
         new Vec2(ev.offsetX, ev.offsetY),
-        new Vec2(ev.deltaX, ev.deltaY)
+        viewManager.zoomLevel - ev.deltaY * 0.001
       );
-      this.state.update(this, new Action(ActionKind.Scroll, payload));
 
       ev.preventDefault();
     });

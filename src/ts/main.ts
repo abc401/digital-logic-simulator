@@ -55,7 +55,7 @@ export let interactivityManager = new InteractivityManager(canvas);
 let rValue = true;
 let sValue = true;
 
-const r = new Circuit(
+export const r = new Circuit(
   0,
   1,
   30,
@@ -87,7 +87,7 @@ const nor2 = new Circuit(2, 1, 200, 200, (self) => {
   );
 });
 
-console.log(nor2.rect);
+console.log(nor2.rectW);
 
 export const circuits = [r, s, nor1, nor2];
 export const wires = [

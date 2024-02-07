@@ -1,12 +1,5 @@
-import {
-  Circuit,
-  CircuitUpdateHandeler,
-  ConsumerPin,
-  ProducerPin,
-  Wire,
-} from "./circuit";
-import { BoundingBox, Vec2 } from "./math";
-import { Scheduler } from "./scheduler";
+import { viewManager } from "./main.js";
+import { BoundingBox, Vec2 } from "./math.js";
 
 export enum ConcreteObjectKind {
   Circuit,
@@ -41,10 +34,15 @@ export class SceneManager {
     this.virtualObjects.push(object);
   }
 
-  getObjectAt(coord: Vec2) {
+  getObjectAt(locS: Vec2) {
     for (let i = 0; i < this.virtualObjects.length; i++) {
       let virtualObject = this.virtualObjects[i];
-      if (virtualObject.boundingBox.pointIntersection(coord)) {
+
+      if (
+        virtualObject.boundingBox.pointIntersection(
+          viewManager.screenToWorld(locS)
+        )
+      ) {
         return virtualObject;
       }
     }

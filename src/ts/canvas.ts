@@ -156,7 +156,7 @@ export function init() {
         domLog("[mousemove] isDragging && circuitBeingDragged == null");
         throw Error();
       }
-      circuitBeingDragged.rect.xy = screenToWorld(
+      circuitBeingDragged.rectW.xy = screenToWorld(
         new Vec2(ev.offsetX, ev.offsetY).add(dragOffset)
       );
       return;
@@ -234,7 +234,7 @@ export function init() {
         touch.clientX - boundingBox.x,
         touch.clientY - boundingBox.y
       );
-      circuitBeingDragged.rect.xy = screenToWorld(offset.add(dragOffset));
+      circuitBeingDragged.rectW.xy = screenToWorld(offset.add(dragOffset));
     } else if (isZooming) {
       let touch0 = getRelevantTouch(ev, touches[0]);
       let touch1 = getRelevantTouch(ev, touches[1]);

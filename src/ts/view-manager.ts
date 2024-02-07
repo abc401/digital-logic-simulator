@@ -10,26 +10,22 @@ export class ViewManager {
     this.panOffset = new Vec2(0, 0);
   }
 
-  setZoomLevel(zoomLevel: number) {
-    this.zoomLevel = clamp(zoomLevel, MIN_ZOOM, MAX_ZOOM);
-  }
-
-  getZoomLevel() {
-    return this.zoomLevel;
-  }
-
   pan(amount: Vec2) {
     this.panOffset = this.panOffset.add(amount);
   }
 
-  zoom(origin: Vec2, multiplier: number) {}
+  zoom(zoomOriginS: Vec2, newZoomLevel: number) {
+    newZoomLevel = clamp(newZoomLevel, MIN_ZOOM, MAX_ZOOM);
 
-  applyZoomScalar(scalar: number) {
-    return scalar * this.zoomLevel;
-  }
+    if (this.zoomLevel !== newZoomLevel) {
+      let zoomOriginW = this.screenToWorld(zoomOriginS);
+      this.zoomLevel = newZoomLevel;
 
-  applyZoom(coord: Vec2) {
-    return coord.scalarMul(this.zoomLevel);
+      this.panOffset = new Vec2(
+        zoomOriginS.x - zoomOriginW.x * this.zoomLevel,
+        zoomOriginS.y - zoomOriginW.y * this.zoomLevel
+      );
+    }
   }
 
   worldToScreen(coord: Vec2) {

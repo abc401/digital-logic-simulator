@@ -7,11 +7,8 @@ import {
   MouseButton,
   MouseMovePayload,
   MouseUpPayload,
-  ScrollPayload,
 } from "@src/interactivity/manager.js";
-import { Home, zoom } from "./home.js";
-import { MAX_ZOOM, MIN_ZOOM } from "@src/config.js";
-import { Vec2, clamp } from "@src/math.js";
+import { Home } from "./home.js";
 
 export class Panning implements InteractivityManagerState {
   constructor() {
@@ -28,13 +25,8 @@ export class Panning implements InteractivityManagerState {
     }
     if (action.kind === ActionKind.MouseMove) {
       let payload = action.payload as MouseMovePayload;
-      viewManager.pan(payload.movement);
+      viewManager.pan(payload.deltaScr);
       return;
     }
-    // if (action.kind === ActionKind.Scroll) {
-    //   domLog("Panning + Zooming");
-    //   let payload = action.payload as ScrollPayload;
-    //   zoom(payload.loc, payload.delta);
-    // }
   }
 }
