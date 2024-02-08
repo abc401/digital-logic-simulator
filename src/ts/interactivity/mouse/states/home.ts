@@ -1,12 +1,12 @@
-import { domLog, r, sceneManager, viewManager } from "@src/main.js";
+import { logState, r, sceneManager, viewManager } from "@src/main.js";
 import {
-  Action,
-  ActionKind,
-  InteractivityManager,
-  InteractivityManagerState,
+  MouseAction,
+  MouseActionKind,
+  MouseStateMachine,
+  MouseState,
   MouseButton,
   MouseDownPayload,
-} from "../manager.js";
+} from "../state-machine.js";
 import { Panning } from "./panning.js";
 import { Vec2, clamp } from "@src/math.js";
 import { MAX_ZOOM, MIN_ZOOM } from "@src/config.js";
@@ -14,20 +14,20 @@ import { ConcreteObjectKind } from "@src/scene-manager.js";
 import { Dragging } from "./dragging.js";
 import { Circuit } from "@src/circuit.js";
 
-export class Home implements InteractivityManagerState {
+export class Home implements MouseState {
   constructor() {
-    domLog("Home");
+    logState("Home");
   }
 
-  update(manager: InteractivityManager, action: Action): void {
-    if (action.kind === ActionKind.MouseDown) {
+  update(manager: MouseStateMachine, action: MouseAction): void {
+    if (action.kind === MouseActionKind.MouseDown) {
       let payload = action.payload as MouseDownPayload;
       if (payload.button !== MouseButton.Primary) {
         return;
       }
 
       console.log("[Home] Click Location: ", payload.locScr);
-      console.log("R rect: ", r.rectW);
+      console.log("R rect: ", r.rectWrl);
       let focusObject = sceneManager.getObjectAt(payload.locScr);
       if (focusObject == null) {
         manager.state = new Panning();
@@ -38,7 +38,7 @@ export class Home implements InteractivityManagerState {
 
         manager.state = new Dragging(
           circuit,
-          circuit.rectW.xy.sub(viewManager.screenToWorld(payload.locScr))
+          circuit.rectWrl.xy.sub(viewManager.screenToWorld(payload.locScr))
         );
       }
     }

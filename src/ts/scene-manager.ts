@@ -34,13 +34,13 @@ export class SceneManager {
     this.virtualObjects.push(object);
   }
 
-  getObjectAt(locS: Vec2) {
+  getObjectAt(locScr: Vec2) {
     for (let i = 0; i < this.virtualObjects.length; i++) {
       let virtualObject = this.virtualObjects[i];
 
       if (
         virtualObject.boundingBox.pointIntersection(
-          viewManager.screenToWorld(locS)
+          viewManager.screenToWorld(locScr)
         )
       ) {
         return virtualObject;

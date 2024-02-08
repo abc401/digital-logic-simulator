@@ -1,6 +1,7 @@
 import { Vec2 } from "@src/math.js";
 import { Home } from "./states/home.js";
 import { viewManager } from "@src/main.js";
+import { canvas } from "@src/canvas.js";
 
 export enum MouseButton {
   None = 0,
@@ -30,26 +31,26 @@ function encodeMouseButton(button: number) {
   throw Error(`Unexpected Mouse Button: ${button}`);
 }
 
-export enum ActionKind {
+export enum MouseActionKind {
   MouseDown,
   MouseUp,
   MouseMove,
   Scroll,
 }
 
-export interface ActionPayload {}
+export interface MouseActionPayload {}
 
-export class Action {
-  kind: ActionKind;
-  payload: ActionPayload;
+export class MouseAction {
+  kind: MouseActionKind;
+  payload: MouseActionPayload;
 
-  constructor(kind: ActionKind, payload: ActionPayload) {
+  constructor(kind: MouseActionKind, payload: MouseActionPayload) {
     this.kind = kind;
     this.payload = payload;
   }
 }
 
-export class MouseDownPayload implements ActionPayload {
+export class MouseDownPayload implements MouseActionPayload {
   constructor(
     readonly locScr: Vec2,
     readonly button: number,
@@ -57,11 +58,11 @@ export class MouseDownPayload implements ActionPayload {
   ) {}
 }
 
-export class MouseUpPayload implements ActionPayload {
+export class MouseUpPayload implements MouseActionPayload {
   constructor(readonly button: number, readonly buttons: number) {}
 }
 
-export class MouseMovePayload implements ActionPayload {
+export class MouseMovePayload implements MouseActionPayload {
   constructor(
     readonly locScr: Vec2,
     readonly deltaScr: Vec2,
@@ -69,16 +70,14 @@ export class MouseMovePayload implements ActionPayload {
   ) {}
 }
 
-export interface InteractivityManagerState {
-  update(manager: InteractivityManager, action: Action): void;
+export interface MouseState {
+  update(manager: MouseStateMachine, action: MouseAction): void;
 }
 
-export class InteractivityManager {
-  canvas: HTMLCanvasElement;
-  state: InteractivityManagerState;
+export class MouseStateMachine {
+  state: MouseState;
 
-  constructor(canvas: HTMLCanvasElement) {
-    this.canvas = canvas;
+  constructor() {
     this.state = new Home();
 
     canvas.addEventListener("mousedown", (ev) => {
@@ -87,7 +86,10 @@ export class InteractivityManager {
         encodeMouseButton(ev.button),
         ev.buttons
       );
-      this.state.update(this, new Action(ActionKind.MouseDown, payload));
+      this.state.update(
+        this,
+        new MouseAction(MouseActionKind.MouseDown, payload)
+      );
     });
 
     canvas.addEventListener("mouseup", (ev) => {
@@ -96,7 +98,10 @@ export class InteractivityManager {
         ev.buttons
       );
 
-      this.state.update(this, new Action(ActionKind.MouseUp, payload));
+      this.state.update(
+        this,
+        new MouseAction(MouseActionKind.MouseUp, payload)
+      );
     });
 
     canvas.addEventListener("mousemove", (ev) => {
@@ -105,7 +110,10 @@ export class InteractivityManager {
         new Vec2(ev.movementX, ev.movementY),
         ev.buttons
       );
-      this.state.update(this, new Action(ActionKind.MouseMove, payload));
+      this.state.update(
+        this,
+        new MouseAction(MouseActionKind.MouseMove, payload)
+      );
     });
     canvas.addEventListener("wheel", (ev) => {
       viewManager.zoom(

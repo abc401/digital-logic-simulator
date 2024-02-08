@@ -1,29 +1,29 @@
-import { domLog, viewManager } from "@src/main.js";
+import { logState, viewManager } from "@src/main.js";
 import {
-  Action,
-  ActionKind,
-  InteractivityManager,
-  InteractivityManagerState,
+  MouseAction,
+  MouseActionKind,
+  MouseStateMachine,
+  MouseState,
   MouseButton,
   MouseMovePayload,
   MouseUpPayload,
-} from "@src/interactivity/manager.js";
+} from "@src/interactivity/mouse/state-machine.js";
 import { Home } from "./home.js";
 
-export class Panning implements InteractivityManagerState {
+export class Panning implements MouseState {
   constructor() {
-    domLog("Panning");
+    logState("Panning");
   }
 
-  update(manager: InteractivityManager, action: Action): void {
-    if (action.kind === ActionKind.MouseUp) {
+  update(manager: MouseStateMachine, action: MouseAction): void {
+    if (action.kind === MouseActionKind.MouseUp) {
       let payload = action.payload as MouseUpPayload;
       if (payload.button === MouseButton.Primary) {
         manager.state = new Home();
         return;
       }
     }
-    if (action.kind === ActionKind.MouseMove) {
+    if (action.kind === MouseActionKind.MouseMove) {
       let payload = action.payload as MouseMovePayload;
       viewManager.pan(payload.deltaScr);
       return;

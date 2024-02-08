@@ -4,27 +4,30 @@ import { Scheduler } from "./scheduler.js";
 import { canvas, createCanvas as canvasInit, ctx } from "./canvas.js";
 import { SceneManager, VirtualObject } from "./scene-manager.js";
 import { ViewManager } from "./view-manager.js";
-import { InteractivityManager } from "@src/interactivity/manager.js";
+import { MouseStateMachine } from "@src/interactivity/mouse/state-machine.js";
+import { TouchScreenStateMachine } from "./interactivity/touchscreen/state-machine.js";
 canvasInit();
-
-const SHOULD_LOG = true;
-if (!SHOULD_LOG) {
-  console.log = () => {};
-  console.info = () => {};
-  console.debug = () => {};
-  console.error = () => {};
-}
 
 export const loggingDom = document.getElementById("logging");
 if (loggingDom == null) {
   console.info("No logging dom!");
 }
-
 export function domLog(message: string) {
   if (loggingDom == null) {
     return;
   }
-  loggingDom.innerHTML = `${message}<br>`;
+  loggingDom.innerHTML += `${message}<br>`;
+}
+
+export const stateDom = document.getElementById("state");
+if (stateDom == null) {
+  console.log("No State Dom");
+}
+export function logState(message: string) {
+  if (stateDom == null) {
+    return;
+  }
+  stateDom.innerHTML = `${message}<br>`;
 }
 
 export function assert(
@@ -35,10 +38,10 @@ export function assert(
     return;
   }
   if (message == null) {
-    domLog("Assertion failed");
+    logState("Assertion failed");
     throw Error();
   } else {
-    domLog(message);
+    logState(message);
   }
   throw Error(message);
 }
@@ -46,7 +49,8 @@ export function assert(
 export let scheduler = new Scheduler();
 export let sceneManager = new SceneManager();
 export let viewManager = new ViewManager();
-export let interactivityManager = new InteractivityManager(canvas);
+export let mouseStateMachine = new MouseStateMachine();
+export let touchScreenStateMachine = new TouchScreenStateMachine();
 
 //---------------------------------------------------------------------
 // S-R Latch
@@ -87,7 +91,7 @@ const nor2 = new Circuit(2, 1, 200, 200, (self) => {
   );
 });
 
-console.log(nor2.rectW);
+console.log(nor2.rectWrl);
 
 export const circuits = [r, s, nor1, nor2];
 export const wires = [

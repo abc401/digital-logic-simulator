@@ -8,6 +8,7 @@
 #main-canvas {
   outline: solid red 1px;
   outline-offset: -1px;
+  touch-action: none;
 }
 
 #root {
