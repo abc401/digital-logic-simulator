@@ -12,6 +12,7 @@ import { Home } from "./home.js";
 import { Zooming } from "./zooming.js";
 
 export class Panning implements TouchScreenState {
+  stateName = "Panning";
   constructor(readonly touchId: number) {
     logState("TSPanning");
   }

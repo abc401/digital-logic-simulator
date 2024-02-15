@@ -24,6 +24,18 @@ export class Vec2 {
   lerp(other: Vec2, t: number) {
     return this.add(other.sub(this).scalarMul(t));
   }
+
+  mag() {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
+}
+
+export class Circle implements BoundingBox {
+  constructor(public getLoc: () => Vec2, public radius: number) {}
+
+  pointIntersection(point: Vec2): boolean {
+    return point.sub(this.getLoc()).mag() < this.radius;
+  }
 }
 
 export class Rect implements BoundingBox {

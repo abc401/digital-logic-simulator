@@ -19,6 +19,7 @@ export class TouchEndPayload implements TouchActionPayload {
 }
 
 export interface TouchScreenState {
+  stateName: string;
   touchStart(
     stateMachine: TouchScreenStateMachine,
     payload: TouchStartPayload
@@ -51,9 +52,16 @@ export class TouchScreenStateMachine {
   constructor() {
     this.state = new Home();
     this.touchLocHistoryScr = new Map();
+    document.addEventListener("touchmove", (ev) => {
+      if (this.state.stateName === "Home") {
+        return;
+      }
+      ev.preventDefault();
+    });
 
     canvas.addEventListener("touchstart", (ev) => {
       console.log("Touchstart");
+      ev.preventDefault();
       let relaventTouches = new Array<Touch>();
 
       for (let i = 0; i < ev.changedTouches.length; i++) {
@@ -79,12 +87,11 @@ export class TouchScreenStateMachine {
           )
         );
       }
-
-      ev.preventDefault();
     });
 
     canvas.addEventListener("touchmove", (ev) => {
       console.log("touchmove");
+      ev.preventDefault();
 
       this.state.touchMove(this, new TouchMovePayload(ev.changedTouches));
 
@@ -99,25 +106,22 @@ export class TouchScreenStateMachine {
           )
         );
       }
-
-      ev.preventDefault();
     });
 
     canvas.addEventListener("touchcancel", (ev) => {
-      this.state.touchEnd(this, new TouchEndPayload(ev.changedTouches));
       ev.preventDefault();
+      this.state.touchEnd(this, new TouchEndPayload(ev.changedTouches));
     });
 
     canvas.addEventListener("touchend", (ev) => {
       console.log("touchend");
+      ev.preventDefault();
 
       this.state.touchEnd(this, new TouchEndPayload(ev.changedTouches));
 
       for (let i = 0; i < ev.changedTouches.length; i++) {
         this.touchLocHistoryScr.delete(ev.changedTouches[i].identifier);
       }
-
-      ev.preventDefault();
     });
   }
 }

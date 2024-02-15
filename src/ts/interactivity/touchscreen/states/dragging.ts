@@ -1,4 +1,4 @@
-import { Circuit } from "@src/circuit.js";
+import { Circuit } from "@src/interactables.js";
 import {
   TouchEndPayload,
   TouchMovePayload,
@@ -13,6 +13,7 @@ import { Home } from "./home.js";
 import { Zooming } from "./zooming.js";
 
 export class Dragging implements TouchScreenState {
+  stateName = "Dragging";
   constructor(
     private circuit: Circuit,
     private touchId: number,

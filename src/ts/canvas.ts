@@ -1,4 +1,4 @@
-import { Circuit } from "./circuit.js";
+import { Circuit } from "./interactables.js";
 import { assert, circuits, domLog, logState } from "./main.js";
 import { Rect, Vec2, clamp } from "./math.js";
 

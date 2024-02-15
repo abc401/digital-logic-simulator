@@ -8,12 +8,13 @@ import {
 } from "../state-machine.js";
 import { Vec2 } from "@src/math.js";
 import { sceneManager, viewManager, logState } from "@src/main.js";
-import { Circuit } from "@src/circuit.js";
+import { Circuit } from "@src/interactables.js";
 import { Dragging } from "./dragging.js";
 import { Panning } from "./panning.js";
 import { Zooming } from "./zooming.js";
 
 export class Home implements TouchScreenState {
+  stateName = "Home";
   constructor() {
     logState("TSHome");
   }

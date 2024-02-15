@@ -53,8 +53,8 @@ export class Queue<T> {
       this.tail = (this.tail + 1) % this.items.length;
       this.items[this.tail] = item;
     }
-    console.log("Enqueued: ", item);
-    console.log("Queue: ", this);
+    // console.log("Enqueued: ", item);
+    // console.log("Queue: ", this);
   }
 
   dequeue() {

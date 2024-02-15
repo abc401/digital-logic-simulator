@@ -6,41 +6,72 @@ import {
   MouseState,
   MouseButton,
   MouseDownPayload,
+  MouseMovePayload,
+  MouseUpPayload,
 } from "../state-machine.js";
 import { Panning } from "./panning.js";
-import { Vec2, clamp } from "@src/math.js";
-import { MAX_ZOOM, MIN_ZOOM } from "@src/config.js";
-import { ConcreteObjectKind } from "@src/scene-manager.js";
+import { ConcreteObjectKind, VirtualObject } from "@src/scene-manager.js";
 import { Dragging } from "./dragging.js";
-import { Circuit } from "@src/circuit.js";
+import { Circuit, ConsumerPin, ProducerPin, Wire } from "@src/interactables.js";
+import { Circle } from "@src/math.js";
+import { ctx } from "@src/canvas.js";
+import { CreatingWire } from "./creating-wire.js";
 
 export class Home implements MouseState {
   constructor() {
     logState("Home");
   }
+  mouseDown(stateMachine: MouseStateMachine, payload: MouseDownPayload): void {
+    if (payload.button !== MouseButton.Primary) {
+      return;
+    }
 
-  update(manager: MouseStateMachine, action: MouseAction): void {
-    if (action.kind === MouseActionKind.MouseDown) {
-      let payload = action.payload as MouseDownPayload;
-      if (payload.button !== MouseButton.Primary) {
+    let focusObject = sceneManager.getObjectAt(payload.locScr);
+
+    if (focusObject == null) {
+      console.log("Focus Object == null");
+      stateMachine.state = new Panning();
+      return;
+    }
+
+    console.log("Focus Object kind: ", focusObject.kind);
+
+    if (focusObject.kind === ConcreteObjectKind.Circuit) {
+      let circuit = focusObject.concreteObject as Circuit;
+
+      stateMachine.state = new Dragging(
+        circuit,
+        circuit.rectWrl.xy.sub(viewManager.screenToWorld(payload.locScr))
+      );
+    }
+
+    if (focusObject.kind === ConcreteObjectKind.ProducerPin) {
+      const pin = focusObject.concreteObject as ProducerPin;
+      if (pin.wires.length > 0) {
         return;
       }
+      const wire = new Wire(pin, undefined);
+      wire.toScr = payload.locScr;
+      stateMachine.state = new CreatingWire(wire);
+      return;
+    }
 
-      console.log("[Home] Click Location: ", payload.locScr);
-      console.log("R rect: ", r.rectWrl);
-      let focusObject = sceneManager.getObjectAt(payload.locScr);
-      if (focusObject == null) {
-        manager.state = new Panning();
-        return;
-      }
-      if (focusObject.kind === ConcreteObjectKind.Circuit) {
-        let circuit = focusObject.concreteObject as Circuit;
+    if (focusObject.kind === ConcreteObjectKind.ConsumerPin) {
+      const pin = focusObject.concreteObject as ConsumerPin;
 
-        manager.state = new Dragging(
-          circuit,
-          circuit.rectWrl.xy.sub(viewManager.screenToWorld(payload.locScr))
-        );
+      if (pin.wire != null) {
+        pin.wire.detach();
       }
+
+      const wire = new Wire(undefined, pin);
+      wire.fromScr = payload.locScr;
+
+      stateMachine.state = new CreatingWire(wire);
+      return;
     }
   }
+
+  mouseMove(manager: MouseStateMachine, payload: MouseMovePayload): void {}
+
+  mouseUp(manager: MouseStateMachine, payload: MouseUpPayload): void {}
 }

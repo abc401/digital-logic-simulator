@@ -2,24 +2,24 @@ import { viewManager } from "./main.js";
 import { BoundingBox, Vec2 } from "./math.js";
 
 export enum ConcreteObjectKind {
-  Circuit,
-  Wire,
-  InputPin,
-  OutputPin,
+  Circuit = "Circuit",
+  Wire = "Wire",
+  ConsumerPin = "ConsumerPin",
+  ProducerPin = "ProducerPin",
 }
 
 export class VirtualObject {
   kind: ConcreteObjectKind;
   concreteObject: any;
-  boundingBox: BoundingBox;
+  boundingBoxWrl: BoundingBox;
   constructor(
     kind: ConcreteObjectKind,
     concreteObject: any,
-    boundingBox: BoundingBox
+    boundingBoxWrl: BoundingBox
   ) {
     this.kind = kind;
     this.concreteObject = concreteObject;
-    this.boundingBox = boundingBox;
+    this.boundingBoxWrl = boundingBoxWrl;
   }
 }
 
@@ -39,10 +39,11 @@ export class SceneManager {
       let virtualObject = this.virtualObjects[i];
 
       if (
-        virtualObject.boundingBox.pointIntersection(
+        virtualObject.boundingBoxWrl.pointIntersection(
           viewManager.screenToWorld(locScr)
         )
       ) {
+        // console.log(`${virtualObject.kind}: `, virtualObject.concreteObject);
         return virtualObject;
       }
     }

@@ -35,7 +35,6 @@ export enum MouseActionKind {
   MouseDown,
   MouseUp,
   MouseMove,
-  Scroll,
 }
 
 export interface MouseActionPayload {}
@@ -59,7 +58,11 @@ export class MouseDownPayload implements MouseActionPayload {
 }
 
 export class MouseUpPayload implements MouseActionPayload {
-  constructor(readonly button: number, readonly buttons: number) {}
+  constructor(
+    readonly button: number,
+    readonly buttons: number,
+    readonly locScr: Vec2
+  ) {}
 }
 
 export class MouseMovePayload implements MouseActionPayload {
@@ -71,7 +74,9 @@ export class MouseMovePayload implements MouseActionPayload {
 }
 
 export interface MouseState {
-  update(manager: MouseStateMachine, action: MouseAction): void;
+  mouseDown(stateMachine: MouseStateMachine, payload: MouseDownPayload): void;
+  mouseUp(stateMachine: MouseStateMachine, payload: MouseUpPayload): void;
+  mouseMove(stateMachine: MouseStateMachine, payload: MouseMovePayload): void;
 }
 
 export class MouseStateMachine {
@@ -86,22 +91,17 @@ export class MouseStateMachine {
         encodeMouseButton(ev.button),
         ev.buttons
       );
-      this.state.update(
-        this,
-        new MouseAction(MouseActionKind.MouseDown, payload)
-      );
+      this.state.mouseDown(this, payload);
     });
 
     canvas.addEventListener("mouseup", (ev) => {
       let payload = new MouseUpPayload(
         encodeMouseButton(ev.button),
-        ev.buttons
+        ev.buttons,
+        new Vec2(ev.offsetX, ev.offsetY)
       );
 
-      this.state.update(
-        this,
-        new MouseAction(MouseActionKind.MouseUp, payload)
-      );
+      this.state.mouseUp(this, payload);
     });
 
     canvas.addEventListener("mousemove", (ev) => {
@@ -110,11 +110,9 @@ export class MouseStateMachine {
         new Vec2(ev.movementX, ev.movementY),
         ev.buttons
       );
-      this.state.update(
-        this,
-        new MouseAction(MouseActionKind.MouseMove, payload)
-      );
+      this.state.mouseMove(this, payload);
     });
+
     canvas.addEventListener("wheel", (ev) => {
       viewManager.zoom(
         new Vec2(ev.offsetX, ev.offsetY),
