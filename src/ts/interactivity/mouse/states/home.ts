@@ -12,9 +12,11 @@ import {
 import { Panning } from "./panning.js";
 import { ConcreteObjectKind, VirtualObject } from "@src/scene-manager.js";
 import { Dragging } from "./dragging.js";
-import { Circuit, ConsumerPin, ProducerPin, Wire } from "@src/interactables.js";
+import { Circuit } from "@src/scene-objects/circuit.js";
+import { ProducerPin } from "@src/scene-objects/producer-pin.js";
+import { ConsumerPin } from "@src/scene-objects/consumer-pin.js";
+import { Wire } from "@src/scene-objects/wire.js";
 import { Circle } from "@src/math.js";
-import { ctx } from "@src/canvas.js";
 import { CreatingWire } from "./creating-wire.js";
 
 export class Home implements MouseState {
@@ -47,9 +49,9 @@ export class Home implements MouseState {
 
     if (focusObject.kind === ConcreteObjectKind.ProducerPin) {
       const pin = focusObject.concreteObject as ProducerPin;
-      if (pin.wires.length > 0) {
-        return;
-      }
+      // if (pin.wires.length > 0) {
+      //   return;
+      // }
       const wire = new Wire(pin, undefined);
       wire.toScr = payload.locScr;
       stateMachine.state = new CreatingWire(wire);

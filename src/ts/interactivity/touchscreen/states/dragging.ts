@@ -1,4 +1,4 @@
-import { Circuit } from "@src/interactables.js";
+import { Circuit } from "@src/scene-objects/circuit.js";
 import {
   TouchEndPayload,
   TouchMovePayload,
@@ -7,8 +7,7 @@ import {
   TouchStartPayload,
 } from "../state-machine.js";
 import { Vec2 } from "@src/math.js";
-import { canvas } from "@src/canvas.js";
-import { domLog, logState, viewManager } from "@src/main.js";
+import { canvas, domLog, logState, viewManager } from "@src/main.js";
 import { Home } from "./home.js";
 import { Zooming } from "./zooming.js";
 

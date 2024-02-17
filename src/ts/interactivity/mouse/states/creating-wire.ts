@@ -1,4 +1,6 @@
-import { ConsumerPin, ProducerPin, Wire } from "@src/interactables.js";
+import { ProducerPin } from "@src/scene-objects/producer-pin.js";
+import { ConsumerPin } from "@src/scene-objects/consumer-pin.js";
+import { Wire } from "@src/scene-objects/wire.js";
 import {
   MouseDownPayload,
   MouseMovePayload,

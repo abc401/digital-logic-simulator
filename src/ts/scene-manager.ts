@@ -1,3 +1,7 @@
+import { Circuit } from "./scene-objects/circuit.js";
+import { ProducerPin } from "./scene-objects/producer-pin.js";
+import { ConsumerPin } from "./scene-objects/consumer-pin.js";
+import { Wire } from "./scene-objects/wire.js";
 import { viewManager } from "./main.js";
 import { BoundingBox, Vec2 } from "./math.js";
 
@@ -24,27 +28,62 @@ export class VirtualObject {
 }
 
 export class SceneManager {
-  virtualObjects: VirtualObject[];
+  circuits: Map<number, Circuit> = new Map();
+  wires: Map<number, Wire> = new Map();
+  consumerPins: Map<number, ConsumerPin> = new Map();
+  producerPins: Map<number, ProducerPin> = new Map();
+  objects: Map<number, VirtualObject> = new Map();
+  currentID: number = 0;
 
-  constructor() {
-    this.virtualObjects = [];
+  register(object: VirtualObject) {
+    const id = this.currentID;
+    this.currentID += 1;
+
+    this.objects.set(id, object);
+
+    if (object.kind === ConcreteObjectKind.Circuit) {
+      this.circuits.set(id, object.concreteObject);
+    } else if (object.kind === ConcreteObjectKind.ConsumerPin) {
+      this.consumerPins.set(id, object.concreteObject);
+    } else if (object.kind === ConcreteObjectKind.ProducerPin) {
+      this.producerPins.set(id, object.concreteObject);
+    } else {
+      this.wires.set(id, object.concreteObject);
+    }
+
+    console.log("Objects: ", this.objects);
+
+    return id;
   }
 
-  track(object: VirtualObject) {
-    this.virtualObjects.push(object);
+  unregister(id: number) {
+    const object = this.objects.get(id);
+    if (object == null) {
+      return;
+    }
+    this.objects.delete(id);
+
+    if (object.kind === ConcreteObjectKind.Circuit) {
+      this.circuits.delete(id);
+    } else if (object.kind === ConcreteObjectKind.Wire) {
+      this.wires.delete(id);
+    } else if (object.kind === ConcreteObjectKind.ConsumerPin) {
+      this.consumerPins.delete(id);
+    } else {
+      this.producerPins.delete(id);
+    }
+    console.log("Objects: ", this.objects);
   }
 
   getObjectAt(locScr: Vec2) {
-    for (let i = 0; i < this.virtualObjects.length; i++) {
-      let virtualObject = this.virtualObjects[i];
-
+    for (let object of this.objects.values()) {
       if (
-        virtualObject.boundingBoxWrl.pointIntersection(
+        object.boundingBoxWrl.pointIntersection(
           viewManager.screenToWorld(locScr)
         )
       ) {
-        // console.log(`${virtualObject.kind}: `, virtualObject.concreteObject);
-        return virtualObject;
+        // console.log(`${object.kind}: `, object.concreteObject);
+        return object;
       }
     }
   }

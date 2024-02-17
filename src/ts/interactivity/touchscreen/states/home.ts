@@ -1,4 +1,3 @@
-import { canvas } from "@src/canvas.js";
 import {
   TouchEndPayload,
   TouchMovePayload,
@@ -7,8 +6,8 @@ import {
   TouchStartPayload,
 } from "../state-machine.js";
 import { Vec2 } from "@src/math.js";
-import { sceneManager, viewManager, logState } from "@src/main.js";
-import { Circuit } from "@src/interactables.js";
+import { sceneManager, viewManager, logState, canvas } from "@src/main.js";
+import { Circuit } from "@src/scene-objects/circuit.js";
 import { Dragging } from "./dragging.js";
 import { Panning } from "./panning.js";
 import { Zooming } from "./zooming.js";

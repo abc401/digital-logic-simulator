@@ -1,8 +1,8 @@
-import { canvas } from "@src/canvas.js";
 import { Vec2 } from "@src/math.js";
 import { Home } from "./states/home.js";
 import { Panning } from "./states/panning.js";
 import { Zooming } from "./states/zooming.js";
+import { canvas } from "@src/main.js";
 
 interface TouchActionPayload {}
 

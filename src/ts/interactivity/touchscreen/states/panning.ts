@@ -1,4 +1,3 @@
-import { canvas } from "@src/canvas.js";
 import {
   TouchEndPayload,
   TouchMovePayload,
@@ -6,7 +5,7 @@ import {
   TouchScreenStateMachine,
   TouchStartPayload,
 } from "../state-machine.js";
-import { domLog, logState, viewManager } from "@src/main.js";
+import { canvas, domLog, logState, viewManager } from "@src/main.js";
 import { Vec2 } from "@src/math.js";
 import { Home } from "./home.js";
 import { Zooming } from "./zooming.js";

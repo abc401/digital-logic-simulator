@@ -1,18 +1,38 @@
-import { Wire, Circuit } from "./interactables.js";
+import { Circuit } from "./scene-objects/circuit.js";
+import { Wire } from "./scene-objects/wire.js";
 import { SimEngine } from "./engine.js";
 
-import { canvas, createCanvas as canvasInit, ctx } from "./canvas.js";
 import { SceneManager, VirtualObject } from "./scene-manager.js";
 import { ViewManager } from "./view-manager.js";
 import { MouseStateMachine } from "@src/interactivity/mouse/state-machine.js";
 import { TouchScreenStateMachine } from "./interactivity/touchscreen/state-machine.js";
-import { Home } from "./interactivity/mouse/states/home.js";
-canvasInit();
+
+export let canvas: HTMLCanvasElement;
+let tmp_canvas_ = document.getElementById("main-canvas");
+assert(tmp_canvas_ != null, "The dom does not contain a canvas");
+canvas = tmp_canvas_ as HTMLCanvasElement;
+
+export let ctx: CanvasRenderingContext2D;
+let tmp_ctx_ = canvas.getContext("2d");
+assert(tmp_ctx_ != null, "Could not get 2d context from canvas");
+ctx = tmp_ctx_ as CanvasRenderingContext2D;
 
 export const loggingDom = document.getElementById("logging");
 if (loggingDom == null) {
   console.info("No logging dom!");
 }
+
+export const stateDom = document.getElementById("state");
+if (stateDom == null) {
+  console.log("No State Dom");
+}
+
+export let simEngine = new SimEngine();
+export let sceneManager = new SceneManager();
+export let viewManager = new ViewManager();
+export let mouseStateMachine = new MouseStateMachine();
+export let touchScreenStateMachine = new TouchScreenStateMachine();
+
 export function domLog(message: string) {
   if (loggingDom == null) {
     return;
@@ -20,10 +40,6 @@ export function domLog(message: string) {
   loggingDom.innerHTML += `${message}<br>`;
 }
 
-export const stateDom = document.getElementById("state");
-if (stateDom == null) {
-  console.log("No State Dom");
-}
 export function logState(message: string) {
   if (stateDom == null) {
     return;
@@ -46,12 +62,6 @@ export function assert(
   }
   throw Error(message);
 }
-
-export let simEngine = new SimEngine();
-export let sceneManager = new SceneManager();
-export let viewManager = new ViewManager();
-export let mouseStateMachine = new MouseStateMachine();
-export let touchScreenStateMachine = new TouchScreenStateMachine();
 
 //---------------------------------------------------------------------
 // S-R Latch
@@ -91,28 +101,24 @@ const nor2 = new Circuit(2, 1, 200, 200, (self) => {
 
 console.log(nor2.rectWrl);
 
-export const circuits = [r, s, nor1, nor2];
 // export const wires = [
 //   new Wire(r.producerPins[0], nor1.consumerPins[0]),
 //   new Wire(s.producerPins[0], nor2.consumerPins[1]),
 //   new Wire(nor1.producerPins[0], nor2.consumerPins[0]),
 //   new Wire(nor2.producerPins[0], nor1.consumerPins[1]),
 // ];
-export const wires: Wire[] = [];
 
 //---------------------------------------------------------------------
 
-// const circuits: Circuit[] = [];
-// const wires: Wire[] = [];
-
 export function draw(ctx: CanvasRenderingContext2D) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  for (let i = 0; i < wires.length; i++) {
-    wires[i].draw(ctx);
+
+  for (let wire of sceneManager.wires.values()) {
+    wire.draw(ctx);
   }
   // console.log("Wires Length: ", wires.length);
-  for (let i = 0; i < circuits.length; i++) {
-    circuits[i].draw(ctx);
+  for (let circuit of sceneManager.circuits.values()) {
+    circuit.draw(ctx);
   }
 }
 

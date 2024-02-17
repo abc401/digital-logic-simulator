@@ -1,7 +1,6 @@
 import { Vec2 } from "@src/math.js";
 import { Home } from "./states/home.js";
-import { viewManager } from "@src/main.js";
-import { canvas } from "@src/canvas.js";
+import { canvas, viewManager } from "@src/main.js";
 
 export enum MouseButton {
   None = 0,

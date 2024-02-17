@@ -1,5 +1,6 @@
+import { ctx, draw } from "./main.js";
 import { Queue } from "./queue.js";
-import { Circuit } from "./interactables.js";
+import { Circuit } from "./scene-objects/circuit.js";
 
 export class SimEvent {
   constructor(readonly self: any, readonly handeler: (self: any) => void) {}
@@ -38,6 +39,8 @@ export class SimEngine {
       event.handeler(event.self);
       event = this.currentFrameEvents.dequeue();
     }
+
+    draw(ctx);
     // console.debug("Next: ", this.nextFrameEvents);
     // console.log("tick end");
   }

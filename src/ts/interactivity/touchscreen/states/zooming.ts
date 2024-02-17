@@ -1,4 +1,4 @@
-import { domLog, logState, viewManager } from "@src/main.js";
+import { canvas, domLog, logState, viewManager } from "@src/main.js";
 import {
   TouchEndPayload,
   TouchMovePayload,
@@ -8,7 +8,6 @@ import {
   findTouch,
 } from "../state-machine.js";
 import { Rect, Vec2 } from "@src/math.js";
-import { canvas } from "@src/canvas.js";
 import { Panning } from "./panning.js";
 import { Home } from "./home.js";
 
