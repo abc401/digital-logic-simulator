@@ -1,6 +1,5 @@
 import { ctx, draw } from "./main.js";
 import { Queue } from "./queue.js";
-import { Circuit } from "./scene-objects/circuit.js";
 
 export class SimEvent {
   constructor(readonly self: any, readonly handeler: (self: any) => void) {}

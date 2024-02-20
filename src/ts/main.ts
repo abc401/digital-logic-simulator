@@ -99,7 +99,7 @@ const nor2 = new Circuit(2, 1, 200, 200, (self) => {
   console.log("[nor2] New value", newValue);
 });
 
-console.log(nor2.rectWrl);
+// console.log(nor2.rectWrl);
 
 // export const wires = [
 //   new Wire(r.producerPins[0], nor1.consumerPins[0]),
