@@ -26,9 +26,6 @@ export class Home {
         }
         if (focusObject.kind === ConcreteObjectKind.ProducerPin) {
             const pin = focusObject.concreteObject;
-            // if (pin.wires.length > 0) {
-            //   return;
-            // }
             const wire = new Wire(pin, undefined);
             wire.toScr = payload.locScr;
             stateMachine.state = new CreatingWire(wire);

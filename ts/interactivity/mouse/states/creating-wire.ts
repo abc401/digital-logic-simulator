@@ -15,8 +15,8 @@ import { ConcreteObjectKind } from "@src/scene-manager.js";
 export class CreatingWire implements MouseState {
   constructor(private wire: Wire) {
     logState("CreatingWire");
-    console.log("Wire: ", wire);
-    console.log("consumerPin: ", wire.getConsumerPin()?.wire);
+    // console.log("Wire: ", wire);
+    // console.log("consumerPin: ", wire.getConsumerPin()?.wire);
   }
 
   mouseDown(stateMachine: MouseStateMachine, payload: MouseDownPayload): void {}

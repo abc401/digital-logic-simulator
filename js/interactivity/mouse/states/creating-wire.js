@@ -3,11 +3,10 @@ import { logState, sceneManager } from "../../../main.js";
 import { ConcreteObjectKind } from "../../../scene-manager.js";
 export class CreatingWire {
     constructor(wire) {
-        var _a;
         this.wire = wire;
         logState("CreatingWire");
-        console.log("Wire: ", wire);
-        console.log("consumerPin: ", (_a = wire.getConsumerPin()) === null || _a === void 0 ? void 0 : _a.wire);
+        // console.log("Wire: ", wire);
+        // console.log("consumerPin: ", wire.getConsumerPin()?.wire);
     }
     mouseDown(stateMachine, payload) { }
     mouseMove(stateMachine, payload) {

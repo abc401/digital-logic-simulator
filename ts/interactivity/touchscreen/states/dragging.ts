@@ -1,18 +1,19 @@
 import { Circuit } from "@src/scene-objects/circuit.js";
 import {
-  TouchEndPayload,
-  TouchMovePayload,
+  TouchAction,
+  TouchActionKind,
   TouchScreenState,
   TouchScreenStateMachine,
-  TouchStartPayload,
+  discriminateTouches,
 } from "../state-machine.js";
 import { Vec2 } from "@src/math.js";
 import { canvas, domLog, logState, viewManager } from "@src/main.js";
 import { Home } from "./home.js";
 import { Zooming } from "./zooming.js";
+import { TouchOutsideCanvas } from "./touch-outside-canvas.js";
+import { TooManyTouches } from "./too-many-touches.js";
 
 export class Dragging implements TouchScreenState {
-  stateName = "Dragging";
   constructor(
     private circuit: Circuit,
     private touchId: number,
@@ -21,59 +22,44 @@ export class Dragging implements TouchScreenState {
     logState("TSDragging");
   }
 
-  touchMove(
-    stateMachine: TouchScreenStateMachine,
-    payload: TouchMovePayload
-  ): void {
-    let boundingRect = canvas.getBoundingClientRect();
-
-    if (payload.changedTouches.length !== 1) {
-      domLog(
-        `[TSDragging(Err)][TouchMove] payload.changedTouches.length: ${payload.changedTouches.length}`
-      );
-      throw Error();
-    }
-
-    let touch = payload.changedTouches[0];
-    let locScr = new Vec2(
-      touch.clientX - boundingRect.x,
-      touch.clientY - boundingRect.y
+  update(stateMachine: TouchScreenStateMachine, action: TouchAction): void {
+    const boundingRect = canvas.getBoundingClientRect();
+    const payload = action.payload;
+    const [insideOfCanvas, outsideOfCanvas] = discriminateTouches(
+      payload.changedTouches
     );
 
-    let previousLocScr = stateMachine.touchLocHistoryScr.get(this.touchId);
-    if (previousLocScr == null) {
-      domLog(`[TSDragging(Err)][TouchMove] No history for touch location`);
-      throw Error();
+    if (outsideOfCanvas.length > 0) {
+      stateMachine.state = new TouchOutsideCanvas();
     }
 
-    this.circuit.rectWrl.xy = viewManager
-      .screenToWorld(locScr)
-      .add(this.draggingOffsetWrl);
-    return;
-  }
-
-  touchEnd(
-    stateMachine: TouchScreenStateMachine,
-    payload: TouchEndPayload
-  ): void {
-    if (payload.changedTouches.length !== 1) {
-      domLog(
-        `[TSDragging(Err)][TouchEnd] payload.changedTouches.length: ${payload.changedTouches.length}`
+    if (action.kind === TouchActionKind.TouchStart) {
+      if (insideOfCanvas.length === 1) {
+        const touch1Id = this.touchId;
+        const touch2Id = payload.changedTouches[0].identifier;
+        stateMachine.state = new Zooming(touch1Id, touch2Id);
+      } else {
+        stateMachine.state = new TooManyTouches();
+      }
+    } else if (action.kind === TouchActionKind.TouchMove) {
+      let touch = insideOfCanvas[0];
+      let locScr = new Vec2(
+        touch.clientX - boundingRect.x,
+        touch.clientY - boundingRect.y
       );
-      throw Error();
-    }
 
-    stateMachine.state = new Home();
-  }
+      let previousLocScr = stateMachine.touchLocHistoryScr.get(this.touchId);
+      if (previousLocScr == null) {
+        domLog(`[TSDragging(Err)][TouchMove] No history for touch location`);
+        throw Error();
+      }
 
-  touchStart(
-    stateMachine: TouchScreenStateMachine,
-    payload: TouchStartPayload
-  ): void {
-    if (payload.changedTouches.length === 1) {
-      const touch1Id = this.touchId;
-      const touch2Id = payload.changedTouches[0].identifier;
-      stateMachine.state = new Zooming(touch1Id, touch2Id);
+      this.circuit.rectWrl.xy = viewManager
+        .screenToWorld(locScr)
+        .add(this.draggingOffsetWrl);
+      return;
+    } else if (action.kind === TouchActionKind.TouchEnd) {
+      stateMachine.state = new Home();
     }
   }
 }

@@ -2,38 +2,51 @@ import { Vec2 } from "@src/math.js";
 import { Home } from "./states/home.js";
 import { Panning } from "./states/panning.js";
 import { Zooming } from "./states/zooming.js";
-import { canvas } from "@src/main.js";
+import { canvas, domLog } from "@src/main.js";
+import { TooManyTouches } from "./states/too-many-touches.js";
 
-interface TouchActionPayload {}
+export function getAppropriateState(touches: TouchList) {
+  if (touches.length === 0) {
+    return new Home();
+  }
 
-export class TouchStartPayload implements TouchActionPayload {
-  constructor(readonly changedTouches: Touch[]) {}
+  if (touches.length === 1) {
+    return new Panning(touches[0].identifier);
+  }
+
+  if (touches.length === 2) {
+    return new Zooming(touches[0].identifier, touches[1].identifier);
+  }
+
+  return new TooManyTouches();
 }
 
-export class TouchMovePayload implements TouchActionPayload {
-  constructor(readonly changedTouches: TouchList) {}
+export function discriminateTouches(touches: TouchList) {
+  let insideOfCanvas = new Array<Touch>();
+  let outsideOfCanvas = new Array<Touch>();
+
+  for (let i = 0; i < touches.length; i++) {
+    if (touches[i].target === canvas) {
+      insideOfCanvas.push(touches[i]);
+    } else {
+      outsideOfCanvas.push(touches[i]);
+    }
+  }
+  return [insideOfCanvas, outsideOfCanvas];
 }
 
-export class TouchEndPayload implements TouchActionPayload {
-  constructor(readonly changedTouches: TouchList) {}
+export enum TouchActionKind {
+  TouchStart,
+  TouchMove,
+  TouchEnd,
+}
+
+export class TouchAction {
+  constructor(readonly kind: TouchActionKind, readonly payload: TouchEvent) {}
 }
 
 export interface TouchScreenState {
-  stateName: string;
-  touchStart(
-    stateMachine: TouchScreenStateMachine,
-    payload: TouchStartPayload
-  ): void;
-
-  touchMove(
-    stateMachine: TouchScreenStateMachine,
-    payload: TouchMovePayload
-  ): void;
-
-  touchEnd(
-    stateMachine: TouchScreenStateMachine,
-    payload: TouchEndPayload
-  ): void;
+  update(stateMachine: TouchScreenStateMachine, action: TouchAction): void;
 }
 
 export function findTouch(id: number, touchList: TouchList) {
@@ -52,33 +65,29 @@ export class TouchScreenStateMachine {
   constructor() {
     this.state = new Home();
     this.touchLocHistoryScr = new Map();
+
+    document.addEventListener("touchstart", (ev) => {
+      this.state.update(this, new TouchAction(TouchActionKind.TouchStart, ev));
+
+      const boundingRect = canvas.getBoundingClientRect();
+      for (let i = 0; i < ev.changedTouches.length; i++) {
+        const touch = ev.changedTouches[i];
+        this.touchLocHistoryScr.set(
+          touch.identifier,
+          new Vec2(
+            touch.clientX - boundingRect.x,
+            touch.clientY - boundingRect.y
+          )
+        );
+      }
+    });
+
     document.addEventListener("touchmove", (ev) => {
-      if (this.state.stateName === "Home") {
-        return;
-      }
-      ev.preventDefault();
-    });
+      this.state.update(this, new TouchAction(TouchActionKind.TouchMove, ev));
 
-    canvas.addEventListener("touchstart", (ev) => {
-      console.log("Touchstart");
-      ev.preventDefault();
-      let relaventTouches = new Array<Touch>();
-
+      const boundingRect = canvas.getBoundingClientRect();
       for (let i = 0; i < ev.changedTouches.length; i++) {
-        let touch = ev.changedTouches[i];
-        if (touch.target === canvas) {
-          relaventTouches.push(touch);
-        }
-      }
-      if (relaventTouches.length === 0) {
-        return;
-      }
-
-      this.state.touchStart(this, new TouchStartPayload(relaventTouches));
-
-      let boundingRect = canvas.getBoundingClientRect();
-      for (let i = 0; i < relaventTouches.length; i++) {
-        let touch = relaventTouches[i];
+        const touch = ev.changedTouches[i];
         this.touchLocHistoryScr.set(
           touch.identifier,
           new Vec2(
@@ -89,35 +98,16 @@ export class TouchScreenStateMachine {
       }
     });
 
-    canvas.addEventListener("touchmove", (ev) => {
-      console.log("touchmove");
-      ev.preventDefault();
+    document.addEventListener("touchcancel", (ev) => {
+      this.state.update(this, new TouchAction(TouchActionKind.TouchEnd, ev));
 
-      this.state.touchMove(this, new TouchMovePayload(ev.changedTouches));
-
-      let boundingRect = canvas.getBoundingClientRect();
       for (let i = 0; i < ev.changedTouches.length; i++) {
-        let touch = ev.changedTouches[i];
-        this.touchLocHistoryScr.set(
-          touch.identifier,
-          new Vec2(
-            touch.clientX - boundingRect.x,
-            touch.clientY - boundingRect.y
-          )
-        );
+        this.touchLocHistoryScr.delete(ev.changedTouches[i].identifier);
       }
     });
 
-    canvas.addEventListener("touchcancel", (ev) => {
-      ev.preventDefault();
-      this.state.touchEnd(this, new TouchEndPayload(ev.changedTouches));
-    });
-
-    canvas.addEventListener("touchend", (ev) => {
-      console.log("touchend");
-      ev.preventDefault();
-
-      this.state.touchEnd(this, new TouchEndPayload(ev.changedTouches));
+    document.addEventListener("touchend", (ev) => {
+      this.state.update(this, new TouchAction(TouchActionKind.TouchEnd, ev));
 
       for (let i = 0; i < ev.changedTouches.length; i++) {
         this.touchLocHistoryScr.delete(ev.changedTouches[i].identifier);
