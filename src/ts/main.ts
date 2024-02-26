@@ -123,37 +123,41 @@ export function draw(ctx: CanvasRenderingContext2D) {
 }
 
 let s_input_dom = document.getElementById("s-input");
-if (s_input_dom == null) {
-  console.info("DOM element for s input NOT provided.");
-} else {
-  console.info("DOM S provided");
+if (s_input_dom !== null) {
   s_input_dom.onclick = () => {
     const sValue = (s_input_dom as HTMLInputElement).checked;
-    console.debug("S clicked.");
     s.producerPins[0].setValue(sValue);
-    // sValue = !sValue;
   };
 }
 
 let r_input_dom = document.getElementById("r-input");
-if (r_input_dom == null) {
-  console.info("DOM element for r input not provided.");
-} else {
-  console.info("DOM R provided");
+if (r_input_dom !== null) {
   r_input_dom.onclick = () => {
     const rValue = (r_input_dom as HTMLInputElement).checked;
-    console.debug("R clicked.");
     r.producerPins[0].setValue(rValue);
   };
 }
 
-document.addEventListener("keypress", (ev) => {
-  if (ev.key === "a") {
-    console.log("a");
-  }
-  simEngine.tick();
-  // draw(ctx);
-});
+let tickButton = document.getElementById("tick");
+if (tickButton !== null) {
+  tickButton.onclick = (ev) => {
+    simEngine.tick();
+  };
+}
+
+let pauseButton = document.getElementById("pause");
+if (pauseButton !== null) {
+  pauseButton.onclick = (ev) => {
+    simEngine.paused = true;
+  };
+}
+
+let runButton = document.getElementById("run");
+if (runButton !== null) {
+  runButton.onclick = (ev) => {
+    simEngine.runSim();
+  };
+}
 
 setInterval(function () {
   draw(ctx);

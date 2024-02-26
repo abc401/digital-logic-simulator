@@ -8,6 +8,8 @@ export class SimEvent {
 export class SimEngine {
   static fps = 60;
 
+  paused = true;
+
   currentFrameEvents: Queue<SimEvent> = new Queue();
   nextFrameEvents: Queue<SimEvent> = new Queue();
 
@@ -43,9 +45,10 @@ export class SimEngine {
     // console.debug("Next: ", this.nextFrameEvents);
     // console.log("tick end");
   }
-
-  async runSim(ctx: CanvasRenderingContext2D) {
-    while (true) {
+  // ctx: CanvasRenderingContext2D
+  async runSim() {
+    this.paused = false;
+    while (!this.paused) {
       this.tick();
       // console.debug("Queue: ", this.nextFrameEvents);
       await this.sleep(1000 / SimEngine.fps);
