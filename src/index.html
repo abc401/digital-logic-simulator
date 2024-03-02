@@ -15,42 +15,24 @@
     <div id="root">
       <h1>S-R Latch</h1>
       <p>Version: 10</p>
-      <p>
+      <div id="canvas-parent">
+        <div id="canvas-state"></div>
         <canvas width="500" height="500" id="main-canvas">
           Your browser does not support the canvas element
         </canvas>
-      </p>
-
-      <form>
-        <div>
-          <label for="r-input">
-            <input type="checkbox" id="r-input" />
-            <span>R Input</span>
-          </label>
-        </div>
-        <div>
-          <label for="s-input">
-            <input type="checkbox" id="s-input" />
-            <span>S Input</span>
-          </label>
-        </div>
-      </form>
-    </div>
-    <div>
-      <h2>State</h2>
-
-      <div id="state"></div>
-    </div>
-    <div>
-      <h2>Logging</h2>
-
-      <div id="logging"></div>
+      </div>
     </div>
     <div id="sim-controls">
       <h2>Sim Controls</h2>
       <button id="run">Run</button>
       <button id="tick">Tick</button>
       <button id="pause">Pause</button>
+    </div>
+    <div id="circuit-buttons"></div>
+    <div>
+      <h2>Logging</h2>
+
+      <div id="logging"></div>
     </div>
   </body>
 </html>

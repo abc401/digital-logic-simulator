@@ -14,7 +14,17 @@ import { logState, viewManager } from "@src/main.js";
 import { Vec2 } from "@src/math.js";
 
 export class Dragging implements MouseState {
-  constructor(private circuit: Circuit, private draggingOffsetWrl: Vec2) {
+  constructor(
+    private circuit: Circuit,
+    private draggingOffsetWrl: Vec2,
+    private mouseLocScr: Vec2 | undefined = undefined
+  ) {
+    if (mouseLocScr == null) {
+      return;
+    }
+    this.circuit.rectWrl.xy = viewManager
+      .screenToWorld(mouseLocScr)
+      .add(this.draggingOffsetWrl);
     logState("Dragging");
   }
 

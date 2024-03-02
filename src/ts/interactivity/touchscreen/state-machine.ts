@@ -3,7 +3,7 @@ import { Home } from "./states/home.js";
 import { Panning } from "./states/panning.js";
 import { Zooming } from "./states/zooming.js";
 import { canvas, domLog } from "@src/main.js";
-import { TooManyTouches } from "./states/too-many-touches.js";
+import { Illegal } from "./states/Illegal.js";
 
 export function getAppropriateState(touches: TouchList) {
   if (touches.length === 0) {
@@ -18,7 +18,7 @@ export function getAppropriateState(touches: TouchList) {
     return new Zooming(touches[0].identifier, touches[1].identifier);
   }
 
-  return new TooManyTouches();
+  return new Illegal();
 }
 
 export function discriminateTouches(touches: TouchList) {

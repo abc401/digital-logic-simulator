@@ -6,8 +6,19 @@
 }
 
 #main-canvas {
+  position: relative;
   outline: solid red 1px;
   outline-offset: -1px;
+  touch-action: none;
+  z-index: 1;
+}
+#canvas-parent {
+  position: relative;
+}
+
+#canvas-state {
+  position: absolute;
+  pointer-events: none;
   touch-action: none;
 }
 

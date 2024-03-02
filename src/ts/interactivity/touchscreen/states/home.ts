@@ -6,24 +6,17 @@ import {
   discriminateTouches,
 } from "../state-machine.js";
 import { Vec2 } from "@src/math.js";
-import {
-  sceneManager,
-  viewManager,
-  logState,
-  canvas,
-  domLog,
-} from "@src/main.js";
+import { sceneManager, viewManager, logState, canvas } from "@src/main.js";
 import { Circuit } from "@src/scene-objects/circuit.js";
-import { Dragging } from "./dragging.js";
 import { Panning } from "./panning.js";
 import { Zooming } from "./zooming.js";
 import { ConcreteObjectKind } from "@src/scene-manager.js";
-import { TouchOutsideCanvas } from "./touch-outside-canvas.js";
-import { TooManyTouches } from "./too-many-touches.js";
+import { Illegal } from "./Illegal.js";
 import { ConsumerPin } from "@src/scene-objects/consumer-pin.js";
 import { Wire } from "@src/scene-objects/wire.js";
 import { CreatingWire } from "./creating-wire.js";
 import { ProducerPin } from "@src/scene-objects/producer-pin.js";
+import { CircuitSelected } from "./circuit-selected.js";
 
 export class Home implements TouchScreenState {
   constructor() {
@@ -36,7 +29,7 @@ export class Home implements TouchScreenState {
     );
 
     if (outsideOfCanvas.length > 0) {
-      stateMachine.state = new TouchOutsideCanvas();
+      stateMachine.state = new Illegal();
       return;
     }
 
@@ -61,7 +54,7 @@ export class Home implements TouchScreenState {
 
       if (focusObject.kind === ConcreteObjectKind.Circuit) {
         const circuit = focusObject.concreteObject as Circuit;
-        stateMachine.state = new Dragging(
+        stateMachine.state = new CircuitSelected(
           circuit,
           touch.identifier,
           circuit.rectWrl.xy.sub(viewManager.screenToWorld(locScr))
@@ -92,7 +85,7 @@ export class Home implements TouchScreenState {
       const touch2 = payload.changedTouches[1];
       stateMachine.state = new Zooming(touch1.identifier, touch2.identifier);
     } else {
-      stateMachine.state = new TooManyTouches();
+      stateMachine.state = new Illegal();
     }
   }
 }

@@ -41,7 +41,7 @@ export class SimEngine {
       event = this.currentFrameEvents.dequeue();
     }
 
-    draw(ctx);
+    // draw(ctx);
     // console.debug("Next: ", this.nextFrameEvents);
     // console.log("tick end");
   }

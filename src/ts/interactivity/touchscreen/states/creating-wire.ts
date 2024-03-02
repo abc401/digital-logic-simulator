@@ -6,8 +6,7 @@ import {
   TouchScreenStateMachine,
   discriminateTouches,
 } from "../state-machine.js";
-import { TouchOutsideCanvas } from "./touch-outside-canvas.js";
-import { TooManyTouches } from "./too-many-touches.js";
+import { Illegal } from "./Illegal.js";
 import { canvas, sceneManager } from "@src/main.js";
 import { Vec2 } from "@src/math.js";
 import { ConcreteObjectKind } from "@src/scene-manager.js";
@@ -25,14 +24,12 @@ export class CreatingWire implements TouchScreenState {
 
     let boundingRect = canvas.getBoundingClientRect();
 
-    if (outsideOfCanvas.length > 0) {
+    if (
+      outsideOfCanvas.length > 0 ||
+      action.kind === TouchActionKind.TouchStart
+    ) {
       this.wire.detach();
-      stateMachine.state = new TouchOutsideCanvas();
-      return;
-    }
-    if (action.kind === TouchActionKind.TouchStart) {
-      this.wire.detach();
-      stateMachine.state = new TooManyTouches();
+      stateMachine.state = new Illegal();
       return;
     }
 
