@@ -10,8 +10,7 @@ import {
 import { Rect, Vec2 } from "@src/math.js";
 import { Panning } from "./panning.js";
 import { Home } from "./home.js";
-import { TouchOutsideCanvas } from "./touch-outside-canvas.js";
-import { TooManyTouches } from "./too-many-touches.js";
+import { Illegal } from "./Illegal.js";
 
 export class Zooming implements TouchScreenState {
   stateName = "Zooming";
@@ -25,11 +24,11 @@ export class Zooming implements TouchScreenState {
       payload.changedTouches
     );
     if (outsideOfCanvas.length > 0) {
-      stateMachine.state = new TouchOutsideCanvas();
+      stateMachine.state = new Illegal();
     }
 
     if (action.kind === TouchActionKind.TouchStart) {
-      stateMachine.state = new TooManyTouches();
+      stateMachine.state = new Illegal();
     }
 
     if (action.kind === TouchActionKind.TouchMove) {

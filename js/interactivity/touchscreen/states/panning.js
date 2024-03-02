@@ -3,8 +3,7 @@ import { canvas, domLog, logState, viewManager } from "../../../main.js";
 import { Vec2 } from "../../../math.js";
 import { Home } from "./home.js";
 import { Zooming } from "./zooming.js";
-import { TouchOutsideCanvas } from "./touch-outside-canvas.js";
-import { TooManyTouches } from "./too-many-touches.js";
+import { Illegal } from "./Illegal.js";
 export class Panning {
     constructor(touchId) {
         this.touchId = touchId;
@@ -15,7 +14,7 @@ export class Panning {
         const boundingRect = canvas.getBoundingClientRect();
         const [insideOfCanvas, outsideOfCanvas] = discriminateTouches(payload.changedTouches);
         if (outsideOfCanvas.length > 0) {
-            stateMachine.state = new TouchOutsideCanvas();
+            stateMachine.state = new Illegal();
         }
         if (action.kind === TouchActionKind.TouchStart) {
             if (insideOfCanvas.length === 1) {
@@ -24,7 +23,7 @@ export class Panning {
                 stateMachine.state = new Zooming(touch1Id, touch2Id);
             }
             else {
-                stateMachine.state = new TooManyTouches();
+                stateMachine.state = new Illegal();
             }
         }
         else if (action.kind === TouchActionKind.TouchMove) {

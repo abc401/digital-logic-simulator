@@ -50,7 +50,7 @@ export class Wire {
     simEngine.nextFrameEvents.enqueue(
       new SimEvent(
         self.consumerPin.parentCircuit,
-        self.consumerPin.parentCircuit.update
+        self.consumerPin.parentCircuit.updateHandeler
       )
     );
   }
@@ -65,6 +65,13 @@ export class Wire {
 
   detach() {
     if (this.consumerPin != null) {
+      this.consumerPin.value = false;
+      simEngine.nextFrameEvents.enqueue(
+        new SimEvent(
+          this.consumerPin.parentCircuit,
+          this.consumerPin.parentCircuit.updateHandeler
+        )
+      );
       this.consumerPin.wire = undefined;
       this.consumerPin = undefined;
     }
@@ -137,10 +144,9 @@ export class Wire {
     simEngine.nextFrameEvents.enqueue(
       new SimEvent(
         this.consumerPin.parentCircuit,
-        this.consumerPin.parentCircuit.update
+        this.consumerPin.parentCircuit.updateHandeler
       )
     );
-    // this.consumerPin.parentCircuit);
   }
 
   draw(ctx: CanvasRenderingContext2D) {

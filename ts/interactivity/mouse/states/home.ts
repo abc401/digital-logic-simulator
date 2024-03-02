@@ -1,4 +1,4 @@
-import { logState, r, sceneManager, viewManager } from "@src/main.js";
+import { logState, sceneManager, viewManager } from "@src/main.js";
 import {
   MouseAction,
   MouseActionKind,
@@ -18,6 +18,7 @@ import { ConsumerPin } from "@src/scene-objects/consumer-pin.js";
 import { Wire } from "@src/scene-objects/wire.js";
 import { Circle } from "@src/math.js";
 import { CreatingWire } from "./creating-wire.js";
+import { CircuitSelected } from "./circuit-selected.js";
 
 export class Home implements MouseState {
   constructor() {
@@ -41,7 +42,7 @@ export class Home implements MouseState {
     if (focusObject.kind === ConcreteObjectKind.Circuit) {
       let circuit = focusObject.concreteObject as Circuit;
 
-      stateMachine.state = new Dragging(
+      stateMachine.state = new CircuitSelected(
         circuit,
         circuit.rectWrl.xy.sub(viewManager.screenToWorld(payload.locScr))
       );

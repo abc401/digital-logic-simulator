@@ -2,9 +2,9 @@ import { logState, sceneManager, viewManager } from "../../../main.js";
 import { MouseButton, } from "../state-machine.js";
 import { Panning } from "./panning.js";
 import { ConcreteObjectKind } from "../../../scene-manager.js";
-import { Dragging } from "./dragging.js";
 import { Wire } from "../../../scene-objects/wire.js";
 import { CreatingWire } from "./creating-wire.js";
+import { CircuitSelected } from "./circuit-selected.js";
 export class Home {
     constructor() {
         logState("Home");
@@ -22,7 +22,7 @@ export class Home {
         console.log("Focus Object kind: ", focusObject.kind);
         if (focusObject.kind === ConcreteObjectKind.Circuit) {
             let circuit = focusObject.concreteObject;
-            stateMachine.state = new Dragging(circuit, circuit.rectWrl.xy.sub(viewManager.screenToWorld(payload.locScr)));
+            stateMachine.state = new CircuitSelected(circuit, circuit.rectWrl.xy.sub(viewManager.screenToWorld(payload.locScr)));
         }
         if (focusObject.kind === ConcreteObjectKind.ProducerPin) {
             const pin = focusObject.concreteObject;

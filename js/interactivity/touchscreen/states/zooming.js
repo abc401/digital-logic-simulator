@@ -3,8 +3,7 @@ import { TouchActionKind, discriminateTouches, findTouch, } from "../state-machi
 import { Rect, Vec2 } from "../../../math.js";
 import { Panning } from "./panning.js";
 import { Home } from "./home.js";
-import { TouchOutsideCanvas } from "./touch-outside-canvas.js";
-import { TooManyTouches } from "./too-many-touches.js";
+import { Illegal } from "./Illegal.js";
 export class Zooming {
     constructor(touch1Id, touch2Id) {
         this.touch1Id = touch1Id;
@@ -17,10 +16,10 @@ export class Zooming {
         const payload = action.payload;
         const [insideOfCanvas, outsideOfCanvas] = discriminateTouches(payload.changedTouches);
         if (outsideOfCanvas.length > 0) {
-            stateMachine.state = new TouchOutsideCanvas();
+            stateMachine.state = new Illegal();
         }
         if (action.kind === TouchActionKind.TouchStart) {
-            stateMachine.state = new TooManyTouches();
+            stateMachine.state = new Illegal();
         }
         if (action.kind === TouchActionKind.TouchMove) {
             const touch1 = findTouch(this.touch1Id, payload.changedTouches);

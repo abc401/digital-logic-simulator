@@ -31,13 +31,15 @@ export class Wire {
             return;
         }
         self.consumerPin.value = self.producerPin.value;
-        simEngine.nextFrameEvents.enqueue(new SimEvent(self.consumerPin.parentCircuit, self.consumerPin.parentCircuit.update));
+        simEngine.nextFrameEvents.enqueue(new SimEvent(self.consumerPin.parentCircuit, self.consumerPin.parentCircuit.updateHandeler));
     }
     getVirtualObject() {
         return new VirtualObject(ConcreteObjectKind.Wire, this, new Circle(() => new Vec2(0, 0), 0));
     }
     detach() {
         if (this.consumerPin != null) {
+            this.consumerPin.value = false;
+            simEngine.nextFrameEvents.enqueue(new SimEvent(this.consumerPin.parentCircuit, this.consumerPin.parentCircuit.updateHandeler));
             this.consumerPin.wire = undefined;
             this.consumerPin = undefined;
         }
@@ -96,8 +98,7 @@ export class Wire {
         }
         this.consumerPin.value = value;
         console.log("Enqueued");
-        simEngine.nextFrameEvents.enqueue(new SimEvent(this.consumerPin.parentCircuit, this.consumerPin.parentCircuit.update));
-        // this.consumerPin.parentCircuit);
+        simEngine.nextFrameEvents.enqueue(new SimEvent(this.consumerPin.parentCircuit, this.consumerPin.parentCircuit.updateHandeler));
     }
     draw(ctx) {
         const from = this.producerPin == null ? this.fromScr : this.producerPin.getLocScr();

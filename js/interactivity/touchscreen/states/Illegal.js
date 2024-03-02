@@ -1,18 +1,15 @@
 import { logState } from "../../../main.js";
 import { discriminateTouches, getAppropriateState, } from "../state-machine.js";
-import { TouchOutsideCanvas } from "./touch-outside-canvas.js";
 export class Illegal {
     constructor() {
-        logState("TooManyTouches");
+        logState("Illegal");
     }
     update(stateMachine, action) {
         const payload = action.payload;
         const [insideOfCanvas, outsideOfCanvas] = discriminateTouches(payload.touches);
-        if (outsideOfCanvas.length > 0) {
-            stateMachine.state = new TouchOutsideCanvas();
+        if (outsideOfCanvas.length > 0 || insideOfCanvas.length > 2) {
+            return;
         }
-        else {
-            stateMachine.state = getAppropriateState(payload.touches);
-        }
+        stateMachine.state = getAppropriateState(payload.touches);
     }
 }

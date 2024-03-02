@@ -1,4 +1,4 @@
-import { Circle } from "../math.js";
+import { Circle, Vec2 } from "../math.js";
 import { ConcreteObjectKind, VirtualObject } from "../scene-manager.js";
 import { sceneManager, viewManager } from "../main.js";
 import { Wire } from "./wire.js";
@@ -26,7 +26,10 @@ export class ConsumerPin {
   }
 
   getLocScr() {
-    return this.parentCircuit.conPinLocScr(this.pinIndex);
+    const rectWrl = this.parentCircuit.rectWrl;
+    return viewManager.worldToScreen(
+      new Vec2(rectWrl.x, rectWrl.y + this.pinIndex * 70)
+    );
   }
 
   draw(ctx: CanvasRenderingContext2D) {

@@ -2,9 +2,16 @@ import { MouseButton, } from "../state-machine.js";
 import { Home } from "./home.js";
 import { logState, viewManager } from "../../../main.js";
 export class Dragging {
-    constructor(circuit, draggingOffsetWrl) {
+    constructor(circuit, draggingOffsetWrl, mouseLocScr = undefined) {
         this.circuit = circuit;
         this.draggingOffsetWrl = draggingOffsetWrl;
+        this.mouseLocScr = mouseLocScr;
+        if (mouseLocScr == null) {
+            return;
+        }
+        this.circuit.rectWrl.xy = viewManager
+            .screenToWorld(mouseLocScr)
+            .add(this.draggingOffsetWrl);
         logState("Dragging");
     }
     mouseMove(manager, payload) {

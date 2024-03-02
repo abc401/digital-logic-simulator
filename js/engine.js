@@ -7,7 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { ctx, draw } from "./main.js";
 import { Queue } from "./queue.js";
 export class SimEvent {
     constructor(self, handeler) {
@@ -17,6 +16,7 @@ export class SimEvent {
 }
 export class SimEngine {
     constructor() {
+        this.paused = true;
         this.currentFrameEvents = new Queue();
         this.nextFrameEvents = new Queue();
         this.recurringEvents = [];
@@ -42,13 +42,15 @@ export class SimEngine {
             event.handeler(event.self);
             event = this.currentFrameEvents.dequeue();
         }
-        draw(ctx);
+        // draw(ctx);
         // console.debug("Next: ", this.nextFrameEvents);
         // console.log("tick end");
     }
-    runSim(ctx) {
+    // ctx: CanvasRenderingContext2D
+    runSim() {
         return __awaiter(this, void 0, void 0, function* () {
-            while (true) {
+            this.paused = false;
+            while (!this.paused) {
                 this.tick();
                 // console.debug("Queue: ", this.nextFrameEvents);
                 yield this.sleep(1000 / SimEngine.fps);

@@ -1,9 +1,11 @@
-import { Circuit } from "./scene-objects/circuit.js";
 import { SimEngine } from "./engine.js";
 import { SceneManager } from "./scene-manager.js";
 import { ViewManager } from "./view-manager.js";
 import { MouseStateMachine } from "./interactivity/mouse/state-machine.js";
 import { TouchScreenStateMachine } from "./interactivity/touchscreen/state-machine.js";
+import { creators } from "./circuit-creators.js";
+import { CreatingCircuit as CreatingCircuitMouse } from "./interactivity/mouse/states/creating-circuit.js";
+import { CreatingCircuit as CreatingCircuitTouchScreen } from "./interactivity/touchscreen/states/creating-circuit.js";
 export let canvas;
 let tmp_canvas_ = document.getElementById("main-canvas");
 assert(tmp_canvas_ != null, "The dom does not contain a canvas");
@@ -16,7 +18,7 @@ export const loggingDom = document.getElementById("logging");
 if (loggingDom == null) {
     console.info("No logging dom!");
 }
-export const stateDom = document.getElementById("state");
+export const stateDom = document.querySelector("#canvas-state");
 if (stateDom == null) {
     console.log("No State Dom");
 }
@@ -50,33 +52,6 @@ export function assert(condition, message = undefined) {
     }
     throw Error(message);
 }
-//---------------------------------------------------------------------
-// S-R Latch
-//---------------------------------------------------------------------
-export const r = new Circuit(0, 1, 30, 30, (self) => {
-    // self.producerPins[0].setValue(rValue)
-}, true);
-const s = new Circuit(0, 1, 30, 200, (self) => {
-    // self.producerPins[0].setValue(sValue);
-}, true);
-const nor1 = new Circuit(2, 1, 350, 80, (self) => {
-    const newValue = !(self.consumerPins[0].value || self.consumerPins[1].value);
-    self.producerPins[0].setValue(newValue);
-    console.log("[nor1] New value", newValue);
-});
-const nor2 = new Circuit(2, 1, 200, 200, (self) => {
-    const newValue = !(self.consumerPins[0].value || self.consumerPins[1].value);
-    self.producerPins[0].setValue(newValue);
-    console.log("[nor2] New value", newValue);
-});
-// console.log(nor2.rectWrl);
-// export const wires = [
-//   new Wire(r.producerPins[0], nor1.consumerPins[0]),
-//   new Wire(s.producerPins[0], nor2.consumerPins[1]),
-//   new Wire(nor1.producerPins[0], nor2.consumerPins[0]),
-//   new Wire(nor2.producerPins[0], nor1.consumerPins[1]),
-// ];
-//---------------------------------------------------------------------
 export function draw(ctx) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     for (let wire of sceneManager.wires.values()) {
@@ -87,38 +62,42 @@ export function draw(ctx) {
         circuit.draw(ctx);
     }
 }
-let s_input_dom = document.getElementById("s-input");
-if (s_input_dom == null) {
-    console.info("DOM element for s input NOT provided.");
-}
-else {
-    console.info("DOM S provided");
-    s_input_dom.onclick = () => {
-        const sValue = s_input_dom.checked;
-        console.debug("S clicked.");
-        s.producerPins[0].setValue(sValue);
-        // sValue = !sValue;
-    };
-}
-let r_input_dom = document.getElementById("r-input");
-if (r_input_dom == null) {
-    console.info("DOM element for r input not provided.");
-}
-else {
-    console.info("DOM R provided");
-    r_input_dom.onclick = () => {
-        const rValue = r_input_dom.checked;
-        console.debug("R clicked.");
-        r.producerPins[0].setValue(rValue);
-    };
-}
-document.addEventListener("keypress", (ev) => {
-    if (ev.key === "a") {
-        console.log("a");
+function populateUI() {
+    let circuitButtons = document.getElementById("circuit-buttons");
+    if (circuitButtons == null) {
+        domLog("[Error] No container for circuit buttons");
+        throw Error();
     }
-    simEngine.tick();
-    // draw(ctx);
-});
+    for (let [name, creator] of creators.entries()) {
+        let button = document.createElement("button");
+        button.innerHTML = name;
+        button.onclick = (ev) => {
+            console.log(`${name} clicked`);
+            mouseStateMachine.state = new CreatingCircuitMouse(name, creator);
+            touchScreenStateMachine.state = new CreatingCircuitTouchScreen(name, creator);
+        };
+        circuitButtons.appendChild(button);
+    }
+}
+populateUI();
+let tickButton = document.getElementById("tick");
+if (tickButton !== null) {
+    tickButton.onclick = (ev) => {
+        simEngine.tick();
+    };
+}
+let pauseButton = document.getElementById("pause");
+if (pauseButton !== null) {
+    pauseButton.onclick = (ev) => {
+        simEngine.paused = true;
+    };
+}
+let runButton = document.getElementById("run");
+if (runButton !== null) {
+    runButton.onclick = (ev) => {
+        simEngine.runSim();
+    };
+}
 setInterval(function () {
     draw(ctx);
 }, 1000 / 30);

@@ -1,4 +1,4 @@
-import { Circle } from "../math.js";
+import { Circle, Vec2 } from "../math.js";
 import { ConcreteObjectKind, VirtualObject } from "../scene-manager.js";
 import { sceneManager, simEngine, viewManager } from "../main.js";
 import { SimEvent } from "../engine.js";
@@ -23,14 +23,14 @@ export class ProducerPin {
         }
     }
     getLocScr() {
-        return this.parentCircuit.prodPinLocScr(this.pinIndex);
+        const rect = viewManager.worldToScreenRect(this.parentCircuit.rectWrl);
+        return new Vec2(rect.x + rect.w, rect.y + this.pinIndex * 70 * viewManager.zoomLevel);
     }
     getVirtualObject() {
         return new VirtualObject(ConcreteObjectKind.ProducerPin, this, new Circle(() => viewManager.screenToWorld(this.getLocScr()), ProducerPin.radiusWrl));
     }
     draw(ctx) {
         const pos = this.getLocScr();
-        ctx.fillStyle = "red";
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, ProducerPin.radiusWrl * viewManager.zoomLevel, 0, 2 * Math.PI);
         ctx.closePath();

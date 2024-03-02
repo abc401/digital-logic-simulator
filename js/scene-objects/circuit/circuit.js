@@ -1,9 +1,9 @@
-import { Rect } from "../math.js";
-import { ConcreteObjectKind, VirtualObject } from "../scene-manager.js";
-import { sceneManager, simEngine, viewManager } from "../main.js";
-import { SimEvent } from "../engine.js";
-import { ConsumerPin } from "./consumer-pin.js";
-import { ProducerPin } from "./producer-pin.js";
+import { Rect } from "../../math.js";
+import { ConcreteObjectKind, VirtualObject } from "../../scene-manager.js";
+import { sceneManager, simEngine, viewManager } from "../../main.js";
+import { SimEvent } from "../../engine.js";
+import { ConsumerPin } from "../consumer-pin.js";
+import { ProducerPin } from "../producer-pin.js";
 export class InputCircuit {
     constructor(value, pos_x, pos_y) {
         this.value = value;
@@ -17,13 +17,9 @@ export class InputCircuit {
         simEngine.recurringEvents.push(new SimEvent(this, this.updateHandeler));
         sceneManager.register(new VirtualObject(ConcreteObjectKind.Circuit, this, this.rectWrl));
     }
-    updateHandeler(self_) {
-        let self = self_;
-        self.producerPins[0].setValue(self.value);
-    }
-    onClicked() {
-        this.value = !this.value;
-        this.producerPins[0].setValue(this.value);
+    updateHandeler(self) {
+        let self_ = self;
+        self_.producerPins[0].setValue(self_.value);
     }
     // prodPinLocWrl(pinIndex: number) {
     //   return new Vec2(
@@ -68,7 +64,6 @@ export class InputCircuit {
         for (let i = 0; i < this.producerPins.length; i++) {
             this.producerPins[i].draw(ctx);
         }
-        // domLog(`Value: ${this.value}, pin.Value: ${this.producerPins[0].value}`);
         const boundingRect = viewManager.worldToScreenRect(this.rectWrl);
         ctx.fillStyle = "cyan";
         ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.w, boundingRect.h);
@@ -77,7 +72,6 @@ export class InputCircuit {
 export class ProcessingCircuit {
     constructor(nConsumerPins, nProducerPins, updateHandeler, pos_x, pos_y) {
         this.updateHandeler = updateHandeler;
-        this.onClicked = () => { };
         this.rectWrl = new Rect(pos_x, pos_y, 100, nConsumerPins > nProducerPins ? nConsumerPins * 70 : nProducerPins * 70);
         this.producerPins = new Array(nProducerPins);
         for (let i = 0; i < nProducerPins; i++) {
@@ -88,7 +82,6 @@ export class ProcessingCircuit {
             this.consumerPins[i] = new ConsumerPin(this, i);
         }
         this.updateHandeler(this);
-        sceneManager.register(new VirtualObject(ConcreteObjectKind.Circuit, this, this.rectWrl));
     }
     draw(ctx) {
         for (let i = 0; i < this.consumerPins.length; i++) {

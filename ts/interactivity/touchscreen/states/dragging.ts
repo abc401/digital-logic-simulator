@@ -10,16 +10,22 @@ import { Vec2 } from "@src/math.js";
 import { canvas, domLog, logState, viewManager } from "@src/main.js";
 import { Home } from "./home.js";
 import { Zooming } from "./zooming.js";
-import { TouchOutsideCanvas } from "./touch-outside-canvas.js";
-import { TooManyTouches } from "./too-many-touches.js";
+import { Illegal } from "./Illegal.js";
 
 export class Dragging implements TouchScreenState {
   constructor(
     private circuit: Circuit,
     private touchId: number,
-    private draggingOffsetWrl: Vec2
+    private draggingOffsetWrl: Vec2,
+    touchLocScr: Vec2 | undefined = undefined
   ) {
     logState("TSDragging");
+    if (touchLocScr == null) {
+      return;
+    }
+    this.circuit.rectWrl.xy = viewManager
+      .screenToWorld(touchLocScr)
+      .add(this.draggingOffsetWrl);
   }
 
   update(stateMachine: TouchScreenStateMachine, action: TouchAction): void {
@@ -30,7 +36,7 @@ export class Dragging implements TouchScreenState {
     );
 
     if (outsideOfCanvas.length > 0) {
-      stateMachine.state = new TouchOutsideCanvas();
+      stateMachine.state = new Illegal();
     }
 
     if (action.kind === TouchActionKind.TouchStart) {
@@ -39,7 +45,7 @@ export class Dragging implements TouchScreenState {
         const touch2Id = payload.changedTouches[0].identifier;
         stateMachine.state = new Zooming(touch1Id, touch2Id);
       } else {
-        stateMachine.state = new TooManyTouches();
+        stateMachine.state = new Illegal();
       }
     } else if (action.kind === TouchActionKind.TouchMove) {
       let touch = insideOfCanvas[0];
@@ -47,12 +53,6 @@ export class Dragging implements TouchScreenState {
         touch.clientX - boundingRect.x,
         touch.clientY - boundingRect.y
       );
-
-      let previousLocScr = stateMachine.touchLocHistoryScr.get(this.touchId);
-      if (previousLocScr == null) {
-        domLog(`[TSDragging(Err)][TouchMove] No history for touch location`);
-        throw Error();
-      }
 
       this.circuit.rectWrl.xy = viewManager
         .screenToWorld(locScr)
