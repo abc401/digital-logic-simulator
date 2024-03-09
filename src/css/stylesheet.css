@@ -22,9 +22,15 @@
   touch-action: none;
 }
 
-#root {
-  /* width: 100vw; */
-  /* overflow-x: hidden; */
+body {
+  position: relative;
+  min-height: 100vh;
+}
+
+#version {
+  position: absolute;
+  right: 0;
+  bottom: 0;
 }
 
 body {

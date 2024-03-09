@@ -1,4 +1,4 @@
-import { Circuit } from "@src/scene-objects/circuit.js";
+import { Circuit } from "@src/scene/objects/circuit.js";
 import {
   MouseDownPayload,
   MouseMovePayload,
@@ -19,7 +19,7 @@ export class CreatingCircuit implements MouseState {
   mouseUp(stateMachine: MouseStateMachine, payload: MouseUpPayload): void {
     let circuit = this.creator();
 
-    circuit.rectWrl.xy = viewManager.screenToWorld(payload.locScr);
+    circuit.setPos(viewManager.screenToWorld(payload.locScr));
     console.log(`Created ${this.name}`);
     stateMachine.state = new MouseHome();
     touchScreenStateMachine.state = new TouchScreenHome();

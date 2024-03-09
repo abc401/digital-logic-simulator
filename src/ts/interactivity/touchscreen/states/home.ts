@@ -7,15 +7,15 @@ import {
 } from "../state-machine.js";
 import { Vec2 } from "@src/math.js";
 import { sceneManager, viewManager, logState, canvas } from "@src/main.js";
-import { Circuit } from "@src/scene-objects/circuit.js";
+import { Circuit } from "@src/scene/objects/circuit.js";
 import { Panning } from "./panning.js";
 import { Zooming } from "./zooming.js";
-import { ConcreteObjectKind } from "@src/scene-manager.js";
+import { ConcreteObjectKind } from "@src/scene/scene-manager.js";
 import { Illegal } from "./Illegal.js";
-import { ConsumerPin } from "@src/scene-objects/consumer-pin.js";
-import { Wire } from "@src/scene-objects/wire.js";
+import { ConsumerPin } from "@src/scene/objects/consumer-pin.js";
+import { Wire } from "@src/scene/objects/wire.js";
 import { CreatingWire } from "./creating-wire.js";
-import { ProducerPin } from "@src/scene-objects/producer-pin.js";
+import { ProducerPin } from "@src/scene/objects/producer-pin.js";
 import { CircuitSelected } from "./circuit-selected.js";
 
 export class Home implements TouchScreenState {
@@ -57,7 +57,7 @@ export class Home implements TouchScreenState {
         stateMachine.state = new CircuitSelected(
           circuit,
           touch.identifier,
-          circuit.rectWrl.xy.sub(viewManager.screenToWorld(locScr))
+          circuit.tightRectWrl.xy.sub(viewManager.screenToWorld(locScr))
         );
       }
       if (focusObject.kind === ConcreteObjectKind.ConsumerPin) {

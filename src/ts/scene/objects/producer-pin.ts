@@ -1,12 +1,13 @@
-import { Circle, Vec2 } from "../math.js";
-import { ConcreteObjectKind, VirtualObject } from "../scene-manager.js";
-import { sceneManager, simEngine, viewManager } from "../main.js";
-import { SimEvent } from "../engine.js";
+import { Circle, Vec2 } from "../../math.js";
+import { ConcreteObjectKind, ColliderObject } from "../scene-manager.js";
+import { sceneManager, simEngine, viewManager } from "../../main.js";
+import { SimEvent } from "../../engine.js";
 import { Wire } from "./wire.js";
 import { Circuit } from "./circuit.js";
+import { PIN_EXTRUSION_WRL } from "@src/config.js";
 
 export class ProducerPin {
-  static radiusWrl = 10;
+  static radiusWrl = PIN_EXTRUSION_WRL / 2;
   wires: Wire[];
   value: boolean;
   selected = false;
@@ -18,7 +19,6 @@ export class ProducerPin {
   ) {
     this.wires = [];
     this.value = value;
-    sceneManager.register(this.getVirtualObject());
   }
 
   setValue(value: boolean) {
@@ -36,24 +36,22 @@ export class ProducerPin {
     }
   }
 
-  getLocScr() {
-    const rect = viewManager.worldToScreenRect(this.parentCircuit.rectWrl);
+  getLocWrl() {
+    const rect = this.parentCircuit.tightRectWrl;
 
     return new Vec2(
-      rect.x + rect.w,
-      rect.y + this.pinIndex * 70 * viewManager.zoomLevel
+      rect.x + rect.w + ProducerPin.radiusWrl,
+      rect.y + this.pinIndex * 70 + ProducerPin.radiusWrl
     );
   }
 
-  getVirtualObject() {
-    return new VirtualObject(
-      ConcreteObjectKind.ProducerPin,
-      this,
-      new Circle(
-        () => viewManager.screenToWorld(this.getLocScr()),
-        ProducerPin.radiusWrl
-      )
-    );
+  getLocScr() {
+    return viewManager.worldToScreen(this.getLocWrl());
+  }
+
+  pointCollision(pointWrl: Vec2) {
+    const locWrl = this.getLocWrl();
+    return locWrl.sub(pointWrl).mag() < ProducerPin.radiusWrl;
   }
 
   draw(ctx: CanvasRenderingContext2D) {

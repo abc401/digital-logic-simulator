@@ -1,21 +1,27 @@
-import { Vec2, Circle } from "../math.js";
-import { ConcreteObjectKind, VirtualObject } from "../scene-manager.js";
-import { sceneManager, simEngine, viewManager } from "../main.js";
-import { SimEvent } from "../engine.js";
-import { ProducerPin } from "@src/scene-objects/producer-pin.js";
-import { ConsumerPin } from "@src/scene-objects/consumer-pin.js";
+import { Vec2, Circle } from "../../math.js";
+import {
+  ConcreteObjectKind,
+  ColliderObject,
+  Drawable,
+} from "../scene-manager.js";
+import { sceneManager, simEngine, viewManager } from "../../main.js";
+import { SimEvent } from "../../engine.js";
+import { ProducerPin } from "@src/scene/objects/producer-pin.js";
+import { ConsumerPin } from "@src/scene/objects/consumer-pin.js";
 
-export class Wire {
-  id: number;
+export class Wire implements Drawable {
   fromScr: Vec2 | undefined;
   toScr: Vec2 | undefined;
+  drawableId: number;
 
   constructor(
     private producerPin: ProducerPin | undefined,
     private consumerPin: ConsumerPin | undefined
   ) {
-    this.id = sceneManager.register(this.getVirtualObject());
     console.log("[Wire Constructor]");
+
+    this.drawableId = sceneManager.registerDrawable();
+    sceneManager.drawablesBelow.set(this.drawableId, this);
 
     if (producerPin != null) {
       producerPin.wires.push(this);
@@ -55,14 +61,6 @@ export class Wire {
     );
   }
 
-  getVirtualObject() {
-    return new VirtualObject(
-      ConcreteObjectKind.Wire,
-      this,
-      new Circle(() => new Vec2(0, 0), 0)
-    );
-  }
-
   detach() {
     if (this.consumerPin != null) {
       this.consumerPin.value = false;
@@ -81,7 +79,7 @@ export class Wire {
       });
       this.producerPin = undefined;
     }
-    sceneManager.unregister(this.id);
+    sceneManager.drawablesBelow.delete(this.drawableId);
   }
 
   isConsumerPinNull() {

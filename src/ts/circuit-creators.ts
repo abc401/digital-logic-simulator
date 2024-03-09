@@ -2,7 +2,7 @@ import {
   Circuit,
   InputCircuit,
   ProcessingCircuit,
-} from "./scene-objects/circuit.js";
+} from "./scene/objects/circuit.js";
 export let creators: Map<string, () => Circuit> = new Map([
   [
     "Input",

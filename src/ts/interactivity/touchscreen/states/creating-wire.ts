@@ -1,4 +1,4 @@
-import { Wire } from "@src/scene-objects/wire.js";
+import { Wire } from "@src/scene/objects/wire.js";
 import {
   TouchAction,
   TouchActionKind,
@@ -9,9 +9,9 @@ import {
 import { Illegal } from "./Illegal.js";
 import { canvas, sceneManager } from "@src/main.js";
 import { Vec2 } from "@src/math.js";
-import { ConcreteObjectKind } from "@src/scene-manager.js";
-import { ConsumerPin } from "@src/scene-objects/consumer-pin.js";
-import { ProducerPin } from "@src/scene-objects/producer-pin.js";
+import { ConcreteObjectKind } from "@src/scene/scene-manager.js";
+import { ConsumerPin } from "@src/scene/objects/consumer-pin.js";
+import { ProducerPin } from "@src/scene/objects/producer-pin.js";
 import { Home } from "./home.js";
 
 export class CreatingWire implements TouchScreenState {

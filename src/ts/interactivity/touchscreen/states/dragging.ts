@@ -1,4 +1,4 @@
-import { Circuit } from "@src/scene-objects/circuit.js";
+import { Circuit } from "@src/scene/objects/circuit.js";
 import {
   TouchAction,
   TouchActionKind,
@@ -23,7 +23,7 @@ export class Dragging implements TouchScreenState {
     if (touchLocScr == null) {
       return;
     }
-    this.circuit.rectWrl.xy = viewManager
+    this.circuit.tightRectWrl.xy = viewManager
       .screenToWorld(touchLocScr)
       .add(this.draggingOffsetWrl);
   }
@@ -54,7 +54,7 @@ export class Dragging implements TouchScreenState {
         touch.clientY - boundingRect.y
       );
 
-      this.circuit.rectWrl.xy = viewManager
+      this.circuit.tightRectWrl.xy = viewManager
         .screenToWorld(locScr)
         .add(this.draggingOffsetWrl);
       return;

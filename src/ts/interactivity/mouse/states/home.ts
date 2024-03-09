@@ -10,12 +10,15 @@ import {
   MouseUpPayload,
 } from "../state-machine.js";
 import { Panning } from "./panning.js";
-import { ConcreteObjectKind, VirtualObject } from "@src/scene-manager.js";
+import {
+  ConcreteObjectKind,
+  ColliderObject,
+} from "@src/scene/scene-manager.js";
 import { Dragging } from "./dragging.js";
-import { Circuit } from "@src/scene-objects/circuit.js";
-import { ProducerPin } from "@src/scene-objects/producer-pin.js";
-import { ConsumerPin } from "@src/scene-objects/consumer-pin.js";
-import { Wire } from "@src/scene-objects/wire.js";
+import { Circuit } from "@src/scene/objects/circuit.js";
+import { ProducerPin } from "@src/scene/objects/producer-pin.js";
+import { ConsumerPin } from "@src/scene/objects/consumer-pin.js";
+import { Wire } from "@src/scene/objects/wire.js";
 import { Circle } from "@src/math.js";
 import { CreatingWire } from "./creating-wire.js";
 import { CircuitSelected } from "./circuit-selected.js";
@@ -40,16 +43,16 @@ export class Home implements MouseState {
     console.log("Focus Object kind: ", focusObject.kind);
 
     if (focusObject.kind === ConcreteObjectKind.Circuit) {
-      let circuit = focusObject.concreteObject as Circuit;
+      let circuit = focusObject.object as Circuit;
 
       stateMachine.state = new CircuitSelected(
         circuit,
-        circuit.rectWrl.xy.sub(viewManager.screenToWorld(payload.locScr))
+        circuit.tightRectWrl.xy.sub(viewManager.screenToWorld(payload.locScr))
       );
     }
 
     if (focusObject.kind === ConcreteObjectKind.ProducerPin) {
-      const pin = focusObject.concreteObject as ProducerPin;
+      const pin = focusObject.object as ProducerPin;
       const wire = new Wire(pin, undefined);
       wire.toScr = payload.locScr;
       stateMachine.state = new CreatingWire(wire);
@@ -57,7 +60,7 @@ export class Home implements MouseState {
     }
 
     if (focusObject.kind === ConcreteObjectKind.ConsumerPin) {
-      const pin = focusObject.concreteObject as ConsumerPin;
+      const pin = focusObject.object as ConsumerPin;
 
       if (pin.wire != null) {
         pin.wire.detach();

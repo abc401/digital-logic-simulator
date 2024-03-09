@@ -1,8 +1,8 @@
-import { Circuit } from "./scene-objects/circuit.js";
-import { Wire } from "./scene-objects/wire.js";
+import { Circuit } from "./scene/objects/circuit.js";
+import { Wire } from "./scene/objects/wire.js";
 import { SimEngine } from "./engine.js";
 
-import { SceneManager, VirtualObject } from "./scene-manager.js";
+import { SceneManager, ColliderObject } from "./scene/scene-manager.js";
 import { ViewManager } from "./view-manager.js";
 import { MouseStateMachine } from "@src/interactivity/mouse/state-machine.js";
 import { TouchScreenStateMachine } from "./interactivity/touchscreen/state-machine.js";
@@ -66,18 +66,6 @@ export function assert(
   throw Error(message);
 }
 
-export function draw(ctx: CanvasRenderingContext2D) {
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-  for (let wire of sceneManager.wires.values()) {
-    wire.draw(ctx);
-  }
-  // console.log("Wires Length: ", wires.length);
-  for (let circuit of sceneManager.circuits.values()) {
-    circuit.draw(ctx);
-  }
-}
-
 function populateUI() {
   let circuitButtons = document.getElementById("circuit-buttons");
   if (circuitButtons == null) {
@@ -122,6 +110,6 @@ if (runButton !== null) {
 }
 
 setInterval(function () {
-  draw(ctx);
-}, 1000 / 30);
+  sceneManager.draw(ctx);
+}, 1000 / 60);
 // scheduler.runSim(ctx);

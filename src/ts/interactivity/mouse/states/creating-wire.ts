@@ -1,6 +1,6 @@
-import { ProducerPin } from "@src/scene-objects/producer-pin.js";
-import { ConsumerPin } from "@src/scene-objects/consumer-pin.js";
-import { Wire } from "@src/scene-objects/wire.js";
+import { ProducerPin } from "@src/scene/objects/producer-pin.js";
+import { ConsumerPin } from "@src/scene/objects/consumer-pin.js";
+import { Wire } from "@src/scene/objects/wire.js";
 import {
   MouseDownPayload,
   MouseMovePayload,
@@ -10,7 +10,7 @@ import {
 } from "../state-machine.js";
 import { Home } from "./home.js";
 import { logState, sceneManager } from "@src/main.js";
-import { ConcreteObjectKind } from "@src/scene-manager.js";
+import { ConcreteObjectKind } from "@src/scene/scene-manager.js";
 
 export class CreatingWire implements MouseState {
   constructor(private wire: Wire) {
