@@ -1,11 +1,11 @@
-import { Vec2, Circle } from "../../math.js";
+import { Vec2, Circle } from "@src/math.js";
 import {
   ConcreteObjectKind,
   ColliderObject,
   Drawable,
 } from "../scene-manager.js";
-import { sceneManager, simEngine, viewManager } from "../../main.js";
-import { SimEvent } from "../../engine.js";
+import { sceneManager, simEngine, viewManager } from "@src/main.js";
+import { SimEvent } from "@src/engine.js";
 import { ProducerPin } from "@src/scene/objects/producer-pin.js";
 import { ConsumerPin } from "@src/scene/objects/consumer-pin.js";
 
@@ -13,6 +13,7 @@ export class Wire implements Drawable {
   fromScr: Vec2 | undefined;
   toScr: Vec2 | undefined;
   drawableId: number;
+  allocateSimFrame: boolean = true;
 
   constructor(
     private producerPin: ProducerPin | undefined,
@@ -21,14 +22,22 @@ export class Wire implements Drawable {
     console.log("[Wire Constructor]");
 
     this.drawableId = sceneManager.registerDrawable();
-    sceneManager.drawablesBelow.set(this.drawableId, this);
+    sceneManager.currentScene.drawablesBelow.set(this.drawableId, this);
 
     if (producerPin != null) {
-      producerPin.wires.push(this);
+      producerPin.attachWire(this);
+      this.setProducerPin(producerPin);
+      // if (!producerPin.parentCircuit.allocateSimFrame) {
+      //   this.allocateSimFrame = false;
+      // }
     }
 
     if (consumerPin != null) {
-      consumerPin.wire = this;
+      consumerPin.attachWire(this);
+      this.setConsumerPin(consumerPin);
+      // if (!consumerPin.parentCircuit.allocateSimFrame) {
+      //   this.allocateSimFrame = false;
+      // }
     }
 
     if (producerPin == null || consumerPin == null) {
@@ -38,7 +47,7 @@ export class Wire implements Drawable {
       return;
     }
 
-    this.propogateValue(producerPin.value);
+    this.update(this);
   }
 
   update(self: Wire) {
@@ -52,7 +61,18 @@ export class Wire implements Drawable {
       return;
     }
 
+    if (self.consumerPin.parentCircuit.simFrameAllocated) {
+      return;
+    }
+
     self.consumerPin.value = self.producerPin.value;
+    if (!self.consumerPin.parentCircuit.allocSimFrameToSelf) {
+      self.consumerPin.parentCircuit.updateHandeler(
+        self.consumerPin.parentCircuit
+      );
+      return;
+    }
+
     simEngine.nextFrameEvents.enqueue(
       new SimEvent(
         self.consumerPin.parentCircuit,
@@ -79,7 +99,7 @@ export class Wire implements Drawable {
       });
       this.producerPin = undefined;
     }
-    sceneManager.drawablesBelow.delete(this.drawableId);
+    sceneManager.currentScene.drawablesBelow.delete(this.drawableId);
   }
 
   isConsumerPinNull() {
@@ -96,13 +116,18 @@ export class Wire implements Drawable {
 
   setProducerPin(pin: ProducerPin) {
     this.producerPin = pin;
-    pin.wires.push(this);
+    pin.attachWire(this);
+
+    if (!pin.parentCircuit.allocSimFrameToSelf) {
+      this.allocateSimFrame = false;
+    }
+
     console.log("Producer", pin.parentCircuit);
     if (this.consumerPin == null) {
       return;
     }
     console.log("propogated Value");
-    this.propogateValue(this.producerPin.value);
+    this.update(this);
   }
 
   getConsumerPin() {
@@ -110,42 +135,42 @@ export class Wire implements Drawable {
   }
 
   setConsumerPin(pin: ConsumerPin) {
-    const previousWire = pin.wire;
-    if (previousWire != null) {
-      previousWire.detach();
-    }
-
-    pin.wire = this;
+    pin.attachWire(this);
     this.consumerPin = pin;
+
+    if (!pin.parentCircuit.allocSimFrameToInputWires) {
+      this.allocateSimFrame = false;
+    }
 
     console.log("Consumer: ", pin.parentCircuit);
     if (this.producerPin == null) {
       return;
     }
+
     console.log("Propogated Value");
-    this.propogateValue(this.producerPin.value);
+    this.update(this);
   }
 
-  propogateValue(value: boolean) {
-    if (this.consumerPin == null) {
-      console.log("Consumer was null");
-      return;
-    }
+  // propogateValue(value: boolean) {
+  //   if (this.consumerPin == null) {
+  //     console.log("Consumer was null");
+  //     return;
+  //   }
 
-    if (value === this.consumerPin.value) {
-      console.log("produced === consumed");
-      return;
-    }
-    this.consumerPin.value = value;
+  //   if (value === this.consumerPin.value) {
+  //     console.log("produced === consumed");
+  //     return;
+  //   }
+  //   this.consumerPin.value = value;
 
-    console.log("Enqueued");
-    simEngine.nextFrameEvents.enqueue(
-      new SimEvent(
-        this.consumerPin.parentCircuit,
-        this.consumerPin.parentCircuit.updateHandeler
-      )
-    );
-  }
+  //   console.log("Enqueued");
+  //   simEngine.nextFrameEvents.enqueue(
+  //     new SimEvent(
+  //       this.consumerPin.parentCircuit,
+  //       this.consumerPin.parentCircuit.updateHandeler
+  //     )
+  //   );
+  // }
 
   draw(ctx: CanvasRenderingContext2D) {
     const from =

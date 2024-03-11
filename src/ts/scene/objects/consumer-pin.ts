@@ -2,13 +2,16 @@ import { Circle, Vec2 } from "../../math.js";
 import { ConcreteObjectKind, ColliderObject } from "../scene-manager.js";
 import { sceneManager, viewManager } from "../../main.js";
 import { Wire } from "./wire.js";
-import { Circuit } from "./circuit.js";
-import { PIN_EXTRUSION_WRL } from "@src/config.js";
+import { Circuit, CustomCircuitOutputs } from "./circuit.js";
+import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from "@src/config.js";
 
 export class ConsumerPin {
   static radiusWrl = PIN_EXTRUSION_WRL / 2;
+
   wire: Wire | undefined;
   value: boolean = false;
+
+  onWireAttached: (self: CustomCircuitOutputs) => void = () => {};
 
   constructor(readonly parentCircuit: Circuit, readonly pinIndex: number) {}
 
@@ -16,12 +19,23 @@ export class ConsumerPin {
     const rectWrl = this.parentCircuit.tightRectWrl;
     return new Vec2(
       rectWrl.x - ConsumerPin.radiusWrl,
-      rectWrl.y + this.pinIndex * 70 + ConsumerPin.radiusWrl
+      rectWrl.y +
+        (ConsumerPin.radiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) * this.pinIndex +
+        ConsumerPin.radiusWrl
     );
   }
 
   getLocScr() {
     return viewManager.worldToScreen(this.getLocWrl());
+  }
+
+  attachWire(wire: Wire) {
+    if (this.wire != null) {
+      this.wire.detach();
+    }
+
+    this.wire = wire;
+    this.onWireAttached(this.parentCircuit as CustomCircuitOutputs);
   }
 
   pointCollision(pointWrl: Vec2) {

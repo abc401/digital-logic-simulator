@@ -53,7 +53,7 @@ export class Home implements TouchScreenState {
       }
 
       if (focusObject.kind === ConcreteObjectKind.Circuit) {
-        const circuit = focusObject.concreteObject as Circuit;
+        const circuit = focusObject.object as Circuit;
         stateMachine.state = new CircuitSelected(
           circuit,
           touch.identifier,
@@ -61,7 +61,7 @@ export class Home implements TouchScreenState {
         );
       }
       if (focusObject.kind === ConcreteObjectKind.ConsumerPin) {
-        const pin = focusObject.concreteObject as ConsumerPin;
+        const pin = focusObject.object as ConsumerPin;
 
         if (pin.wire != null) {
           pin.wire.detach();
@@ -74,7 +74,7 @@ export class Home implements TouchScreenState {
         return;
       }
       if (focusObject.kind === ConcreteObjectKind.ProducerPin) {
-        const pin = focusObject.concreteObject as ProducerPin;
+        const pin = focusObject.object as ProducerPin;
         let wire = new Wire(pin, undefined);
         wire.toScr = locScr;
         stateMachine.state = new CreatingWire(wire);

@@ -3,14 +3,16 @@ import { ConcreteObjectKind, ColliderObject } from "../scene-manager.js";
 import { sceneManager, simEngine, viewManager } from "../../main.js";
 import { SimEvent } from "../../engine.js";
 import { Wire } from "./wire.js";
-import { Circuit } from "./circuit.js";
-import { PIN_EXTRUSION_WRL } from "@src/config.js";
+import { Circuit, CustomCircuitInputs } from "./circuit.js";
+import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from "@src/config.js";
 
 export class ProducerPin {
   static radiusWrl = PIN_EXTRUSION_WRL / 2;
   wires: Wire[];
   value: boolean;
   selected = false;
+
+  onWireAttached: (self: CustomCircuitInputs) => void = () => {};
 
   constructor(
     readonly parentCircuit: Circuit,
@@ -21,6 +23,11 @@ export class ProducerPin {
     this.value = value;
   }
 
+  attachWire(wire: Wire) {
+    this.wires.push(wire);
+    this.onWireAttached(this.parentCircuit as CustomCircuitInputs);
+  }
+
   setValue(value: boolean) {
     if (this.value === value) {
       // console.log("[producer.setValue] producer.value === new value");
@@ -29,19 +36,25 @@ export class ProducerPin {
 
     this.value = value;
     for (let i = 0; i < this.wires.length; i++) {
-      simEngine.nextFrameEvents.enqueue(
-        new SimEvent(this.wires[i], this.wires[i].update)
-      );
+      if (!this.wires[i].allocateSimFrame) {
+        this.wires[i].update(this.wires[i]);
+      } else {
+        simEngine.nextFrameEvents.enqueue(
+          new SimEvent(this.wires[i], this.wires[i].update)
+        );
+      }
       // this.wires[i].propogateValue(value);
     }
   }
 
   getLocWrl() {
-    const rect = this.parentCircuit.tightRectWrl;
+    const rectWrl = this.parentCircuit.tightRectWrl;
 
     return new Vec2(
-      rect.x + rect.w + ProducerPin.radiusWrl,
-      rect.y + this.pinIndex * 70 + ProducerPin.radiusWrl
+      rectWrl.x + rectWrl.w + ProducerPin.radiusWrl,
+      rectWrl.y +
+        (ProducerPin.radiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) * this.pinIndex +
+        ProducerPin.radiusWrl
     );
   }
 
