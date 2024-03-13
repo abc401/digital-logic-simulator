@@ -1,4 +1,4 @@
-import { Circuit } from "@src/scene-objects/circuit.js";
+import { Circuit } from "@src/scene/objects/circuit.js";
 import {
   MouseAction,
   MouseActionKind,
@@ -22,16 +22,16 @@ export class Dragging implements MouseState {
     if (mouseLocScr == null) {
       return;
     }
-    this.circuit.rectWrl.xy = viewManager
+    this.circuit.tightRectWrl.xy = viewManager
       .screenToWorld(mouseLocScr)
       .add(this.draggingOffsetWrl);
     logState("Dragging");
   }
 
   mouseMove(manager: MouseStateMachine, payload: MouseMovePayload): void {
-    this.circuit.rectWrl.xy = viewManager
-      .screenToWorld(payload.locScr)
-      .add(this.draggingOffsetWrl);
+    this.circuit.setPos(
+      viewManager.screenToWorld(payload.locScr).add(this.draggingOffsetWrl)
+    );
   }
 
   mouseUp(manager: MouseStateMachine, payload: MouseUpPayload): void {

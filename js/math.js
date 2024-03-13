@@ -54,6 +54,9 @@ export class Rect {
     static fromEndPoints(p1, p2) {
         return new Rect(p1.x > p2.x ? p2.x : p1.x, p1.y > p2.y ? p2.y : p1.y, Math.abs(p1.x - p2.x), Math.abs(p1.y - p2.y));
     }
+    clone() {
+        return new Rect(this.x, this.y, this.w, this.h);
+    }
     forceAspectRatio(aspectRatio) {
         return new Rect(this.x, this.y, this.w > this.h ? this.w : aspectRatio * this.h, this.w > this.h ? this.w / aspectRatio : this.h);
     }

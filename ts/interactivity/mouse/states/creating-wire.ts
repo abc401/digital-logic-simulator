@@ -1,6 +1,6 @@
-import { ProducerPin } from "@src/scene-objects/producer-pin.js";
-import { ConsumerPin } from "@src/scene-objects/consumer-pin.js";
-import { Wire } from "@src/scene-objects/wire.js";
+import { ProducerPin } from "@src/scene/objects/producer-pin.js";
+import { ConsumerPin } from "@src/scene/objects/consumer-pin.js";
+import { Wire } from "@src/scene/objects/wire.js";
 import {
   MouseDownPayload,
   MouseMovePayload,
@@ -10,7 +10,7 @@ import {
 } from "../state-machine.js";
 import { Home } from "./home.js";
 import { logState, sceneManager } from "@src/main.js";
-import { ConcreteObjectKind } from "@src/scene-manager.js";
+import { ConcreteObjectKind } from "@src/scene/scene-manager.js";
 
 export class CreatingWire implements MouseState {
   constructor(private wire: Wire) {
@@ -37,12 +37,12 @@ export class CreatingWire implements MouseState {
       focusObject.kind === ConcreteObjectKind.ConsumerPin &&
       this.wire.isConsumerPinNull()
     ) {
-      this.wire.setConsumerPin(focusObject.concreteObject as ConsumerPin);
+      this.wire.setConsumerPin(focusObject.object as ConsumerPin);
     } else if (
       focusObject.kind === ConcreteObjectKind.ProducerPin &&
       this.wire.isProducerPinNull()
     ) {
-      this.wire.setProducerPin(focusObject.concreteObject as ProducerPin);
+      this.wire.setProducerPin(focusObject.object as ProducerPin);
     } else {
       this.wire.detach();
     }

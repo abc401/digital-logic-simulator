@@ -1,6 +1,6 @@
 import { Home } from "./home.js";
 import { logState, sceneManager } from "../../../main.js";
-import { ConcreteObjectKind } from "../../../scene-manager.js";
+import { ConcreteObjectKind } from "../../../scene/scene-manager.js";
 export class CreatingWire {
     constructor(wire) {
         this.wire = wire;
@@ -24,11 +24,11 @@ export class CreatingWire {
         }
         else if (focusObject.kind === ConcreteObjectKind.ConsumerPin &&
             this.wire.isConsumerPinNull()) {
-            this.wire.setConsumerPin(focusObject.concreteObject);
+            this.wire.setConsumerPin(focusObject.object);
         }
         else if (focusObject.kind === ConcreteObjectKind.ProducerPin &&
             this.wire.isProducerPinNull()) {
-            this.wire.setProducerPin(focusObject.concreteObject);
+            this.wire.setProducerPin(focusObject.object);
         }
         else {
             this.wire.detach();

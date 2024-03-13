@@ -1,15 +1,19 @@
-import { Circle, Vec2 } from "../math.js";
-import { ConcreteObjectKind, VirtualObject } from "../scene-manager.js";
-import { sceneManager, simEngine, viewManager } from "../main.js";
-import { SimEvent } from "../engine.js";
+import { Vec2 } from "../../math.js";
+import { simEngine, viewManager } from "../../main.js";
+import { SimEvent } from "../../engine.js";
+import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from "../../config.js";
 export class ProducerPin {
     constructor(parentCircuit, pinIndex, value = false) {
         this.parentCircuit = parentCircuit;
         this.pinIndex = pinIndex;
         this.selected = false;
+        this.onWireAttached = () => { };
         this.wires = [];
         this.value = value;
-        sceneManager.register(this.getVirtualObject());
+    }
+    attachWire(wire) {
+        this.wires.push(wire);
+        this.onWireAttached(this.parentCircuit);
     }
     setValue(value) {
         if (this.value === value) {
@@ -18,16 +22,27 @@ export class ProducerPin {
         }
         this.value = value;
         for (let i = 0; i < this.wires.length; i++) {
-            simEngine.nextFrameEvents.enqueue(new SimEvent(this.wires[i], this.wires[i].update));
+            if (!this.wires[i].allocateSimFrame) {
+                this.wires[i].update(this.wires[i]);
+            }
+            else {
+                simEngine.nextFrameEvents.enqueue(new SimEvent(this.wires[i], this.wires[i].update));
+            }
             // this.wires[i].propogateValue(value);
         }
     }
-    getLocScr() {
-        const rect = viewManager.worldToScreenRect(this.parentCircuit.rectWrl);
-        return new Vec2(rect.x + rect.w, rect.y + this.pinIndex * 70 * viewManager.zoomLevel);
+    getLocWrl() {
+        const rectWrl = this.parentCircuit.tightRectWrl;
+        return new Vec2(rectWrl.x + rectWrl.w + ProducerPin.radiusWrl, rectWrl.y +
+            (ProducerPin.radiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) * this.pinIndex +
+            ProducerPin.radiusWrl);
     }
-    getVirtualObject() {
-        return new VirtualObject(ConcreteObjectKind.ProducerPin, this, new Circle(() => viewManager.screenToWorld(this.getLocScr()), ProducerPin.radiusWrl));
+    getLocScr() {
+        return viewManager.worldToScreen(this.getLocWrl());
+    }
+    pointCollision(pointWrl) {
+        const locWrl = this.getLocWrl();
+        return locWrl.sub(pointWrl).mag() < ProducerPin.radiusWrl;
     }
     draw(ctx) {
         const pos = this.getLocScr();
@@ -50,4 +65,4 @@ export class ProducerPin {
         ctx.fill();
     }
 }
-ProducerPin.radiusWrl = 10;
+ProducerPin.radiusWrl = PIN_EXTRUSION_WRL / 2;

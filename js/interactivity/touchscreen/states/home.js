@@ -3,9 +3,9 @@ import { Vec2 } from "../../../math.js";
 import { sceneManager, viewManager, logState, canvas } from "../../../main.js";
 import { Panning } from "./panning.js";
 import { Zooming } from "./zooming.js";
-import { ConcreteObjectKind } from "../../../scene-manager.js";
+import { ConcreteObjectKind } from "../../../scene/scene-manager.js";
 import { Illegal } from "./Illegal.js";
-import { Wire } from "../../../scene-objects/wire.js";
+import { Wire } from "../../../scene/objects/wire.js";
 import { CreatingWire } from "./creating-wire.js";
 import { CircuitSelected } from "./circuit-selected.js";
 export class Home {
@@ -32,11 +32,11 @@ export class Home {
                 return;
             }
             if (focusObject.kind === ConcreteObjectKind.Circuit) {
-                const circuit = focusObject.concreteObject;
-                stateMachine.state = new CircuitSelected(circuit, touch.identifier, circuit.rectWrl.xy.sub(viewManager.screenToWorld(locScr)));
+                const circuit = focusObject.object;
+                stateMachine.state = new CircuitSelected(circuit, touch.identifier, circuit.tightRectWrl.xy.sub(viewManager.screenToWorld(locScr)));
             }
             if (focusObject.kind === ConcreteObjectKind.ConsumerPin) {
-                const pin = focusObject.concreteObject;
+                const pin = focusObject.object;
                 if (pin.wire != null) {
                     pin.wire.detach();
                 }
@@ -46,7 +46,7 @@ export class Home {
                 return;
             }
             if (focusObject.kind === ConcreteObjectKind.ProducerPin) {
-                const pin = focusObject.concreteObject;
+                const pin = focusObject.object;
                 let wire = new Wire(pin, undefined);
                 wire.toScr = locScr;
                 stateMachine.state = new CreatingWire(wire);

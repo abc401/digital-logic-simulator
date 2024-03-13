@@ -1,8 +1,10 @@
 import {
   Circuit,
+  CustomCircuitInputs,
+  CustomCircuitOutputs,
   InputCircuit,
   ProcessingCircuit,
-} from "./scene-objects/circuit.js";
+} from "./scene/objects/circuit.js";
 export let creators: Map<string, () => Circuit> = new Map([
   [
     "Input",
@@ -10,6 +12,19 @@ export let creators: Map<string, () => Circuit> = new Map([
       return new InputCircuit(false, 0, 0);
     },
   ],
+  [
+    "CustomCircuitInputs",
+    () => {
+      return new CustomCircuitInputs(0, 0);
+    },
+  ],
+  [
+    "CustomCircuitOutputs",
+    () => {
+      return new CustomCircuitOutputs(0, 0);
+    },
+  ],
+
   [
     "And",
     () => {

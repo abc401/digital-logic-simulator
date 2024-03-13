@@ -72,6 +72,10 @@ export class Rect implements BoundingBox {
     );
   }
 
+  clone() {
+    return new Rect(this.x, this.y, this.w, this.h);
+  }
+
   forceAspectRatio(aspectRatio: number) {
     return new Rect(
       this.x,

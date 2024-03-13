@@ -12,7 +12,7 @@ import {
   TouchScreenStateMachine,
   discriminateTouches,
 } from "../state-machine.js";
-import { Circuit } from "@src/scene-objects/circuit.js";
+import { Circuit } from "@src/scene/objects/circuit.js";
 import { Illegal } from "./Illegal.js";
 import { Vec2 } from "@src/math.js";
 import { Home as TouchScreenHome } from "./home.js";
@@ -41,7 +41,7 @@ export class CreatingCircuit implements TouchScreenState {
       );
 
       const circuit = this.creator();
-      circuit.rectWrl.xy = viewManager.screenToWorld(locScr);
+      circuit.tightRectWrl.xy = viewManager.screenToWorld(locScr);
       // domLog(`Created ${this.name}`);
       // domLog(
       //   `circuit.value: ${circuit.value}, circuit.pin.value: ${circuit.producerPins[0].value}`

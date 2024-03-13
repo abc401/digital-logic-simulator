@@ -9,15 +9,13 @@ export class Dragging {
         if (mouseLocScr == null) {
             return;
         }
-        this.circuit.rectWrl.xy = viewManager
+        this.circuit.tightRectWrl.xy = viewManager
             .screenToWorld(mouseLocScr)
             .add(this.draggingOffsetWrl);
         logState("Dragging");
     }
     mouseMove(manager, payload) {
-        this.circuit.rectWrl.xy = viewManager
-            .screenToWorld(payload.locScr)
-            .add(this.draggingOffsetWrl);
+        this.circuit.setPos(viewManager.screenToWorld(payload.locScr).add(this.draggingOffsetWrl));
     }
     mouseUp(manager, payload) {
         if (payload.button !== MouseButton.Primary) {

@@ -1,5 +1,6 @@
+import { CustomCircuit } from "./scene/objects/circuit.js";
 import { SimEngine } from "./engine.js";
-import { SceneManager } from "./scene-manager.js";
+import { SceneManager } from "./scene/scene-manager.js";
 import { ViewManager } from "./view-manager.js";
 import { MouseStateMachine } from "./interactivity/mouse/state-machine.js";
 import { TouchScreenStateMachine } from "./interactivity/touchscreen/state-machine.js";
@@ -14,6 +15,14 @@ export let ctx;
 let tmp_ctx_ = canvas.getContext("2d");
 assert(tmp_ctx_ != null, "Could not get 2d context from canvas");
 ctx = tmp_ctx_;
+export let secondaryCanvas;
+tmp_canvas_ = document.getElementById("secondary-canvas");
+assert(tmp_canvas_ != null, "The dom does not contain a canvas");
+secondaryCanvas = tmp_canvas_;
+export let secondaryCtx;
+tmp_ctx_ = secondaryCanvas.getContext("2d");
+assert(tmp_ctx_ != null, "Could not get 2d context from canvas");
+secondaryCtx = tmp_ctx_;
 export const loggingDom = document.getElementById("logging");
 if (loggingDom == null) {
     console.info("No logging dom!");
@@ -52,22 +61,13 @@ export function assert(condition, message = undefined) {
     }
     throw Error(message);
 }
-export function draw(ctx) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    for (let wire of sceneManager.wires.values()) {
-        wire.draw(ctx);
-    }
-    // console.log("Wires Length: ", wires.length);
-    for (let circuit of sceneManager.circuits.values()) {
-        circuit.draw(ctx);
-    }
-}
-function populateUI() {
+function circuitCreators() {
     let circuitButtons = document.getElementById("circuit-buttons");
     if (circuitButtons == null) {
         domLog("[Error] No container for circuit buttons");
         throw Error();
     }
+    circuitButtons.replaceChildren();
     for (let [name, creator] of creators.entries()) {
         let button = document.createElement("button");
         button.innerHTML = name;
@@ -77,6 +77,55 @@ function populateUI() {
             touchScreenStateMachine.state = new CreatingCircuitTouchScreen(name, creator);
         };
         circuitButtons.appendChild(button);
+    }
+}
+function populateUI() {
+    circuitCreators();
+    {
+        let circuitName = undefined;
+        let sceneId = undefined;
+        let newCustomCircuit = document.getElementById("new-custom-circuit");
+        if (newCustomCircuit == null) {
+            console.log("newCircuitCreator == null");
+            return;
+        }
+        let newCustomCircuitButton = document.createElement("button");
+        let doneCreatingCustomCircuit = document.createElement("button");
+        newCustomCircuitButton.innerHTML = "New Custom Circuit";
+        newCustomCircuitButton.onclick = (ev) => {
+            while (true) {
+                let tmp = prompt("Enter name for custom circuit");
+                if (tmp != null && tmp !== "" && creators.get(tmp) == null) {
+                    circuitName = tmp;
+                    break;
+                }
+            }
+            sceneId = sceneManager.newScene();
+            sceneManager.setCurrentScene(sceneId);
+            newCustomCircuitButton.disabled = true;
+            doneCreatingCustomCircuit.disabled = false;
+        };
+        doneCreatingCustomCircuit.innerHTML = "Done";
+        doneCreatingCustomCircuit.disabled = true;
+        doneCreatingCustomCircuit.onclick = (ev) => {
+            sceneManager.setCurrentScene(SceneManager.HOME_SCENE_ID);
+            if (circuitName == null) {
+                domLog("circuitName == null");
+                throw Error();
+            }
+            creators.set(circuitName, () => {
+                if (sceneId == null) {
+                    domLog("sceneId == null");
+                    throw Error();
+                }
+                return new CustomCircuit(sceneId, 0, 0);
+            });
+            circuitCreators();
+            newCustomCircuitButton.disabled = false;
+            doneCreatingCustomCircuit.disabled = true;
+        };
+        newCustomCircuit.appendChild(newCustomCircuitButton);
+        newCustomCircuit.appendChild(doneCreatingCustomCircuit);
     }
 }
 populateUI();
@@ -99,6 +148,6 @@ if (runButton !== null) {
     };
 }
 setInterval(function () {
-    draw(ctx);
-}, 1000 / 30);
+    sceneManager.draw(ctx);
+}, 1000 / 90);
 // scheduler.runSim(ctx);

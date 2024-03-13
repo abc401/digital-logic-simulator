@@ -1,24 +1,31 @@
-import { Vec2, Circle } from "../math.js";
-import { ConcreteObjectKind, VirtualObject } from "../scene-manager.js";
-import { sceneManager, simEngine, viewManager } from "../main.js";
-import { SimEvent } from "../engine.js";
+import { sceneManager, simEngine, viewManager } from "../../main.js";
+import { SimEvent } from "../../engine.js";
 export class Wire {
     constructor(producerPin, consumerPin) {
         this.producerPin = producerPin;
         this.consumerPin = consumerPin;
-        this.id = sceneManager.register(this.getVirtualObject());
+        this.allocateSimFrame = true;
         console.log("[Wire Constructor]");
+        this.id = sceneManager.currentScene.registerWire(this);
         if (producerPin != null) {
-            producerPin.wires.push(this);
+            producerPin.attachWire(this);
+            this.setProducerPin(producerPin);
+            // if (!producerPin.parentCircuit.allocateSimFrame) {
+            //   this.allocateSimFrame = false;
+            // }
         }
         if (consumerPin != null) {
-            consumerPin.wire = this;
+            consumerPin.attachWire(this);
+            this.setConsumerPin(consumerPin);
+            // if (!consumerPin.parentCircuit.allocateSimFrame) {
+            //   this.allocateSimFrame = false;
+            // }
         }
         if (producerPin == null || consumerPin == null) {
             console.log("[Wire Constructor] producerPin == null || consumerPin == null");
             return;
         }
-        this.propogateValue(producerPin.value);
+        this.update(this);
     }
     update(self) {
         if (self.consumerPin == null) {
@@ -30,11 +37,15 @@ export class Wire {
         if (self.consumerPin == null || self.producerPin == null) {
             return;
         }
+        if (self.consumerPin.parentCircuit.simFrameAllocated) {
+            return;
+        }
         self.consumerPin.value = self.producerPin.value;
+        if (!self.consumerPin.parentCircuit.allocSimFrameToSelf) {
+            self.consumerPin.parentCircuit.updateHandeler(self.consumerPin.parentCircuit);
+            return;
+        }
         simEngine.nextFrameEvents.enqueue(new SimEvent(self.consumerPin.parentCircuit, self.consumerPin.parentCircuit.updateHandeler));
-    }
-    getVirtualObject() {
-        return new VirtualObject(ConcreteObjectKind.Wire, this, new Circle(() => new Vec2(0, 0), 0));
     }
     detach() {
         if (this.consumerPin != null) {
@@ -49,7 +60,15 @@ export class Wire {
             });
             this.producerPin = undefined;
         }
-        sceneManager.unregister(this.id);
+        sceneManager.currentScene.unregisterWire(this.id);
+        console.log(`wire ${this.id} has been detached`);
+    }
+    clone() {
+        let cloned = Object.assign({}, this);
+        cloned.consumerPin = undefined;
+        cloned.producerPin = undefined;
+        Object.setPrototypeOf(cloned, Wire.prototype);
+        return cloned;
     }
     isConsumerPinNull() {
         return this.consumerPin == null;
@@ -60,46 +79,71 @@ export class Wire {
     getProducerPin() {
         return this.producerPin;
     }
-    setProducerPin(pin) {
+    setProducerPinNoUpdate(pin) {
         this.producerPin = pin;
         pin.wires.push(this);
+        pin.attachWire(this);
+        console.log("[Wire.setProducerPin] wire: ", this);
+        if (!pin.parentCircuit.allocSimFrameToOutputWires) {
+            this.allocateSimFrame = false;
+        }
+    }
+    setProducerPin(pin) {
+        this.producerPin = pin;
+        pin.attachWire(this);
+        console.log("[Wire.setProducerPin] wire: ", this);
+        if (!pin.parentCircuit.allocSimFrameToOutputWires) {
+            this.allocateSimFrame = false;
+        }
         console.log("Producer", pin.parentCircuit);
         if (this.consumerPin == null) {
             return;
         }
         console.log("propogated Value");
-        this.propogateValue(this.producerPin.value);
+        this.update(this);
     }
     getConsumerPin() {
         return this.consumerPin;
     }
     setConsumerPin(pin) {
-        const previousWire = pin.wire;
-        if (previousWire != null) {
-            previousWire.detach();
-        }
-        pin.wire = this;
+        pin.attachWire(this);
         this.consumerPin = pin;
+        if (!pin.parentCircuit.allocSimFrameToInputWires) {
+            this.allocateSimFrame = false;
+        }
         console.log("Consumer: ", pin.parentCircuit);
         if (this.producerPin == null) {
             return;
         }
         console.log("Propogated Value");
-        this.propogateValue(this.producerPin.value);
+        this.update(this);
     }
-    propogateValue(value) {
-        if (this.consumerPin == null) {
-            console.log("Consumer was null");
-            return;
+    setConsumerPinNoUpdate(pin) {
+        pin.wire = this;
+        this.consumerPin = pin;
+        if (!pin.parentCircuit.allocSimFrameToInputWires) {
+            this.allocateSimFrame = false;
         }
-        if (value === this.consumerPin.value) {
-            console.log("produced === consumed");
-            return;
-        }
-        this.consumerPin.value = value;
-        console.log("Enqueued");
-        simEngine.nextFrameEvents.enqueue(new SimEvent(this.consumerPin.parentCircuit, this.consumerPin.parentCircuit.updateHandeler));
+        console.log("Consumer: ", pin.parentCircuit);
     }
+    // propogateValue(value: boolean) {
+    //   if (this.consumerPin == null) {
+    //     console.log("Consumer was null");
+    //     return;
+    //   }
+    //   if (value === this.consumerPin.value) {
+    //     console.log("produced === consumed");
+    //     return;
+    //   }
+    //   this.consumerPin.value = value;
+    //   console.log("Enqueued");
+    //   simEngine.nextFrameEvents.enqueue(
+    //     new SimEvent(
+    //       this.consumerPin.parentCircuit,
+    //       this.consumerPin.parentCircuit.updateHandeler
+    //     )
+    //   );
+    // }
     draw(ctx) {
         const from = this.producerPin == null ? this.fromScr : this.producerPin.getLocScr();
         const to = this.consumerPin == null ? this.toScr : this.consumerPin.getLocScr();

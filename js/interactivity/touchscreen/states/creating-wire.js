@@ -2,7 +2,7 @@ import { TouchActionKind, discriminateTouches, } from "../state-machine.js";
 import { Illegal } from "./Illegal.js";
 import { canvas, sceneManager } from "../../../main.js";
 import { Vec2 } from "../../../math.js";
-import { ConcreteObjectKind } from "../../../scene-manager.js";
+import { ConcreteObjectKind } from "../../../scene/scene-manager.js";
 import { Home } from "./home.js";
 export class CreatingWire {
     constructor(wire) {
@@ -35,11 +35,11 @@ export class CreatingWire {
             }
             else if (focusObject.kind === ConcreteObjectKind.ConsumerPin &&
                 this.wire.isConsumerPinNull()) {
-                this.wire.setConsumerPin(focusObject.concreteObject);
+                this.wire.setConsumerPin(focusObject.object);
             }
             else if (focusObject.kind === ConcreteObjectKind.ProducerPin &&
                 this.wire.isProducerPinNull()) {
-                this.wire.setProducerPin(focusObject.concreteObject);
+                this.wire.setProducerPin(focusObject.object);
             }
             else {
                 this.wire.detach();

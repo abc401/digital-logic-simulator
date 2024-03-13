@@ -1,9 +1,21 @@
-import { InputCircuit, ProcessingCircuit, } from "./scene-objects/circuit.js";
+import { CustomCircuitInputs, CustomCircuitOutputs, InputCircuit, ProcessingCircuit, } from "./scene/objects/circuit.js";
 export let creators = new Map([
     [
         "Input",
         () => {
             return new InputCircuit(false, 0, 0);
+        },
+    ],
+    [
+        "CustomCircuitInputs",
+        () => {
+            return new CustomCircuitInputs(0, 0);
+        },
+    ],
+    [
+        "CustomCircuitOutputs",
+        () => {
+            return new CustomCircuitOutputs(0, 0);
         },
     ],
     [

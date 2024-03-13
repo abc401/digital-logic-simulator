@@ -13,7 +13,7 @@ export class Dragging {
         if (touchLocScr == null) {
             return;
         }
-        this.circuit.rectWrl.xy = viewManager
+        this.circuit.tightRectWrl.xy = viewManager
             .screenToWorld(touchLocScr)
             .add(this.draggingOffsetWrl);
     }
@@ -37,7 +37,7 @@ export class Dragging {
         else if (action.kind === TouchActionKind.TouchMove) {
             let touch = insideOfCanvas[0];
             let locScr = new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y);
-            this.circuit.rectWrl.xy = viewManager
+            this.circuit.tightRectWrl.xy = viewManager
                 .screenToWorld(locScr)
                 .add(this.draggingOffsetWrl);
             return;

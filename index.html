@@ -12,9 +12,8 @@
     <title>Digital Logic Simulator</title>
   </head>
   <body>
+    <div id="version">10</div>
     <div id="root">
-      <h1>S-R Latch</h1>
-      <p>Version: 10</p>
       <div id="canvas-parent">
         <div id="canvas-state"></div>
         <canvas width="500" height="500" id="main-canvas">
@@ -22,6 +21,9 @@
         </canvas>
       </div>
     </div>
+    <canvas width="500" height="500" id="secondary-canvas">
+      Your browser does not support the canvas element
+    </canvas>
     <div id="sim-controls">
       <h2>Sim Controls</h2>
       <button id="run">Run</button>
@@ -29,6 +31,7 @@
       <button id="pause">Pause</button>
     </div>
     <div id="circuit-buttons"></div>
+    <div id="new-custom-circuit"></div>
     <div>
       <h2>Logging</h2>
 

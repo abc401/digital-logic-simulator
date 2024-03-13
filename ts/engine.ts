@@ -1,4 +1,4 @@
-import { ctx, draw } from "./main.js";
+import { sceneManager } from "./main.js";
 import { Queue } from "./queue.js";
 
 export class SimEvent {
@@ -22,14 +22,15 @@ export class SimEngine {
   }
 
   tick() {
-    // console.log("Tick start");
+    console.log("Tick start");
+
     this.tickNumber += 1;
 
     let tmp = this.currentFrameEvents;
     this.currentFrameEvents = this.nextFrameEvents;
     this.nextFrameEvents = tmp;
 
-    // console.debug("Current: ", this.currentFrameEvents);
+    console.debug("Current: ", this.currentFrameEvents);
 
     for (let i = 0; i < this.recurringEvents.length; i++) {
       this.recurringEvents[i].handeler(this.recurringEvents[i].self);
@@ -42,8 +43,9 @@ export class SimEngine {
     }
 
     // draw(ctx);
-    // console.debug("Next: ", this.nextFrameEvents);
-    // console.log("tick end");
+    console.debug("Next: ", this.nextFrameEvents);
+    console.log("tick end");
+    console.log("Scene 1: ", sceneManager.scenes.get(1));
   }
   // ctx: CanvasRenderingContext2D
   async runSim() {
