@@ -2,27 +2,26 @@ import { Vec2, Circle } from "@src/math.js";
 import {
   ConcreteObjectKind,
   ColliderObject,
-  Drawable,
+  SceneObject,
 } from "../scene-manager.js";
 import { sceneManager, simEngine, viewManager } from "@src/main.js";
 import { SimEvent } from "@src/engine.js";
 import { ProducerPin } from "@src/scene/objects/producer-pin.js";
 import { ConsumerPin } from "@src/scene/objects/consumer-pin.js";
 
-export class Wire implements Drawable {
+export class Wire implements SceneObject {
   fromScr: Vec2 | undefined;
   toScr: Vec2 | undefined;
-  drawableId: number;
+  id: number;
   allocateSimFrame: boolean = true;
 
   constructor(
-    private producerPin: ProducerPin | undefined,
-    private consumerPin: ConsumerPin | undefined
+    public producerPin: ProducerPin | undefined,
+    public consumerPin: ConsumerPin | undefined
   ) {
     console.log("[Wire Constructor]");
 
-    this.drawableId = sceneManager.registerDrawable();
-    sceneManager.currentScene.drawablesBelow.set(this.drawableId, this);
+    this.id = sceneManager.currentScene.registerWire(this);
 
     if (producerPin != null) {
       producerPin.attachWire(this);
@@ -99,7 +98,16 @@ export class Wire implements Drawable {
       });
       this.producerPin = undefined;
     }
-    sceneManager.currentScene.drawablesBelow.delete(this.drawableId);
+    sceneManager.currentScene.unregisterWire(this.id);
+    console.log(`wire ${this.id} has been detached`);
+  }
+
+  clone() {
+    let cloned = Object.assign({}, this) as Wire;
+    cloned.consumerPin = undefined;
+    cloned.producerPin = undefined;
+    Object.setPrototypeOf(cloned, Wire.prototype);
+    return cloned;
   }
 
   isConsumerPinNull() {
@@ -114,11 +122,25 @@ export class Wire implements Drawable {
     return this.producerPin;
   }
 
+  setProducerPinNoUpdate(pin: ProducerPin) {
+    this.producerPin = pin;
+    pin.wires.push(this);
+    pin.attachWire(this);
+
+    console.log("[Wire.setProducerPin] wire: ", this);
+
+    if (!pin.parentCircuit.allocSimFrameToOutputWires) {
+      this.allocateSimFrame = false;
+    }
+  }
+
   setProducerPin(pin: ProducerPin) {
     this.producerPin = pin;
     pin.attachWire(this);
 
-    if (!pin.parentCircuit.allocSimFrameToSelf) {
+    console.log("[Wire.setProducerPin] wire: ", this);
+
+    if (!pin.parentCircuit.allocSimFrameToOutputWires) {
       this.allocateSimFrame = false;
     }
 
@@ -149,6 +171,16 @@ export class Wire implements Drawable {
 
     console.log("Propogated Value");
     this.update(this);
+  }
+  setConsumerPinNoUpdate(pin: ConsumerPin) {
+    pin.wire = this;
+    this.consumerPin = pin;
+
+    if (!pin.parentCircuit.allocSimFrameToInputWires) {
+      this.allocateSimFrame = false;
+    }
+
+    console.log("Consumer: ", pin.parentCircuit);
   }
 
   // propogateValue(value: boolean) {

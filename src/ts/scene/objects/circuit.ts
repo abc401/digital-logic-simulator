@@ -2,32 +2,40 @@ import { Vec2, Rect } from "@src/math.js";
 import {
   ConcreteObjectKind,
   ColliderObject,
-  Drawable,
   Scene,
+  UNDEFINED_OBJ_ID,
+  SceneObject,
 } from "../scene-manager.js";
 import { domLog, sceneManager, simEngine, viewManager } from "@src/main.js";
 import { SimEvent } from "@src/engine.js";
 import { ConsumerPin } from "./consumer-pin.js";
 import { ProducerPin } from "./producer-pin.js";
 import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from "@src/config.js";
+import { Queue } from "@src/queue.js";
+import { Wire } from "./wire.js";
 
 type CircuitUpdateHandeler = (self: Circuit) => void;
 
-export interface Circuit extends Drawable {
+export interface Circuit extends SceneObject {
+  id: number;
+
   tightRectWrl: Rect;
   looseRectWrl: Rect;
+
   consumerPins: ConsumerPin[];
   producerPins: ProducerPin[];
   updateHandeler: CircuitUpdateHandeler;
 
   allocSimFrameToSelf: boolean;
   allocSimFrameToInputWires: boolean;
+  allocSimFrameToOutputWires: boolean;
 
   simFrameAllocated: boolean;
 
   setPos(posWrl: Vec2): void;
   draw: (ctx: CanvasRenderingContext2D) => void;
   onClicked: () => void;
+  clone(): Circuit;
 }
 
 function getCircuitLooseRectWrl(tightRectWrl: Rect) {
@@ -112,9 +120,40 @@ export class CircuitColliderObject implements ColliderObject {
   }
 }
 
+function circuitCloneHelper(circuit: Circuit) {
+  const cloned = Object.assign({}, circuit);
+  cloned.producerPins = new Array(circuit.producerPins.length);
+  cloned.consumerPins = new Array(circuit.consumerPins.length);
+
+  for (let i = 0; i < circuit.producerPins.length; i++) {
+    cloned.producerPins[i] = new ProducerPin(
+      cloned,
+      i,
+      circuit.producerPins[i].value
+    );
+  }
+  for (let i = 0; i < circuit.consumerPins.length; i++) {
+    cloned.consumerPins[i] = new ConsumerPin(
+      cloned,
+      i,
+      circuit.consumerPins[i].value
+    );
+  }
+  cloned.looseRectWrl = cloned.looseRectWrl.clone();
+  cloned.tightRectWrl = cloned.tightRectWrl.clone();
+  Object.setPrototypeOf(cloned, Object.getPrototypeOf(circuit));
+  console.log("[circuitCloneHelper] circuit: ", circuit);
+  console.log("[circuitCloneHelper] cloned: ", cloned);
+  return cloned;
+}
+
 export class InputCircuit implements Circuit {
   allocSimFrameToSelf = true;
   allocSimFrameToInputWires = true;
+  allocSimFrameToOutputWires = true;
+
+  id: number;
+
   simFrameAllocated = false;
 
   tightRectWrl: Rect;
@@ -140,10 +179,7 @@ export class InputCircuit implements Circuit {
     this.updateHandeler(this);
 
     simEngine.recurringEvents.push(new SimEvent(this, this.updateHandeler));
-
-    sceneManager.registerCollider(new CircuitColliderObject(this));
-    const drawableId = sceneManager.registerDrawable();
-    sceneManager.currentScene.drawablesAbove.set(drawableId, this);
+    this.id = sceneManager.currentScene.registerCircuit(this);
   }
 
   setPos(posWrl: Vec2) {
@@ -155,6 +191,10 @@ export class InputCircuit implements Circuit {
     let self = self_ as InputCircuit;
     self.producerPins[0].setValue(self.value);
     self.simFrameAllocated = false;
+  }
+
+  clone(): Circuit {
+    return circuitCloneHelper(this);
   }
 
   onClicked() {
@@ -211,8 +251,12 @@ export class InputCircuit implements Circuit {
 export class ProcessingCircuit implements Circuit {
   simFrameAllocated = false;
 
-  allocSimFrameToInputWires = true;
   allocSimFrameToSelf = true;
+
+  allocSimFrameToInputWires = true;
+  allocSimFrameToOutputWires = true;
+
+  id: number;
 
   updateHandeler: CircuitUpdateHandeler;
 
@@ -253,17 +297,16 @@ export class ProcessingCircuit implements Circuit {
 
     this.updateHandeler(this);
 
-    sceneManager.registerCollider(
-      // new ColliderObject(ConcreteObjectKind.Circuit, this, this.rectWrl)
-      new CircuitColliderObject(this)
-    );
-    const drawableId = sceneManager.registerDrawable();
-    sceneManager.currentScene.drawablesAbove.set(drawableId, this);
+    this.id = sceneManager.currentScene.registerCircuit(this);
   }
 
   setPos(posWrl: Vec2) {
     this.tightRectWrl.xy = posWrl;
     this.looseRectWrl = getCircuitLooseRectWrl(this.tightRectWrl);
+  }
+
+  clone(): Circuit {
+    return circuitCloneHelper(this);
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -275,6 +318,7 @@ export class CustomCircuitInputs implements Circuit {
   simFrameAllocated = false;
 
   allocSimFrameToInputWires = false;
+  allocSimFrameToOutputWires = false;
   allocSimFrameToSelf = false;
 
   tightRectWrl: Rect;
@@ -282,6 +326,8 @@ export class CustomCircuitInputs implements Circuit {
 
   consumerPins: ConsumerPin[];
   producerPins: ProducerPin[];
+
+  id: number;
 
   updateHandeler = () => {};
 
@@ -303,24 +349,23 @@ export class CustomCircuitInputs implements Circuit {
     let producerPin = this.producerPins[0];
     producerPin.onWireAttached = CustomCircuitInputs.addPin;
     // simEngine.recurringEvents.push(new SimEvent(this, this.updateHandeler));
+    this.id = -1;
 
-    if (sceneManager.currentScene.customCircuitIO == null) {
+    if (sceneManager.currentScene.customCircuitInputs != null) {
       return;
     }
-    if (sceneManager.currentScene.customCircuitIO.i != null) {
-      return;
-    }
 
-    sceneManager.currentScene.customCircuitIO.i = this;
-
-    sceneManager.registerCollider(new CircuitColliderObject(this));
-    const drawableId = sceneManager.registerDrawable();
-    sceneManager.currentScene.drawablesAbove.set(drawableId, this);
+    this.id = sceneManager.currentScene.registerCircuit(this);
+    sceneManager.currentScene.customCircuitInputs = this.id;
   }
 
   setPos(posWrl: Vec2) {
     this.tightRectWrl.xy = posWrl;
     this.looseRectWrl = getCircuitLooseRectWrl(this.tightRectWrl);
+  }
+
+  clone(): Circuit {
+    return circuitCloneHelper(this);
   }
 
   setValues(pins: ConsumerPin[]) {
@@ -361,8 +406,11 @@ export class CustomCircuitInputs implements Circuit {
 export class CustomCircuitOutputs implements Circuit {
   allocSimFrameToSelf = false;
   allocSimFrameToInputWires = false;
+  allocSimFrameToOutputWires = false;
 
   simFrameAllocated = false;
+
+  id: number;
 
   tightRectWrl: Rect;
   looseRectWrl: Rect;
@@ -393,24 +441,25 @@ export class CustomCircuitOutputs implements Circuit {
     let consumerPin = this.consumerPins[0];
     consumerPin.onWireAttached = CustomCircuitOutputs.addPin;
     // simEngine.recurringEvents.push(new SimEvent(this, this.updateHandeler));
+    this.id = -1;
 
-    if (sceneManager.currentScene.customCircuitIO == null) {
+    if (sceneManager.currentScene.customCircuitOutputs != null) {
       return;
     }
-    if (sceneManager.currentScene.customCircuitIO.o != null) {
-      return;
-    }
 
-    sceneManager.currentScene.customCircuitIO.o = this;
-
-    sceneManager.registerCollider(new CircuitColliderObject(this));
-    const drawableId = sceneManager.registerDrawable();
-    sceneManager.currentScene.drawablesAbove.set(drawableId, this);
+    this.id = sceneManager.currentScene.registerCircuit(this);
+    sceneManager.currentScene.customCircuitOutputs = this.id;
   }
 
   setPos(posWrl: Vec2) {
     this.tightRectWrl.xy = posWrl;
     this.looseRectWrl = getCircuitLooseRectWrl(this.tightRectWrl);
+  }
+
+  clone(): Circuit {
+    let cloned = circuitCloneHelper(this) as CustomCircuitOutputs;
+    cloned.customCircuitProducerPins = undefined;
+    return cloned;
   }
 
   updateHandeler(self: Circuit) {
@@ -455,8 +504,13 @@ export class CustomCircuitOutputs implements Circuit {
 export class CustomCircuit implements Circuit {
   allocSimFrameToSelf = false;
   allocSimFrameToInputWires = true;
+  allocSimFrameToOutputWires = true;
 
   simFrameAllocated = false;
+
+  id: number;
+
+  // objects: Map<number, SceneObject>
 
   tightRectWrl: Rect;
   looseRectWrl: Rect;
@@ -464,7 +518,11 @@ export class CustomCircuit implements Circuit {
   consumerPins: ConsumerPin[];
   producerPins: ProducerPin[];
 
-  scene: Scene;
+  objects: Map<number, SceneObject>;
+  customCircuitInputs: number;
+  customCircuitOutputs: number;
+
+  // scene: Scene;
   onClicked = () => {};
 
   constructor(
@@ -477,19 +535,32 @@ export class CustomCircuit implements Circuit {
     const scene = sceneManager.scenes.get(sceneId);
     if (
       scene == null ||
-      scene.customCircuitIO == null ||
-      scene.customCircuitIO.i == null ||
-      scene.customCircuitIO.o == null
+      scene.customCircuitInputs == null ||
+      scene.customCircuitOutputs == null
     ) {
       domLog(
         "[CustomCircuit] scene == null || scene.customCircuitIO == null || scene.customCircuitIO.i == null  || scene.customCircuitIO.o == null"
       );
       throw Error();
     }
-    this.scene = scene;
+    this.customCircuitInputs = scene.customCircuitInputs;
+    this.customCircuitOutputs = scene.customCircuitOutputs;
 
-    const customInputs = scene.customCircuitIO.i;
-    const customOutputs = scene.customCircuitIO.o;
+    this.objects = new Map();
+    CustomCircuit.cloneCircuitTree(
+      scene,
+      scene.customCircuitInputs,
+      ConcreteObjectKind.Circuit,
+      this.objects
+    );
+
+    const customInputs = this.objects.get(
+      this.customCircuitInputs
+    ) as CustomCircuitInputs;
+
+    const customOutputs = this.objects.get(
+      this.customCircuitOutputs
+    ) as CustomCircuitOutputs;
 
     const nConsumerPins = customInputs.producerPins.length - 1;
     const nProducerPins = customOutputs.consumerPins.length - 1;
@@ -504,7 +575,11 @@ export class CustomCircuit implements Circuit {
 
     this.producerPins = new Array(nProducerPins);
     for (let i = 0; i < nProducerPins; i++) {
-      this.producerPins[i] = new ProducerPin(this, i);
+      this.producerPins[i] = new ProducerPin(
+        this,
+        i,
+        customOutputs.consumerPins[i].value
+      );
     }
 
     this.consumerPins = new Array(nConsumerPins);
@@ -516,25 +591,96 @@ export class CustomCircuit implements Circuit {
 
     // this.updateHandeler(this);
 
-    sceneManager.registerCollider(new CircuitColliderObject(this));
-    const drawableId = sceneManager.registerDrawable();
-    sceneManager.currentScene.drawablesAbove.set(drawableId, this);
+    this.id = sceneManager.currentScene.registerCircuit(this);
+  }
+
+  clone(): Circuit {
+    return circuitCloneHelper(this);
+  }
+
+  // This function is only supposed to be called with startType === ConcreteObjectKind.Circuit
+  static cloneCircuitTree(
+    scene: Scene,
+    startId: number,
+    startType: ConcreteObjectKind,
+    clonedObjects: Map<number, SceneObject>
+  ) {
+    let tmp = clonedObjects.get(startId);
+    if (tmp != null) {
+      if (startType === ConcreteObjectKind.Circuit) {
+        return tmp as Circuit;
+      } else {
+        return tmp as Wire;
+      }
+    }
+
+    let start = scene.objects.get(startId);
+    if (start == null) {
+      throw Error();
+    }
+    if (startType === ConcreteObjectKind.Circuit) {
+      let circuit = start as Circuit;
+      let cloned = circuit.clone();
+      clonedObjects.set(startId, cloned);
+      for (let pPinIdx = 0; pPinIdx < circuit.producerPins.length; pPinIdx++) {
+        for (
+          let wireIdx = 0;
+          wireIdx < circuit.producerPins[pPinIdx].wires.length;
+          wireIdx++
+        ) {
+          console.log("[cloneCircuitTree] pPinIdx: ", pPinIdx);
+          console.log("[cloneCircuitTree] circuit: ", circuit);
+          console.log("[cloneCircuitTree] cloned: ", cloned);
+          cloned.producerPins[pPinIdx].wires[wireIdx] = this.cloneCircuitTree(
+            scene,
+            circuit.producerPins[pPinIdx].wires[wireIdx].id,
+            ConcreteObjectKind.Wire,
+            clonedObjects
+          ) as Wire;
+        }
+      }
+      return cloned;
+    } else if (startType === ConcreteObjectKind.Wire) {
+      let wire = start as Wire;
+      let cloned = wire.clone();
+      if (wire.consumerPin != null) {
+        const consumerCircuitId = wire.consumerPin.parentCircuit.id;
+        let consumerCircuit = this.cloneCircuitTree(
+          scene,
+          consumerCircuitId,
+          ConcreteObjectKind.Circuit,
+          clonedObjects
+        ) as Circuit;
+        console.log("[cloneCircuitTree] [Wire] id: ", startId);
+        console.log("[cloneCircuitTree] [Wire] wire: ", wire);
+        console.log("[cloneCircuitTree] [Wire] cloned: ", cloned);
+        cloned.setConsumerPinNoUpdate(
+          consumerCircuit.consumerPins[wire.consumerPin.pinIndex]
+        );
+      }
+      if (wire.producerPin != null) {
+        const producerCircuitID = wire.producerPin.parentCircuit.id;
+        let producerCircuit = this.cloneCircuitTree(
+          scene,
+          producerCircuitID,
+          ConcreteObjectKind.Circuit,
+          clonedObjects
+        ) as Circuit;
+        cloned.setProducerPinNoUpdate(
+          producerCircuit.producerPins[wire.producerPin.pinIndex]
+        );
+      }
+      return cloned;
+    }
+    throw Error();
   }
 
   updateHandeler(self: Circuit) {
     let circuit = self as CustomCircuit;
-    if (
-      circuit.scene == null ||
-      circuit.scene.customCircuitIO == null ||
-      circuit.scene.customCircuitIO.i == null ||
-      circuit.scene.customCircuitIO.o == null
-    ) {
-      domLog(
-        "[CustomCircuit] scene == null || scene.customCircuitIO == null || scene.customCircuitIO.i == null  || scene.customCircuitIO.o == null"
-      );
-      throw Error();
-    }
-    let customInputs = circuit.scene.customCircuitIO.i;
+    let customInputs = circuit.objects.get(
+      circuit.customCircuitInputs
+    ) as CustomCircuitInputs;
+
     customInputs.setValues(circuit.consumerPins);
   }
 

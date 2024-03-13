@@ -1,5 +1,6 @@
 import {
   Circuit,
+  CircuitColliderObject,
   CustomCircuitInputs,
   CustomCircuitOutputs,
 } from "./objects/circuit.js";
@@ -8,6 +9,8 @@ import { ConsumerPin } from "./objects/consumer-pin.js";
 import { Wire } from "./objects/wire.js";
 import { domLog, secondaryCtx, viewManager } from "../main.js";
 import { BoundingBox, Vec2 } from "../math.js";
+
+export interface SceneObject {}
 
 export enum ConcreteObjectKind {
   Circuit = "Circuit",
@@ -26,20 +29,37 @@ export interface ColliderObject {
     | undefined;
 }
 
+export const UNDEFINED_OBJ_ID = -1;
 export class Scene {
-  customCircuitIO:
-    | {
-        i: CustomCircuitInputs | undefined;
-        o: CustomCircuitOutputs | undefined;
-      }
-    | undefined;
+  objects: Map<number, SceneObject> = new Map();
+  nextObjectId = 0;
+  customCircuitInputs: number | undefined;
+  customCircuitOutputs: number | undefined;
+  circuits: Set<number> = new Set();
+  wires: Set<number> = new Set();
   colliders: Map<number, ColliderObject> = new Map();
-  drawablesBelow: Map<number, Drawable> = new Map();
-  drawablesAbove: Map<number, Drawable> = new Map();
-}
 
-export interface Drawable {
-  draw: (ctx: CanvasRenderingContext2D) => void;
+  registerCircuit(circuit: Circuit) {
+    const id = this.nextObjectId;
+    this.nextObjectId += 1;
+    this.objects.set(id, circuit);
+    this.circuits.add(id);
+    this.colliders.set(id, new CircuitColliderObject(circuit));
+    return id;
+  }
+
+  registerWire(wire: Wire) {
+    const id = this.nextObjectId;
+    this.nextObjectId += 1;
+    this.objects.set(id, wire);
+    this.wires.add(id);
+    return id;
+  }
+
+  unregisterWire(id: number) {
+    this.objects.delete(id);
+    this.wires.delete(id);
+  }
 }
 
 export class SceneManager {
@@ -48,8 +68,6 @@ export class SceneManager {
   scenes: Map<number, Scene> = new Map();
   currentScene: Scene;
 
-  currentColliderId: number = 0;
-  currentDrawableId: number = 0;
   currentSceneId: number = 0;
 
   constructor() {
@@ -61,12 +79,6 @@ export class SceneManager {
   newScene() {
     const sceneId = this.currentSceneId;
     let scene = new Scene();
-
-    if (sceneId === SceneManager.HOME_SCENE_ID) {
-      scene.customCircuitIO = undefined;
-    } else {
-      scene.customCircuitIO = { i: undefined, o: undefined };
-    }
 
     this.currentSceneId += 1;
     this.scenes.set(sceneId, scene);
@@ -82,40 +94,21 @@ export class SceneManager {
     this.currentScene = scene;
   }
 
-  registerCollider(object: ColliderObject) {
-    const id = this.currentColliderId;
-    this.currentColliderId += 1;
-
-    this.currentScene.colliders.set(id, object);
-
-    console.log("Objects: ", this.currentScene.colliders);
-
-    return id;
-  }
-
-  unregisterCollider(id: number) {
-    const object = this.currentScene.colliders.get(id);
-    if (object == null) {
-      return;
-    }
-    this.currentScene.colliders.delete(id);
-
-    console.log("Objects: ", this.currentScene.colliders);
-  }
-
-  registerDrawable() {
-    const id = this.currentDrawableId;
-    this.currentDrawableId += 1;
-    return id;
-  }
-
   draw(ctx: CanvasRenderingContext2D) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    for (let drawable of this.currentScene.drawablesBelow.values()) {
-      drawable.draw(ctx);
+    for (let id of this.currentScene.wires.values()) {
+      const wire = this.currentScene.objects.get(id);
+      if (wire == null) {
+        domLog("[SceneManager.draw] Registered Wire turned out to be null");
+      }
+      (wire as Wire).draw(ctx);
     }
-    for (let drawable of this.currentScene.drawablesAbove.values()) {
-      drawable.draw(ctx);
+    for (let id of this.currentScene.circuits.values()) {
+      const circuit = this.currentScene.objects.get(id);
+      if (circuit == null) {
+        domLog("[SceneManager.draw] Registered Circuit turned out to be null");
+      }
+      (circuit as Circuit).draw(ctx);
     }
     let scene1 = this.scenes.get(1);
     if (scene1 == null) {
@@ -128,12 +121,19 @@ export class SceneManager {
       secondaryCtx.canvas.width,
       secondaryCtx.canvas.height
     );
-
-    for (let drawable of scene1.drawablesBelow.values()) {
-      drawable.draw(secondaryCtx);
+    for (let id of scene1.wires.values()) {
+      const wire = scene1.objects.get(id);
+      if (wire == null) {
+        domLog("[SceneManager.draw] Registered Wire turned out to be null");
+      }
+      (wire as Wire).draw(secondaryCtx);
     }
-    for (let drawable of scene1.drawablesAbove.values()) {
-      drawable.draw(secondaryCtx);
+    for (let id of scene1.circuits.values()) {
+      const circuit = scene1.objects.get(id);
+      if (circuit == null) {
+        domLog("[SceneManager.draw] Registered Circuit turned out to be null");
+      }
+      (circuit as Circuit).draw(secondaryCtx);
     }
   }
 

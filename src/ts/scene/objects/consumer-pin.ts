@@ -9,11 +9,15 @@ export class ConsumerPin {
   static radiusWrl = PIN_EXTRUSION_WRL / 2;
 
   wire: Wire | undefined;
-  value: boolean = false;
+  // value: boolean = false;
 
   onWireAttached: (self: CustomCircuitOutputs) => void = () => {};
 
-  constructor(readonly parentCircuit: Circuit, readonly pinIndex: number) {}
+  constructor(
+    readonly parentCircuit: Circuit,
+    readonly pinIndex: number,
+    public value = false
+  ) {}
 
   getLocWrl() {
     const rectWrl = this.parentCircuit.tightRectWrl;

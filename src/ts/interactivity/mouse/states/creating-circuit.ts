@@ -6,7 +6,12 @@ import {
   MouseStateMachine,
   MouseUpPayload,
 } from "../state-machine.js";
-import { logState, touchScreenStateMachine, viewManager } from "@src/main.js";
+import {
+  logState,
+  sceneManager,
+  touchScreenStateMachine,
+  viewManager,
+} from "@src/main.js";
 import { Home as MouseHome } from "./home.js";
 import { Home as TouchScreenHome } from "@src/interactivity/touchscreen/states/home.js";
 
@@ -21,6 +26,7 @@ export class CreatingCircuit implements MouseState {
 
     circuit.setPos(viewManager.screenToWorld(payload.locScr));
     console.log(`Created ${this.name}`);
+    console.log("scene: ", sceneManager.currentScene);
     stateMachine.state = new MouseHome();
     touchScreenStateMachine.state = new TouchScreenHome();
   }
