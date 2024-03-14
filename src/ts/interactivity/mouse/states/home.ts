@@ -18,7 +18,7 @@ import { ConsumerPin } from "@src/scene/objects/consumer-pin.js";
 import { Wire } from "@src/scene/objects/wire.js";
 import { Circle, Vec2 } from "@src/math.js";
 import { CreatingWire } from "./creating-wire.js";
-import { CircuitSelected } from "./circuit-selected.js";
+import { CircuitClicked } from "./circuit-clicked.js";
 
 export class Home implements MouseState {
   constructor() {
@@ -46,7 +46,7 @@ export class Home implements MouseState {
       if (focusObject.kind === ConcreteObjectKind.Circuit) {
         let circuit = focusObject.object as Circuit;
 
-        stateMachine.state = new CircuitSelected(
+        stateMachine.state = new CircuitClicked(
           circuit,
           circuit.tightRectWrl.xy.sub(viewManager.screenToWorld(locScr))
         );

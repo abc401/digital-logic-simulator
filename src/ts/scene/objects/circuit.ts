@@ -533,14 +533,16 @@ export class CustomCircuit implements Circuit {
   ) {
     console.log("SceneId: ", sceneId);
     const scene = sceneManager.scenes.get(sceneId);
-    if (
-      scene == null ||
-      scene.customCircuitInputs == null ||
-      scene.customCircuitOutputs == null
-    ) {
-      domLog(
-        "[CustomCircuit] scene == null || scene.customCircuitIO == null || scene.customCircuitIO.i == null  || scene.customCircuitIO.o == null"
-      );
+    if (scene == null) {
+      domLog("[CustomCircuit] scene == null");
+      throw Error();
+    }
+    if (scene.customCircuitInputs == null) {
+      domLog("[CustomCircuit] scene.customCircuitIO.i == null");
+      throw Error();
+    }
+    if (scene.customCircuitOutputs == null) {
+      domLog("[CustomCircuit] scene.customCircuitIO.o == null");
       throw Error();
     }
     this.customCircuitInputs = scene.customCircuitInputs;
@@ -548,7 +550,7 @@ export class CustomCircuit implements Circuit {
 
     this.objects = new Map();
     CustomCircuit.cloneCircuitTree(
-      scene,
+      scene.objects,
       scene.customCircuitInputs,
       ConcreteObjectKind.Circuit,
       this.objects
@@ -595,12 +597,27 @@ export class CustomCircuit implements Circuit {
   }
 
   clone(): Circuit {
-    return circuitCloneHelper(this);
+    let cloned = circuitCloneHelper(this) as CustomCircuit;
+    cloned.objects = new Map();
+    CustomCircuit.cloneCircuitTree(
+      this.objects,
+      this.customCircuitInputs,
+      ConcreteObjectKind.Circuit,
+      cloned.objects
+    );
+    const customOutputs_ = cloned.objects.get(cloned.customCircuitOutputs);
+    if (customOutputs_ == null) {
+      throw Error();
+    }
+    const customOutputs = customOutputs_ as CustomCircuitOutputs;
+    customOutputs.customCircuitProducerPins = cloned.producerPins;
+
+    return cloned;
   }
 
   // This function is only supposed to be called with startType === ConcreteObjectKind.Circuit
   static cloneCircuitTree(
-    scene: Scene,
+    objects: Map<number, SceneObject>,
     startId: number,
     startType: ConcreteObjectKind,
     clonedObjects: Map<number, SceneObject>
@@ -614,8 +631,12 @@ export class CustomCircuit implements Circuit {
       }
     }
 
-    let start = scene.objects.get(startId);
+    let start = objects.get(startId);
     if (start == null) {
+      console.log("[cloneCircuitTree] objects: ", objects);
+      console.log("[cloneCircuitTree] startId: ", startId);
+      console.log("[cloneCircuitTree] startType: ", startType);
+      domLog("[cloneCircuitTree] start == null");
       throw Error();
     }
     if (startType === ConcreteObjectKind.Circuit) {
@@ -632,7 +653,7 @@ export class CustomCircuit implements Circuit {
           console.log("[cloneCircuitTree] circuit: ", circuit);
           console.log("[cloneCircuitTree] cloned: ", cloned);
           cloned.producerPins[pPinIdx].wires[wireIdx] = this.cloneCircuitTree(
-            scene,
+            objects,
             circuit.producerPins[pPinIdx].wires[wireIdx].id,
             ConcreteObjectKind.Wire,
             clonedObjects
@@ -643,10 +664,11 @@ export class CustomCircuit implements Circuit {
     } else if (startType === ConcreteObjectKind.Wire) {
       let wire = start as Wire;
       let cloned = wire.clone();
+      clonedObjects.set(startId, cloned);
       if (wire.consumerPin != null) {
         const consumerCircuitId = wire.consumerPin.parentCircuit.id;
         let consumerCircuit = this.cloneCircuitTree(
-          scene,
+          objects,
           consumerCircuitId,
           ConcreteObjectKind.Circuit,
           clonedObjects
@@ -661,7 +683,7 @@ export class CustomCircuit implements Circuit {
       if (wire.producerPin != null) {
         const producerCircuitID = wire.producerPin.parentCircuit.id;
         let producerCircuit = this.cloneCircuitTree(
-          scene,
+          objects,
           producerCircuitID,
           ConcreteObjectKind.Circuit,
           clonedObjects

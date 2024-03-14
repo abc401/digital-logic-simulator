@@ -8,11 +8,11 @@ import {
 import { Dragging } from "./dragging.js";
 import { Vec2 } from "@src/math.js";
 import { Home } from "./home.js";
-import { domLog, logState } from "@src/main.js";
+import { domLog, logState, sceneManager } from "@src/main.js";
 
-export class CircuitSelected implements MouseState {
+export class CircuitClicked implements MouseState {
   constructor(private circuit: Circuit, private offsetWrl: Vec2) {
-    logState("CircuitSelected");
+    logState("CircuitClicked");
   }
   update(stateMachine: MouseStateMachine, action: MouseAction) {
     const payload = action.payload;
@@ -22,7 +22,10 @@ export class CircuitSelected implements MouseState {
       stateMachine.state = new Dragging(this.circuit, this.offsetWrl, locScr);
     }
     if (action.kind === MouseActionKind.MouseUp) {
+      sceneManager.clearSelectedCircuits();
+      sceneManager.selectCircuit(this.circuit.id);
       this.circuit.onClicked();
+
       stateMachine.state = new Home();
     }
   }

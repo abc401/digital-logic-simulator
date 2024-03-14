@@ -65,6 +65,9 @@ export class Scene {
 export class SceneManager {
   static HOME_SCENE_ID = 0;
 
+  private selectedWires: Set<number> = new Set();
+  private selectedCircuits: Set<number> = new Set();
+
   scenes: Map<number, Scene> = new Map();
   currentScene: Scene;
 
@@ -134,6 +137,51 @@ export class SceneManager {
         domLog("[SceneManager.draw] Registered Circuit turned out to be null");
       }
       (circuit as Circuit).draw(secondaryCtx);
+    }
+  }
+
+  clearSelectedCircuits() {
+    this.selectedCircuits = new Set();
+    this.selectedWires = new Set();
+  }
+
+  selectCircuit(circuitId: number) {
+    const circuit_ = this.currentScene.objects.get(circuitId);
+    if (circuit_ == null) {
+      throw Error();
+    }
+
+    if (this.selectedCircuits.has(circuitId)) {
+      return;
+    }
+    this.selectedCircuits.add(circuitId);
+
+    if (this.selectedCircuits.size === 1) {
+      return;
+    }
+
+    const circuit = circuit_ as Circuit;
+
+    for (let pin of circuit.producerPins) {
+      for (let wire of pin.wires) {
+        if (wire.consumerPin == null) {
+          continue;
+        }
+        if (this.selectedCircuits.has(wire.consumerPin.parentCircuit.id)) {
+          this.selectedWires.add(wire.id);
+        }
+      }
+    }
+    for (let pin of circuit.consumerPins) {
+      if (pin.wire == null) {
+        continue;
+      }
+      if (pin.wire.producerPin == null) {
+        continue;
+      }
+      if (this.selectedCircuits.has(pin.wire.producerPin.parentCircuit.id)) {
+        this.selectedCircuits.add(pin.wire.id);
+      }
     }
   }
 
