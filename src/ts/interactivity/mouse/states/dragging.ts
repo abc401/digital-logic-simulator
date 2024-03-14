@@ -5,9 +5,6 @@ import {
   MouseStateMachine,
   MouseState,
   MouseButton,
-  MouseMovePayload,
-  MouseUpPayload,
-  MouseDownPayload,
 } from "../state-machine.js";
 import { Home } from "./home.js";
 import { logState, viewManager } from "@src/main.js";
@@ -28,18 +25,20 @@ export class Dragging implements MouseState {
     logState("Dragging");
   }
 
-  mouseMove(manager: MouseStateMachine, payload: MouseMovePayload): void {
-    this.circuit.setPos(
-      viewManager.screenToWorld(payload.locScr).add(this.draggingOffsetWrl)
-    );
-  }
+  update(stateMachine: MouseStateMachine, action: MouseAction) {
+    const payload = action.payload;
+    const locScr = new Vec2(payload.offsetX, payload.offsetY);
 
-  mouseUp(manager: MouseStateMachine, payload: MouseUpPayload): void {
-    if (payload.button !== MouseButton.Primary) {
-      return;
+    if (action.kind === MouseActionKind.MouseMove) {
+      this.circuit.setPos(
+        viewManager.screenToWorld(locScr).add(this.draggingOffsetWrl)
+      );
     }
-    manager.state = new Home();
+    if (action.kind === MouseActionKind.MouseUp) {
+      if (payload.buttonEncoded !== MouseButton.Primary) {
+        return;
+      }
+      stateMachine.state = new Home();
+    }
   }
-
-  mouseDown(manager: MouseStateMachine, payload: MouseDownPayload): void {}
 }

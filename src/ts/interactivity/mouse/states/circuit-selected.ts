@@ -1,10 +1,9 @@
 import { Circuit } from "@src/scene/objects/circuit.js";
 import {
-  MouseDownPayload,
-  MouseMovePayload,
+  MouseAction,
+  MouseActionKind,
   MouseState,
   MouseStateMachine,
-  MouseUpPayload,
 } from "../state-machine.js";
 import { Dragging } from "./dragging.js";
 import { Vec2 } from "@src/math.js";
@@ -15,18 +14,16 @@ export class CircuitSelected implements MouseState {
   constructor(private circuit: Circuit, private offsetWrl: Vec2) {
     logState("CircuitSelected");
   }
-  mouseDown(stateMachine: MouseStateMachine, payload: MouseDownPayload): void {}
+  update(stateMachine: MouseStateMachine, action: MouseAction) {
+    const payload = action.payload;
+    const locScr = new Vec2(payload.offsetX, payload.offsetY);
 
-  mouseMove(stateMachine: MouseStateMachine, payload: MouseMovePayload): void {
-    stateMachine.state = new Dragging(
-      this.circuit,
-      this.offsetWrl,
-      payload.locScr
-    );
-  }
-
-  mouseUp(stateMachine: MouseStateMachine, payload: MouseUpPayload): void {
-    this.circuit.onClicked();
-    stateMachine.state = new Home();
+    if (action.kind === MouseActionKind.MouseMove) {
+      stateMachine.state = new Dragging(this.circuit, this.offsetWrl, locScr);
+    }
+    if (action.kind === MouseActionKind.MouseUp) {
+      this.circuit.onClicked();
+      stateMachine.state = new Home();
+    }
   }
 }

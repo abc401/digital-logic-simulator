@@ -177,5 +177,5 @@ if (runButton !== null) {
 
 setInterval(function () {
   sceneManager.draw(ctx);
-}, 1000 / 90);
+}, 1000 / 60);
 // scheduler.runSim(ctx);

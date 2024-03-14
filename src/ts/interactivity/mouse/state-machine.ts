@@ -36,46 +36,20 @@ export enum MouseActionKind {
   MouseMove,
 }
 
-export interface MouseActionPayload {}
-
 export class MouseAction {
   kind: MouseActionKind;
-  payload: MouseActionPayload;
+  payload: MouseEvent & { buttonEncoded: number };
 
-  constructor(kind: MouseActionKind, payload: MouseActionPayload) {
+  constructor(kind: MouseActionKind, payload: MouseEvent) {
     this.kind = kind;
-    this.payload = payload;
+    this.payload = Object.assign(payload, {
+      buttonEncoded: encodeMouseButton(payload.button),
+    });
   }
 }
 
-export class MouseDownPayload implements MouseActionPayload {
-  constructor(
-    readonly locScr: Vec2,
-    readonly button: number,
-    readonly buttons: number
-  ) {}
-}
-
-export class MouseUpPayload implements MouseActionPayload {
-  constructor(
-    readonly button: number,
-    readonly buttons: number,
-    readonly locScr: Vec2
-  ) {}
-}
-
-export class MouseMovePayload implements MouseActionPayload {
-  constructor(
-    readonly locScr: Vec2,
-    readonly deltaScr: Vec2,
-    readonly buttons: number
-  ) {}
-}
-
 export interface MouseState {
-  mouseDown(stateMachine: MouseStateMachine, payload: MouseDownPayload): void;
-  mouseUp(stateMachine: MouseStateMachine, payload: MouseUpPayload): void;
-  mouseMove(stateMachine: MouseStateMachine, payload: MouseMovePayload): void;
+  update(stateMachine: MouseStateMachine, action: MouseAction): void;
 }
 
 export class MouseStateMachine {
@@ -85,31 +59,15 @@ export class MouseStateMachine {
     this.state = new Home();
 
     canvas.addEventListener("mousedown", (ev) => {
-      let payload = new MouseDownPayload(
-        new Vec2(ev.offsetX, ev.offsetY),
-        encodeMouseButton(ev.button),
-        ev.buttons
-      );
-      this.state.mouseDown(this, payload);
+      this.state.update(this, new MouseAction(MouseActionKind.MouseDown, ev));
     });
 
     canvas.addEventListener("mouseup", (ev) => {
-      let payload = new MouseUpPayload(
-        encodeMouseButton(ev.button),
-        ev.buttons,
-        new Vec2(ev.offsetX, ev.offsetY)
-      );
-
-      this.state.mouseUp(this, payload);
+      this.state.update(this, new MouseAction(MouseActionKind.MouseUp, ev));
     });
 
     canvas.addEventListener("mousemove", (ev) => {
-      let payload = new MouseMovePayload(
-        new Vec2(ev.offsetX, ev.offsetY),
-        new Vec2(ev.movementX, ev.movementY),
-        ev.buttons
-      );
-      this.state.mouseMove(this, payload);
+      this.state.update(this, new MouseAction(MouseActionKind.MouseMove, ev));
     });
 
     canvas.addEventListener("wheel", (ev) => {

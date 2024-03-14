@@ -24,7 +24,7 @@ export class Wire implements SceneObject {
     this.id = sceneManager.currentScene.registerWire(this);
 
     if (producerPin != null) {
-      producerPin.attachWire(this);
+      // producerPin.attachWire(this);
       this.setProducerPin(producerPin);
       // if (!producerPin.parentCircuit.allocateSimFrame) {
       //   this.allocateSimFrame = false;
@@ -32,7 +32,7 @@ export class Wire implements SceneObject {
     }
 
     if (consumerPin != null) {
-      consumerPin.attachWire(this);
+      // consumerPin.attachWire(this);
       this.setConsumerPin(consumerPin);
       // if (!consumerPin.parentCircuit.allocateSimFrame) {
       //   this.allocateSimFrame = false;

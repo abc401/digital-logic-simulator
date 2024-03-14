@@ -2,15 +2,15 @@ import { ProducerPin } from "@src/scene/objects/producer-pin.js";
 import { ConsumerPin } from "@src/scene/objects/consumer-pin.js";
 import { Wire } from "@src/scene/objects/wire.js";
 import {
-  MouseDownPayload,
-  MouseMovePayload,
+  MouseAction,
+  MouseActionKind,
   MouseState,
   MouseStateMachine,
-  MouseUpPayload,
 } from "../state-machine.js";
 import { Home } from "./home.js";
 import { logState, sceneManager } from "@src/main.js";
 import { ConcreteObjectKind } from "@src/scene/scene-manager.js";
+import { Vec2 } from "@src/math.js";
 
 export class CreatingWire implements MouseState {
   constructor(private wire: Wire) {
@@ -19,35 +19,37 @@ export class CreatingWire implements MouseState {
     // console.log("consumerPin: ", wire.getConsumerPin()?.wire);
   }
 
-  mouseDown(stateMachine: MouseStateMachine, payload: MouseDownPayload): void {}
+  update(stateMachine: MouseStateMachine, action: MouseAction) {
+    const payload = action.payload;
+    const locScr = new Vec2(payload.offsetX, payload.offsetY);
 
-  mouseMove(stateMachine: MouseStateMachine, payload: MouseMovePayload): void {
-    if (this.wire.isProducerPinNull()) {
-      this.wire.fromScr = payload.locScr;
-    } else if (this.wire.isConsumerPinNull()) {
-      this.wire.toScr = payload.locScr;
+    if (action.kind === MouseActionKind.MouseMove) {
+      if (this.wire.getProducerPin() == null) {
+        this.wire.fromScr = locScr;
+      } else if (this.wire.getConsumerPin() == null) {
+        this.wire.toScr = locScr;
+      }
     }
-  }
+    if (action.kind === MouseActionKind.MouseUp) {
+      const focusObject = sceneManager.getObjectAt(locScr);
+      if (focusObject == null) {
+        this.wire.detach();
+      } else if (
+        focusObject.kind === ConcreteObjectKind.ConsumerPin &&
+        this.wire.isConsumerPinNull()
+      ) {
+        this.wire.setConsumerPin(focusObject.object as ConsumerPin);
+      } else if (
+        focusObject.kind === ConcreteObjectKind.ProducerPin &&
+        this.wire.isProducerPinNull()
+      ) {
+        this.wire.setProducerPin(focusObject.object as ProducerPin);
+      } else {
+        this.wire.detach();
+      }
 
-  mouseUp(stateMachine: MouseStateMachine, payload: MouseUpPayload): void {
-    const focusObject = sceneManager.getObjectAt(payload.locScr);
-    if (focusObject == null) {
-      this.wire.detach();
-    } else if (
-      focusObject.kind === ConcreteObjectKind.ConsumerPin &&
-      this.wire.isConsumerPinNull()
-    ) {
-      this.wire.setConsumerPin(focusObject.object as ConsumerPin);
-    } else if (
-      focusObject.kind === ConcreteObjectKind.ProducerPin &&
-      this.wire.isProducerPinNull()
-    ) {
-      this.wire.setProducerPin(focusObject.object as ProducerPin);
-    } else {
-      this.wire.detach();
+      console.log("Wire: ", this.wire);
+      stateMachine.state = new Home();
     }
-
-    console.log("Wire: ", this.wire);
-    stateMachine.state = new Home();
   }
 }
