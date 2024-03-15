@@ -19,6 +19,7 @@ import { Wire } from "@src/scene/objects/wire.js";
 import { Circle, Vec2 } from "@src/math.js";
 import { CreatingWire } from "./creating-wire.js";
 import { CircuitClicked } from "./circuit-clicked.js";
+import { MouseDownPrimaryButton } from "./mouse-down-primary-button.js";
 
 export class Home implements MouseState {
   constructor() {
@@ -37,19 +38,22 @@ export class Home implements MouseState {
 
       if (focusObject == null) {
         console.log("Focus Object == null");
-        stateMachine.state = new Panning();
+
+        stateMachine.state = new MouseDownPrimaryButton();
         return;
       }
 
       console.log("Focus Object kind: ", focusObject.kind);
 
       if (focusObject.kind === ConcreteObjectKind.Circuit) {
-        let circuit = focusObject.object as Circuit;
+        const circuit = focusObject.object as Circuit;
 
-        stateMachine.state = new CircuitClicked(
+        stateMachine.state = new MouseDownPrimaryButton(
           circuit,
           circuit.tightRectWrl.xy.sub(viewManager.screenToWorld(locScr))
         );
+
+        return;
       }
 
       if (focusObject.kind === ConcreteObjectKind.ProducerPin) {

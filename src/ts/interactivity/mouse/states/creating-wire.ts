@@ -36,12 +36,12 @@ export class CreatingWire implements MouseState {
         this.wire.detach();
       } else if (
         focusObject.kind === ConcreteObjectKind.ConsumerPin &&
-        this.wire.isConsumerPinNull()
+        this.wire.consumerPin == null
       ) {
         this.wire.setConsumerPin(focusObject.object as ConsumerPin);
       } else if (
         focusObject.kind === ConcreteObjectKind.ProducerPin &&
-        this.wire.isProducerPinNull()
+        this.wire.producerPin == null
       ) {
         this.wire.setProducerPin(focusObject.object as ProducerPin);
       } else {

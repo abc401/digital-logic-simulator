@@ -32,6 +32,8 @@ export interface Circuit extends SceneObject {
 
   simFrameAllocated: boolean;
 
+  isSelected: boolean;
+
   setPos(posWrl: Vec2): void;
   draw: (ctx: CanvasRenderingContext2D) => void;
   onClicked: () => void;
@@ -72,14 +74,25 @@ function calculateCircuitRects(
 }
 
 function drawCircuit(self: Circuit, ctx: CanvasRenderingContext2D) {
-  const boundingRect = viewManager.worldToScreenRect(self.tightRectWrl);
+  const tightRectScr = viewManager.worldToScreenRect(self.tightRectWrl);
   ctx.fillStyle = "cyan";
-  ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.w, boundingRect.h);
+  ctx.fillRect(tightRectScr.x, tightRectScr.y, tightRectScr.w, tightRectScr.h);
   for (let i = 0; i < self.consumerPins.length; i++) {
     self.consumerPins[i].draw(ctx);
   }
   for (let i = 0; i < self.producerPins.length; i++) {
     self.producerPins[i].draw(ctx);
+  }
+
+  if (self.isSelected) {
+    const looseRectScr = viewManager.worldToScreenRect(self.looseRectWrl);
+    ctx.strokeStyle = "green";
+    ctx.strokeRect(
+      looseRectScr.x,
+      looseRectScr.y,
+      looseRectScr.w,
+      looseRectScr.h
+    );
   }
 }
 
@@ -151,6 +164,8 @@ export class InputCircuit implements Circuit {
   allocSimFrameToSelf = true;
   allocSimFrameToInputWires = true;
   allocSimFrameToOutputWires = true;
+
+  isSelected: boolean = false;
 
   id: number;
 
@@ -263,6 +278,7 @@ export class ProcessingCircuit implements Circuit {
   tightRectWrl: Rect;
   looseRectWrl: Rect;
 
+  isSelected: boolean = false;
   consumerPins: ConsumerPin[];
   producerPins: ProducerPin[];
   onClicked = () => {};
@@ -321,6 +337,7 @@ export class CustomCircuitInputs implements Circuit {
   allocSimFrameToOutputWires = false;
   allocSimFrameToSelf = false;
 
+  isSelected: boolean = false;
   tightRectWrl: Rect;
   looseRectWrl: Rect;
 
@@ -410,6 +427,7 @@ export class CustomCircuitOutputs implements Circuit {
 
   simFrameAllocated = false;
 
+  isSelected: boolean = false;
   id: number;
 
   tightRectWrl: Rect;
@@ -506,6 +524,7 @@ export class CustomCircuit implements Circuit {
   allocSimFrameToInputWires = true;
   allocSimFrameToOutputWires = true;
 
+  isSelected: boolean = false;
   simFrameAllocated = false;
 
   id: number;
