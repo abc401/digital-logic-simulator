@@ -1,10 +1,9 @@
-import { CustomCircuit } from "./scene/objects/circuit.js";
 import { SimEngine } from "./engine.js";
 import { SceneManager } from "./scene/scene-manager.js";
 import { ViewManager } from "./view-manager.js";
 import { MouseStateMachine } from "./interactivity/mouse/state-machine.js";
 import { TouchScreenStateMachine } from "./interactivity/touchscreen/state-machine.js";
-import { creators } from "./circuit-creators.js";
+import { creators, customCircuitCreator } from "./circuit-creators.js";
 import { CreatingCircuit as CreatingCircuitMouse } from "./interactivity/mouse/states/creating-circuit.js";
 import { CreatingCircuit as CreatingCircuitTouchScreen } from "./interactivity/touchscreen/states/creating-circuit.js";
 export let canvas;
@@ -36,6 +35,11 @@ export let sceneManager = new SceneManager();
 export let viewManager = new ViewManager();
 export let mouseStateMachine = new MouseStateMachine();
 export let touchScreenStateMachine = new TouchScreenStateMachine();
+export let customCircuitScenes = new Map();
+export let clipboard = {
+    circuits: new Array(),
+    wires: new Array(),
+};
 export function domLog(message) {
     if (loggingDom == null) {
         return;
@@ -113,13 +117,12 @@ function populateUI() {
                 domLog("circuitName == null");
                 throw Error();
             }
-            creators.set(circuitName, () => {
-                if (sceneId == null) {
-                    domLog("sceneId == null");
-                    throw Error();
-                }
-                return new CustomCircuit(sceneId, 0, 0);
-            });
+            if (sceneId == null) {
+                domLog("sceneId == null");
+                throw Error();
+            }
+            customCircuitScenes.set(circuitName, sceneId);
+            creators.set(circuitName, customCircuitCreator(circuitName));
             circuitCreators();
             newCustomCircuitButton.disabled = false;
             doneCreatingCustomCircuit.disabled = true;
@@ -149,5 +152,6 @@ if (runButton !== null) {
 }
 setInterval(function () {
     sceneManager.draw(ctx);
-}, 1000 / 90);
+    console.log("draw");
+}, 1000 / 60);
 // scheduler.runSim(ctx);

@@ -32,7 +32,10 @@ export class ProducerPin {
         }
     }
     getLocWrl() {
-        const rectWrl = this.parentCircuit.tightRectWrl;
+        if (this.parentCircuit.sceneObject == null) {
+            throw Error();
+        }
+        const rectWrl = this.parentCircuit.sceneObject.tightRectWrl;
         return new Vec2(rectWrl.x + rectWrl.w + ProducerPin.radiusWrl, rectWrl.y +
             (ProducerPin.radiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) * this.pinIndex +
             ProducerPin.radiusWrl);

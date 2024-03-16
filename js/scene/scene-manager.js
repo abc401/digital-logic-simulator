@@ -7,7 +7,6 @@ export var ConcreteObjectKind;
     ConcreteObjectKind["ConsumerPin"] = "ConsumerPin";
     ConcreteObjectKind["ProducerPin"] = "ProducerPin";
 })(ConcreteObjectKind || (ConcreteObjectKind = {}));
-export const UNDEFINED_OBJ_ID = -1;
 export class Scene {
     constructor() {
         this.objects = new Map();
@@ -21,7 +20,7 @@ export class Scene {
         this.nextObjectId += 1;
         this.objects.set(id, circuit);
         this.circuits.add(id);
-        this.colliders.set(id, new CircuitColliderObject(circuit));
+        this.colliders.set(id, new CircuitColliderObject(circuit.parentCircuit));
         return id;
     }
     registerWire(wire) {
@@ -38,6 +37,8 @@ export class Scene {
 }
 export class SceneManager {
     constructor() {
+        this.selectedWires = new Set();
+        this.selectedCircuits = new Set();
         this.scenes = new Map();
         this.currentSceneId = 0;
         this.currentScene = new Scene();
@@ -58,6 +59,8 @@ export class SceneManager {
             throw Error();
         }
         this.currentScene = scene;
+        this.selectedCircuits = new Set();
+        this.selectedWires = new Set();
     }
     draw(ctx) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -77,7 +80,7 @@ export class SceneManager {
         }
         let scene1 = this.scenes.get(1);
         if (scene1 == null) {
-            console.log("scene 1 does not exist");
+            // console.log("scene 1 does not exist");
             return;
         }
         secondaryCtx.clearRect(0, 0, secondaryCtx.canvas.width, secondaryCtx.canvas.height);
@@ -95,6 +98,91 @@ export class SceneManager {
             }
             circuit.draw(secondaryCtx);
         }
+    }
+    clearSelectedCircuits() {
+        for (let circuit of this.selectedCircuits.values()) {
+            circuit.isSelected = false;
+        }
+        this.selectedCircuits = new Set();
+        this.selectedWires = new Set();
+    }
+    selectCircuit(circuit) {
+        if (this.selectedCircuits.has(circuit)) {
+            return;
+        }
+        this.selectedCircuits.add(circuit);
+        circuit.isSelected = true;
+        console.log("[SceneManager] Selected Circuits: ", this.selectedCircuits);
+        if (this.selectedCircuits.size === 1) {
+            return;
+        }
+        for (let pin of circuit.parentCircuit.producerPins) {
+            console.log("[SceneManager] ProducerPin: ", pin);
+            for (let wire of pin.wires) {
+                if (wire.consumerPin == null) {
+                    continue;
+                }
+                if (wire.consumerPin.parentCircuit.sceneObject == null) {
+                    throw Error();
+                }
+                if (this.selectedCircuits.has(wire.consumerPin.parentCircuit.sceneObject)) {
+                    this.selectedWires.add(wire);
+                    wire.isSelected = true;
+                }
+            }
+        }
+        for (let pin of circuit.parentCircuit.consumerPins) {
+            console.log("[SceneManager] ConsumerPin: ", pin);
+            if (pin.wire == null) {
+                continue;
+            }
+            if (pin.wire.producerPin == null) {
+                continue;
+            }
+            if (pin.wire.producerPin.parentCircuit.sceneObject == null) {
+                throw Error();
+            }
+            if (this.selectedCircuits.has(pin.wire.producerPin.parentCircuit.sceneObject)) {
+                this.selectedWires.add(pin.wire);
+                pin.wire.isSelected = true;
+            }
+        }
+        console.log("[SceneManager] Selected Wires: ", this.selectedWires);
+    }
+    deselectCircuit(circuit) {
+        console.log("Deselect Circuit");
+        if (!this.selectedCircuits.has(circuit)) {
+            return;
+        }
+        this.selectedCircuits.delete(circuit);
+        circuit.isSelected = false;
+        console.log("[SceneManager] Selected Circuits: ", this.selectedCircuits);
+        if (this.selectedCircuits.size === 0) {
+            return;
+        }
+        for (let pin of circuit.parentCircuit.producerPins) {
+            console.log("[SceneManager] ProducerPin: ", pin);
+            for (let wire of pin.wires) {
+                if (wire.isSelected) {
+                    this.selectedWires.delete(wire);
+                    wire.isSelected = false;
+                }
+            }
+        }
+        for (let pin of circuit.parentCircuit.consumerPins) {
+            console.log("[SceneManager] ConsumerPin: ", pin);
+            if (pin.wire == null) {
+                continue;
+            }
+            if (pin.wire.isSelected) {
+                this.selectedWires.delete(pin.wire);
+                pin.wire.isSelected = false;
+            }
+        }
+        console.log("[SceneManager] Selected Wires: ", this.selectedWires);
+    }
+    selectWire(wire) {
+        this.selectedWires.add(wire);
     }
     getObjectAt(locScr) {
         for (let object of this.currentScene.colliders.values()) {

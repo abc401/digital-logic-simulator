@@ -41,7 +41,10 @@ export class CreatingCircuit implements TouchScreenState {
       );
 
       const circuit = this.creator();
-      circuit.tightRectWrl.xy = viewManager.screenToWorld(locScr);
+      if (circuit.sceneObject == null) {
+        throw Error();
+      }
+      circuit.sceneObject.tightRectWrl.xy = viewManager.screenToWorld(locScr);
       // domLog(`Created ${this.name}`);
       // domLog(
       //   `circuit.value: ${circuit.value}, circuit.pin.value: ${circuit.producerPins[0].value}`

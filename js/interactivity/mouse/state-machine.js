@@ -1,6 +1,7 @@
 import { Vec2 } from "../../math.js";
 import { Home } from "./states/home.js";
 import { canvas, viewManager } from "../../main.js";
+import { copySelectedToClipboard, pasteFromClipboard } from "../common.js";
 export var MouseButton;
 (function (MouseButton) {
     MouseButton[MouseButton["None"] = 0] = "None";
@@ -37,44 +38,30 @@ export var MouseActionKind;
 export class MouseAction {
     constructor(kind, payload) {
         this.kind = kind;
-        this.payload = payload;
-    }
-}
-export class MouseDownPayload {
-    constructor(locScr, button, buttons) {
-        this.locScr = locScr;
-        this.button = button;
-        this.buttons = buttons;
-    }
-}
-export class MouseUpPayload {
-    constructor(button, buttons, locScr) {
-        this.button = button;
-        this.buttons = buttons;
-        this.locScr = locScr;
-    }
-}
-export class MouseMovePayload {
-    constructor(locScr, deltaScr, buttons) {
-        this.locScr = locScr;
-        this.deltaScr = deltaScr;
-        this.buttons = buttons;
+        this.payload = Object.assign(payload, {
+            buttonEncoded: encodeMouseButton(payload.button),
+        });
     }
 }
 export class MouseStateMachine {
     constructor() {
         this.state = new Home();
+        document.addEventListener("keydown", (ev) => {
+            if ((ev.key === "c" || ev.key === "C") && ev.ctrlKey) {
+                copySelectedToClipboard();
+            }
+            else if ((ev.key === "v" || ev.key === "V") && ev.ctrlKey) {
+                pasteFromClipboard();
+            }
+        });
         canvas.addEventListener("mousedown", (ev) => {
-            let payload = new MouseDownPayload(new Vec2(ev.offsetX, ev.offsetY), encodeMouseButton(ev.button), ev.buttons);
-            this.state.mouseDown(this, payload);
+            this.state.update(this, new MouseAction(MouseActionKind.MouseDown, ev));
         });
         canvas.addEventListener("mouseup", (ev) => {
-            let payload = new MouseUpPayload(encodeMouseButton(ev.button), ev.buttons, new Vec2(ev.offsetX, ev.offsetY));
-            this.state.mouseUp(this, payload);
+            this.state.update(this, new MouseAction(MouseActionKind.MouseUp, ev));
         });
         canvas.addEventListener("mousemove", (ev) => {
-            let payload = new MouseMovePayload(new Vec2(ev.offsetX, ev.offsetY), new Vec2(ev.movementX, ev.movementY), ev.buttons);
-            this.state.mouseMove(this, payload);
+            this.state.update(this, new MouseAction(MouseActionKind.MouseMove, ev));
         });
         canvas.addEventListener("wheel", (ev) => {
             viewManager.zoom(new Vec2(ev.offsetX, ev.offsetY), viewManager.zoomLevel - ev.deltaY * 0.001);

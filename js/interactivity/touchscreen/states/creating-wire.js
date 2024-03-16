@@ -21,10 +21,10 @@ export class CreatingWire {
         const touch = payload.changedTouches[0];
         const locScr = new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y);
         if (action.kind === TouchActionKind.TouchMove) {
-            if (this.wire.isProducerPinNull()) {
+            if (this.wire.producerPin == null) {
                 this.wire.fromScr = locScr;
             }
-            else if (this.wire.isConsumerPinNull()) {
+            else if (this.wire.consumerPin == null) {
                 this.wire.toScr = locScr;
             }
         }
@@ -34,11 +34,11 @@ export class CreatingWire {
                 this.wire.detach();
             }
             else if (focusObject.kind === ConcreteObjectKind.ConsumerPin &&
-                this.wire.isConsumerPinNull()) {
+                this.wire.consumerPin == null) {
                 this.wire.setConsumerPin(focusObject.object);
             }
             else if (focusObject.kind === ConcreteObjectKind.ProducerPin &&
-                this.wire.isProducerPinNull()) {
+                this.wire.producerPin == null) {
                 this.wire.setProducerPin(focusObject.object);
             }
             else {

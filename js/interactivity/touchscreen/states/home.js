@@ -33,7 +33,10 @@ export class Home {
             }
             if (focusObject.kind === ConcreteObjectKind.Circuit) {
                 const circuit = focusObject.object;
-                stateMachine.state = new CircuitSelected(circuit, touch.identifier, circuit.tightRectWrl.xy.sub(viewManager.screenToWorld(locScr)));
+                if (circuit.sceneObject == null) {
+                    throw Error();
+                }
+                stateMachine.state = new CircuitSelected(circuit, touch.identifier, circuit.sceneObject.tightRectWrl.xy.sub(viewManager.screenToWorld(locScr)));
             }
             if (focusObject.kind === ConcreteObjectKind.ConsumerPin) {
                 const pin = focusObject.object;

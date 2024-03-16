@@ -22,7 +22,10 @@ export class CreatingCircuit {
             const touch = payload.changedTouches[0];
             const locScr = new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y);
             const circuit = this.creator();
-            circuit.tightRectWrl.xy = viewManager.screenToWorld(locScr);
+            if (circuit.sceneObject == null) {
+                throw Error();
+            }
+            circuit.sceneObject.tightRectWrl.xy = viewManager.screenToWorld(locScr);
             // domLog(`Created ${this.name}`);
             // domLog(
             //   `circuit.value: ${circuit.value}, circuit.pin.value: ${circuit.producerPins[0].value}`

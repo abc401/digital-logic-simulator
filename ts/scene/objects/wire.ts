@@ -14,6 +14,7 @@ export class Wire implements SceneObject {
   toScr: Vec2 | undefined;
   id: number;
   allocateSimFrame: boolean = true;
+  isSelected: boolean = false;
 
   constructor(
     public producerPin: ProducerPin | undefined,
@@ -24,7 +25,7 @@ export class Wire implements SceneObject {
     this.id = sceneManager.currentScene.registerWire(this);
 
     if (producerPin != null) {
-      producerPin.attachWire(this);
+      // producerPin.attachWire(this);
       this.setProducerPin(producerPin);
       // if (!producerPin.parentCircuit.allocateSimFrame) {
       //   this.allocateSimFrame = false;
@@ -32,7 +33,7 @@ export class Wire implements SceneObject {
     }
 
     if (consumerPin != null) {
-      consumerPin.attachWire(this);
+      // consumerPin.attachWire(this);
       this.setConsumerPin(consumerPin);
       // if (!consumerPin.parentCircuit.allocateSimFrame) {
       //   this.allocateSimFrame = false;
@@ -110,14 +111,6 @@ export class Wire implements SceneObject {
     return cloned;
   }
 
-  isConsumerPinNull() {
-    return this.consumerPin == null;
-  }
-
-  isProducerPinNull() {
-    return this.producerPin == null;
-  }
-
   getProducerPin() {
     return this.producerPin;
   }
@@ -134,9 +127,30 @@ export class Wire implements SceneObject {
     }
   }
 
+  updateIsSelected() {
+    if (this.consumerPin == null || this.producerPin == null) {
+      return;
+    }
+    if (
+      this.consumerPin.parentCircuit.sceneObject == null ||
+      this.producerPin.parentCircuit.sceneObject == null
+    ) {
+      this.isSelected = false;
+      return;
+    }
+    if (
+      this.consumerPin.parentCircuit.sceneObject.isSelected &&
+      this.producerPin.parentCircuit.sceneObject.isSelected
+    ) {
+      sceneManager.selectWire(this);
+      this.isSelected = true;
+    }
+  }
+
   setProducerPin(pin: ProducerPin) {
     this.producerPin = pin;
     pin.attachWire(this);
+    this.updateIsSelected();
 
     console.log("[Wire.setProducerPin] wire: ", this);
 
@@ -159,6 +173,7 @@ export class Wire implements SceneObject {
   setConsumerPin(pin: ConsumerPin) {
     pin.attachWire(this);
     this.consumerPin = pin;
+    this.updateIsSelected();
 
     if (!pin.parentCircuit.allocSimFrameToInputWires) {
       this.allocateSimFrame = false;
@@ -214,6 +229,16 @@ export class Wire implements SceneObject {
       return;
     }
 
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.closePath();
+    if (this.isSelected) {
+      ctx.strokeStyle = "green";
+      ctx.lineWidth = 12 * viewManager.zoomLevel;
+      ctx.stroke();
+    }
+
     if (this.consumerPin && this.consumerPin.value) {
       ctx.strokeStyle = "blue";
     } else {
@@ -221,10 +246,6 @@ export class Wire implements SceneObject {
     }
 
     ctx.lineWidth = 10 * viewManager.zoomLevel;
-    ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
-    ctx.lineTo(to.x, to.y);
-    ctx.closePath();
     ctx.stroke();
   }
 }

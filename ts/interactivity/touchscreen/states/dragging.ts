@@ -23,7 +23,10 @@ export class Dragging implements TouchScreenState {
     if (touchLocScr == null) {
       return;
     }
-    this.circuit.tightRectWrl.xy = viewManager
+    if (this.circuit.sceneObject == null) {
+      throw Error();
+    }
+    this.circuit.sceneObject.tightRectWrl.xy = viewManager
       .screenToWorld(touchLocScr)
       .add(this.draggingOffsetWrl);
   }
@@ -54,7 +57,10 @@ export class Dragging implements TouchScreenState {
         touch.clientY - boundingRect.y
       );
 
-      this.circuit.tightRectWrl.xy = viewManager
+      if (this.circuit.sceneObject == null) {
+        throw Error();
+      }
+      this.circuit.sceneObject.tightRectWrl.xy = viewManager
         .screenToWorld(locScr)
         .add(this.draggingOffsetWrl);
       return;

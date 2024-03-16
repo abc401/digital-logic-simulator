@@ -5,17 +5,18 @@ export class Wire {
         this.producerPin = producerPin;
         this.consumerPin = consumerPin;
         this.allocateSimFrame = true;
+        this.isSelected = false;
         console.log("[Wire Constructor]");
         this.id = sceneManager.currentScene.registerWire(this);
         if (producerPin != null) {
-            producerPin.attachWire(this);
+            // producerPin.attachWire(this);
             this.setProducerPin(producerPin);
             // if (!producerPin.parentCircuit.allocateSimFrame) {
             //   this.allocateSimFrame = false;
             // }
         }
         if (consumerPin != null) {
-            consumerPin.attachWire(this);
+            // consumerPin.attachWire(this);
             this.setConsumerPin(consumerPin);
             // if (!consumerPin.parentCircuit.allocateSimFrame) {
             //   this.allocateSimFrame = false;
@@ -70,12 +71,6 @@ export class Wire {
         Object.setPrototypeOf(cloned, Wire.prototype);
         return cloned;
     }
-    isConsumerPinNull() {
-        return this.consumerPin == null;
-    }
-    isProducerPinNull() {
-        return this.producerPin == null;
-    }
     getProducerPin() {
         return this.producerPin;
     }
@@ -88,9 +83,25 @@ export class Wire {
             this.allocateSimFrame = false;
         }
     }
+    updateIsSelected() {
+        if (this.consumerPin == null || this.producerPin == null) {
+            return;
+        }
+        if (this.consumerPin.parentCircuit.sceneObject == null ||
+            this.producerPin.parentCircuit.sceneObject == null) {
+            this.isSelected = false;
+            return;
+        }
+        if (this.consumerPin.parentCircuit.sceneObject.isSelected &&
+            this.producerPin.parentCircuit.sceneObject.isSelected) {
+            sceneManager.selectWire(this);
+            this.isSelected = true;
+        }
+    }
     setProducerPin(pin) {
         this.producerPin = pin;
         pin.attachWire(this);
+        this.updateIsSelected();
         console.log("[Wire.setProducerPin] wire: ", this);
         if (!pin.parentCircuit.allocSimFrameToOutputWires) {
             this.allocateSimFrame = false;
@@ -108,6 +119,7 @@ export class Wire {
     setConsumerPin(pin) {
         pin.attachWire(this);
         this.consumerPin = pin;
+        this.updateIsSelected();
         if (!pin.parentCircuit.allocSimFrameToInputWires) {
             this.allocateSimFrame = false;
         }
@@ -150,6 +162,15 @@ export class Wire {
         if (from == null || to == null) {
             return;
         }
+        ctx.beginPath();
+        ctx.moveTo(from.x, from.y);
+        ctx.lineTo(to.x, to.y);
+        ctx.closePath();
+        if (this.isSelected) {
+            ctx.strokeStyle = "green";
+            ctx.lineWidth = 12 * viewManager.zoomLevel;
+            ctx.stroke();
+        }
         if (this.consumerPin && this.consumerPin.value) {
             ctx.strokeStyle = "blue";
         }
@@ -157,10 +178,6 @@ export class Wire {
             ctx.strokeStyle = "black";
         }
         ctx.lineWidth = 10 * viewManager.zoomLevel;
-        ctx.beginPath();
-        ctx.moveTo(from.x, from.y);
-        ctx.lineTo(to.x, to.y);
-        ctx.closePath();
         ctx.stroke();
     }
 }

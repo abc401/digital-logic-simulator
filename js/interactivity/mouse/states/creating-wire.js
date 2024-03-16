@@ -1,6 +1,8 @@
+import { MouseActionKind, } from "../state-machine.js";
 import { Home } from "./home.js";
 import { logState, sceneManager } from "../../../main.js";
 import { ConcreteObjectKind } from "../../../scene/scene-manager.js";
+import { Vec2 } from "../../../math.js";
 export class CreatingWire {
     constructor(wire) {
         this.wire = wire;
@@ -8,32 +10,35 @@ export class CreatingWire {
         // console.log("Wire: ", wire);
         // console.log("consumerPin: ", wire.getConsumerPin()?.wire);
     }
-    mouseDown(stateMachine, payload) { }
-    mouseMove(stateMachine, payload) {
-        if (this.wire.isProducerPinNull()) {
-            this.wire.fromScr = payload.locScr;
+    update(stateMachine, action) {
+        const payload = action.payload;
+        const locScr = new Vec2(payload.offsetX, payload.offsetY);
+        if (action.kind === MouseActionKind.MouseMove) {
+            if (this.wire.getProducerPin() == null) {
+                this.wire.fromScr = locScr;
+            }
+            else if (this.wire.getConsumerPin() == null) {
+                this.wire.toScr = locScr;
+            }
         }
-        else if (this.wire.isConsumerPinNull()) {
-            this.wire.toScr = payload.locScr;
+        if (action.kind === MouseActionKind.MouseUp) {
+            const focusObject = sceneManager.getObjectAt(locScr);
+            if (focusObject == null) {
+                this.wire.detach();
+            }
+            else if (focusObject.kind === ConcreteObjectKind.ConsumerPin &&
+                this.wire.consumerPin == null) {
+                this.wire.setConsumerPin(focusObject.object);
+            }
+            else if (focusObject.kind === ConcreteObjectKind.ProducerPin &&
+                this.wire.producerPin == null) {
+                this.wire.setProducerPin(focusObject.object);
+            }
+            else {
+                this.wire.detach();
+            }
+            console.log("Wire: ", this.wire);
+            stateMachine.state = new Home();
         }
-    }
-    mouseUp(stateMachine, payload) {
-        const focusObject = sceneManager.getObjectAt(payload.locScr);
-        if (focusObject == null) {
-            this.wire.detach();
-        }
-        else if (focusObject.kind === ConcreteObjectKind.ConsumerPin &&
-            this.wire.isConsumerPinNull()) {
-            this.wire.setConsumerPin(focusObject.object);
-        }
-        else if (focusObject.kind === ConcreteObjectKind.ProducerPin &&
-            this.wire.isProducerPinNull()) {
-            this.wire.setProducerPin(focusObject.object);
-        }
-        else {
-            this.wire.detach();
-        }
-        console.log("Wire: ", this.wire);
-        stateMachine.state = new Home();
     }
 }

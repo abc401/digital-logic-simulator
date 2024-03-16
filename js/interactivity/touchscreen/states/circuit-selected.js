@@ -40,7 +40,12 @@ export class CircuitSelected {
         }
         if (action.kind === TouchActionKind.TouchEnd) {
             domLog("Invoking Circuit.onClicked");
-            this.circuit.onClicked();
+            if (this.circuit.sceneObject == null) {
+                throw Error();
+            }
+            if (this.circuit.sceneObject.onClicked != null) {
+                this.circuit.sceneObject.onClicked(this.circuit);
+            }
             // domLog(this.circuit.value);
             stateMachine.state = new Home();
         }
