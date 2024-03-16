@@ -5,29 +5,47 @@ import { ConcreteObjectKind, SceneObject } from "@src/scene/scene-manager";
 
 export function copySelectedToClipboard() {
   let clonedCircuits = new Array<Circuit>();
-  let clonedWire = new Array<Wire>();
+  let clonedWires = new Array<Wire>();
 
   let circuitCloneMapping = new Map<Circuit, Circuit>();
   let wireCloneMapping = new Map<Wire, Wire>();
 
-  for (let id of sceneManager.selectedCircuits) {
-    const circuit = sceneManager.currentScene.objects.get(id);
-    if (circuit == null) {
-      throw Error();
-    }
-
+  for (let circuit of sceneManager.selectedCircuits) {
     cloneGraphAfterCircuit(
-      (circuit as CircuitSceneObject).parentCircuit,
+      circuit.parentCircuit,
       clonedCircuits,
-      clonedWire,
+      clonedWires,
       circuitCloneMapping,
       wireCloneMapping
     );
   }
 
   clipboard.circuits = clonedCircuits;
-  clipboard.wires = clonedWire;
+  clipboard.wires = clonedWires;
   console.log("Clipboard: ", clipboard);
+}
+
+export function pasteFromClipboard() {
+  let clonedCircuits = new Array<Circuit>();
+  let clonedWires = new Array<Wire>();
+
+  let circuitCloneMapping = new Map<Circuit, Circuit>();
+  let wireCloneMapping = new Map<Wire, Wire>();
+  for (let circuit of clipboard.circuits) {
+    cloneGraphAfterCircuit(
+      circuit,
+      clonedCircuits,
+      clonedWires,
+      circuitCloneMapping,
+      wireCloneMapping
+    );
+  }
+  for (let circuit of clonedCircuits) {
+    if (circuit.sceneObject == null) {
+      throw Error();
+    }
+    circuit.configSceneObject(circuit.sceneObject.tightRectWrl.xy);
+  }
 }
 
 export function cloneGraphAfterCircuit(

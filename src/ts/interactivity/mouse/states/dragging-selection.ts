@@ -7,12 +7,12 @@ import {
   MouseButton,
 } from "../state-machine.js";
 import { Home } from "./home.js";
-import { logState, viewManager } from "@src/main.js";
+import { logState, sceneManager, viewManager } from "@src/main.js";
 import { Vec2 } from "@src/math.js";
 
-export class Dragging implements MouseState {
+export class DraggingSelection implements MouseState {
   constructor(
-    private circuit: CircuitSceneObject,
+    private focusCircuit: CircuitSceneObject,
     private draggingOffsetWrl: Vec2,
     mouseLocScr: Vec2 | undefined = undefined
   ) {
@@ -20,9 +20,7 @@ export class Dragging implements MouseState {
       return;
     }
 
-    this.circuit.setPos(
-      viewManager.screenToWorld(mouseLocScr).add(this.draggingOffsetWrl)
-    );
+    this.dragCircuits(mouseLocScr);
 
     logState("Dragging");
   }
@@ -32,15 +30,28 @@ export class Dragging implements MouseState {
     const locScr = new Vec2(payload.offsetX, payload.offsetY);
 
     if (action.kind === MouseActionKind.MouseMove) {
-      this.circuit.setPos(
-        viewManager.screenToWorld(locScr).add(this.draggingOffsetWrl)
-      );
+      this.dragCircuits(locScr);
     }
+
     if (action.kind === MouseActionKind.MouseUp) {
       if (payload.buttonEncoded !== MouseButton.Primary) {
         return;
       }
       stateMachine.state = new Home();
+    }
+  }
+
+  dragCircuits(mouseLocScr: Vec2) {
+    const focusCircuitNewPositionWrl = viewManager
+      .screenToWorld(mouseLocScr)
+      .add(this.draggingOffsetWrl);
+
+    const dragMovement = focusCircuitNewPositionWrl.sub(
+      this.focusCircuit.tightRectWrl.xy
+    );
+
+    for (let circuit of sceneManager.selectedCircuits) {
+      circuit.setPos(circuit.tightRectWrl.xy.add(dragMovement));
     }
   }
 }

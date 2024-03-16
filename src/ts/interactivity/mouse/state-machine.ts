@@ -1,7 +1,7 @@
 import { Vec2 } from "@src/math.js";
 import { Home } from "./states/home.js";
 import { canvas, viewManager } from "@src/main.js";
-import { copySelectedToClipboard } from "../common.js";
+import { copySelectedToClipboard, pasteFromClipboard } from "../common.js";
 
 export enum MouseButton {
   None = 0,
@@ -62,6 +62,8 @@ export class MouseStateMachine {
     document.addEventListener("keydown", (ev) => {
       if ((ev.key === "c" || ev.key === "C") && ev.ctrlKey) {
         copySelectedToClipboard();
+      } else if ((ev.key === "v" || ev.key === "V") && ev.ctrlKey) {
+        pasteFromClipboard();
       }
     });
 

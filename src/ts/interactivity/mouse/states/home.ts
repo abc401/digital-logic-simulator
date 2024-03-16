@@ -52,7 +52,7 @@ export class Home implements MouseState {
         }
 
         stateMachine.state = new MouseDownPrimaryButton(
-          circuit,
+          circuit.sceneObject,
           circuit.sceneObject.tightRectWrl.xy.sub(
             viewManager.screenToWorld(locScr)
           )

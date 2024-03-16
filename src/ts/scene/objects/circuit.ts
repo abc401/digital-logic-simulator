@@ -173,7 +173,7 @@ function circuitCloneHelper(circuit: Circuit) {
 
   cloned.producerPins = new Array(circuit.producerPins.length);
   cloned.consumerPins = new Array(circuit.consumerPins.length);
-  cloned.sceneObject = undefined;
+  // cloned.sceneObject = undefined;
 
   for (let i = 0; i < circuit.producerPins.length; i++) {
     cloned.producerPins[i] = new ProducerPin(
