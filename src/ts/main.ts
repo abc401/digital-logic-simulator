@@ -1,10 +1,10 @@
 import { Circuit, CustomCircuit } from "./scene/objects/circuit.js";
 import { Wire } from "./scene/objects/wire.js";
-import { SimEngine } from "./engine.js";
+import { SimEngine } from "./engine";
 
-import { SceneManager, ColliderObject } from "./scene/scene-manager.js";
+import { SceneManager, ColliderObject } from "./scene/scene-manager";
 import { ViewManager } from "./view-manager.js";
-import { MouseStateMachine } from "@src/interactivity/mouse/state-machine.js";
+import { MouseStateMachine } from "@src/interactivity/mouse/state-machine";
 import { TouchScreenStateMachine } from "./interactivity/touchscreen/state-machine.js";
 import { creators, customCircuitCreator } from "./circuit-creators.js";
 import { CreatingCircuit as CreatingCircuitMouse } from "./interactivity/mouse/states/creating-circuit.js";
@@ -46,6 +46,11 @@ export let viewManager = new ViewManager();
 export let mouseStateMachine = new MouseStateMachine();
 export let touchScreenStateMachine = new TouchScreenStateMachine();
 export let customCircuitScenes = new Map<string, number>();
+
+export let clipboard = {
+  circuits: new Array<Circuit>(),
+  wires: new Array<Wire>(),
+};
 
 export function domLog(message: string) {
   if (loggingDom == null) {
@@ -179,5 +184,6 @@ if (runButton !== null) {
 
 setInterval(function () {
   sceneManager.draw(ctx);
+  console.log("draw");
 }, 1000 / 60);
 // scheduler.runSim(ctx);

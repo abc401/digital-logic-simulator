@@ -54,10 +54,16 @@ export class Home implements TouchScreenState {
 
       if (focusObject.kind === ConcreteObjectKind.Circuit) {
         const circuit = focusObject.object as Circuit;
+        if (circuit.sceneObject == null) {
+          throw Error();
+        }
+
         stateMachine.state = new CircuitSelected(
           circuit,
           touch.identifier,
-          circuit.tightRectWrl.xy.sub(viewManager.screenToWorld(locScr))
+          circuit.sceneObject.tightRectWrl.xy.sub(
+            viewManager.screenToWorld(locScr)
+          )
         );
       }
       if (focusObject.kind === ConcreteObjectKind.ConsumerPin) {

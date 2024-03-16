@@ -19,9 +19,13 @@ export class Dragging implements MouseState {
     if (mouseLocScr == null) {
       return;
     }
-    this.circuit.tightRectWrl.xy = viewManager
-      .screenToWorld(mouseLocScr)
-      .add(this.draggingOffsetWrl);
+
+    if (this.circuit.sceneObject == null) {
+      throw Error();
+    }
+    this.circuit.sceneObject.setPos(
+      viewManager.screenToWorld(mouseLocScr).add(this.draggingOffsetWrl)
+    );
     logState("Dragging");
   }
 
@@ -30,7 +34,10 @@ export class Dragging implements MouseState {
     const locScr = new Vec2(payload.offsetX, payload.offsetY);
 
     if (action.kind === MouseActionKind.MouseMove) {
-      this.circuit.setPos(
+      if (this.circuit.sceneObject == null) {
+        throw Error();
+      }
+      this.circuit.sceneObject.setPos(
         viewManager.screenToWorld(locScr).add(this.draggingOffsetWrl)
       );
     }

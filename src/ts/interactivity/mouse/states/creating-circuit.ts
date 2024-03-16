@@ -1,4 +1,4 @@
-import { Circuit } from "@src/scene/objects/circuit.js";
+import { Circuit, CircuitSceneObject } from "@src/scene/objects/circuit.js";
 import {
   MouseAction,
   MouseActionKind,
@@ -26,8 +26,8 @@ export class CreatingCircuit implements MouseState {
 
     if (action.kind === MouseActionKind.MouseUp) {
       let circuit = this.creator();
+      circuit.configSceneObject(viewManager.screenToWorld(locScr));
 
-      circuit.setPos(viewManager.screenToWorld(locScr));
       console.log(`Created ${this.name}`);
       console.log("scene: ", sceneManager.currentScene);
       stateMachine.state = new MouseHome();

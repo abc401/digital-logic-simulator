@@ -20,7 +20,11 @@ export class ConsumerPin {
   ) {}
 
   getLocWrl() {
-    const rectWrl = this.parentCircuit.tightRectWrl;
+    if (this.parentCircuit.sceneObject == null) {
+      throw Error();
+    }
+
+    const rectWrl = this.parentCircuit.sceneObject.tightRectWrl;
     return new Vec2(
       rectWrl.x - ConsumerPin.radiusWrl,
       rectWrl.y +

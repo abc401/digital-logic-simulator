@@ -11,8 +11,9 @@
   "scripts": {
     "deploy": "gh-pages -d src",
     "predeploy": "npm run build",
-    "build": "tsc && tsc-alias",
-    "watch": "tsc && (concurrently \"tsc -w\" \"tsc-alias -w\")"
+    "build": "tsc && tsc-alias --resolve-full-paths",
+    "resolve": "tsc-alias --resolve-full-paths",
+    "watch": "tsc && (concurrently --kill-others \"tsc -w\" \"tsc-alias -w --resolve-full-paths\")"
   },
   "author": "Awab Ahmed",
   "license": "MIT"

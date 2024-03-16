@@ -35,7 +35,10 @@ export class MouseDownPrimaryButton implements MouseState {
         if (!payload.ctrlKey) {
           sceneManager.clearSelectedCircuits();
         }
-        sceneManager.selectCircuit(this.circuit.id);
+        if (this.circuit.sceneObject == null) {
+          throw Error();
+        }
+        sceneManager.selectCircuit(this.circuit.sceneObject.id);
         stateMachine.state = new Dragging(this.circuit, this.offsetWrl, locScr);
       }
     }
@@ -44,10 +47,14 @@ export class MouseDownPrimaryButton implements MouseState {
         sceneManager.clearSelectedCircuits();
       }
       if (this.circuit != null) {
-        if (this.circuit.isSelected) {
-          sceneManager.deselectCircuit(this.circuit.id);
+        if (this.circuit.sceneObject == null) {
+          throw Error();
+        }
+
+        if (this.circuit.sceneObject.isSelected) {
+          sceneManager.deselectCircuit(this.circuit.sceneObject.id);
         } else {
-          sceneManager.selectCircuit(this.circuit.id);
+          sceneManager.selectCircuit(this.circuit.sceneObject.id);
         }
       }
       stateMachine.state = new Home();

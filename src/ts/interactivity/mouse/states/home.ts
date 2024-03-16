@@ -18,7 +18,6 @@ import { ConsumerPin } from "@src/scene/objects/consumer-pin.js";
 import { Wire } from "@src/scene/objects/wire.js";
 import { Circle, Vec2 } from "@src/math.js";
 import { CreatingWire } from "./creating-wire.js";
-import { CircuitClicked } from "./circuit-clicked.js";
 import { MouseDownPrimaryButton } from "./mouse-down-primary-button.js";
 
 export class Home implements MouseState {
@@ -48,9 +47,15 @@ export class Home implements MouseState {
       if (focusObject.kind === ConcreteObjectKind.Circuit) {
         const circuit = focusObject.object as Circuit;
 
+        if (circuit.sceneObject == null) {
+          throw Error();
+        }
+
         stateMachine.state = new MouseDownPrimaryButton(
           circuit,
-          circuit.tightRectWrl.xy.sub(viewManager.screenToWorld(locScr))
+          circuit.sceneObject.tightRectWrl.xy.sub(
+            viewManager.screenToWorld(locScr)
+          )
         );
 
         return;

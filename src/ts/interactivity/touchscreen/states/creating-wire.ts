@@ -41,9 +41,9 @@ export class CreatingWire implements TouchScreenState {
     );
 
     if (action.kind === TouchActionKind.TouchMove) {
-      if (this.wire.isProducerPinNull()) {
+      if (this.wire.producerPin == null) {
         this.wire.fromScr = locScr;
-      } else if (this.wire.isConsumerPinNull()) {
+      } else if (this.wire.consumerPin == null) {
         this.wire.toScr = locScr;
       }
     }
@@ -53,12 +53,12 @@ export class CreatingWire implements TouchScreenState {
         this.wire.detach();
       } else if (
         focusObject.kind === ConcreteObjectKind.ConsumerPin &&
-        this.wire.isConsumerPinNull()
+        this.wire.consumerPin == null
       ) {
         this.wire.setConsumerPin(focusObject.object as ConsumerPin);
       } else if (
         focusObject.kind === ConcreteObjectKind.ProducerPin &&
-        this.wire.isProducerPinNull()
+        this.wire.producerPin == null
       ) {
         this.wire.setProducerPin(focusObject.object as ProducerPin);
       } else {
