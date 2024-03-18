@@ -142,7 +142,7 @@ export class Wire implements SceneObject {
       this.consumerPin.parentCircuit.sceneObject.isSelected &&
       this.producerPin.parentCircuit.sceneObject.isSelected
     ) {
-      sceneManager.selectWire(this.id);
+      sceneManager.selectWire(this);
       this.isSelected = true;
     }
   }
