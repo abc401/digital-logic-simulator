@@ -1,4 +1,6 @@
-export let PIN_EXTRUSION_WRL = 20;
-export let PIN_TO_PIN_DISTANCE_WRL = 20;
-export let MAX_ZOOM = 40;
-export let MIN_ZOOM = 0.2;
+export const PIN_EXTRUSION_WRL = 20;
+export const PIN_TO_PIN_DISTANCE_WRL = 20;
+export const MAX_ZOOM = 40;
+export const MIN_ZOOM = 0.2;
+export const ON_COLOR = "red";
+export const OFF_COLOR = "white";

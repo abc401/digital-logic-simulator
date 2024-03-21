@@ -1,10 +1,15 @@
 import { Circle, Vec2 } from "../../math.js";
 import { ConcreteObjectKind, ColliderObject } from "../scene-manager.js";
 import { sceneManager, simEngine, viewManager } from "../../main.js";
-import { SimEvent } from "../../engine.js";
+import { SimEvent, UpdationStrategy } from "../../engine.js";
 import { Wire } from "./wire.js";
 import { Circuit, CustomCircuitInputs } from "./circuit.js";
-import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from "@src/config.js";
+import {
+  OFF_COLOR,
+  ON_COLOR,
+  PIN_EXTRUSION_WRL,
+  PIN_TO_PIN_DISTANCE_WRL,
+} from "@src/config.js";
 
 export class ProducerPin {
   static radiusWrl = PIN_EXTRUSION_WRL / 2;
@@ -36,14 +41,17 @@ export class ProducerPin {
 
     this.value = value;
     for (let i = 0; i < this.wires.length; i++) {
-      if (!this.wires[i].allocateSimFrame) {
+      if (this.wires[i].updationStrategy === UpdationStrategy.Immediate) {
         this.wires[i].update(this.wires[i]);
-      } else {
+      } else if (
+        this.wires[i].updationStrategy === UpdationStrategy.InNextFrame
+      ) {
         simEngine.nextFrameEvents.enqueue(
           new SimEvent(this.wires[i], this.wires[i].update)
         );
+      } else {
+        throw Error();
       }
-      // this.wires[i].propogateValue(value);
     }
   }
 
@@ -84,9 +92,9 @@ export class ProducerPin {
     ctx.closePath();
     ctx.lineWidth = 1;
     if (this.value) {
-      ctx.fillStyle = "red";
+      ctx.fillStyle = ON_COLOR;
     } else {
-      ctx.fillStyle = "white";
+      ctx.fillStyle = OFF_COLOR;
       ctx.strokeStyle = "red";
       ctx.stroke();
     }

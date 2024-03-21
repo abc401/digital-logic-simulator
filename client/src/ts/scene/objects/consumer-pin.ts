@@ -3,7 +3,12 @@ import { ConcreteObjectKind, ColliderObject } from "../scene-manager.js";
 import { sceneManager, viewManager } from "../../main.js";
 import { Wire } from "./wire.js";
 import { Circuit, CustomCircuitOutputs } from "./circuit.js";
-import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from "@src/config.js";
+import {
+  OFF_COLOR,
+  ON_COLOR,
+  PIN_EXTRUSION_WRL,
+  PIN_TO_PIN_DISTANCE_WRL,
+} from "@src/config.js";
 
 export class ConsumerPin {
   static radiusWrl = PIN_EXTRUSION_WRL / 2;
@@ -53,7 +58,6 @@ export class ConsumerPin {
 
   draw(ctx: CanvasRenderingContext2D) {
     const pos = this.getLocScr();
-    ctx.fillStyle = "red";
     ctx.beginPath();
     ctx.arc(
       pos.x,
@@ -63,11 +67,11 @@ export class ConsumerPin {
       2 * Math.PI
     );
     if (this.value) {
-      ctx.fillStyle = "red";
+      ctx.fillStyle = ON_COLOR;
       ctx.fill();
     } else {
       ctx.lineWidth = 1;
-      ctx.fillStyle = "white";
+      ctx.fillStyle = OFF_COLOR;
       ctx.fill();
       ctx.strokeStyle = "red";
       ctx.stroke();

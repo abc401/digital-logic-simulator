@@ -20,6 +20,17 @@ export function copySelectedToClipboard() {
     );
   }
 
+  // for (let circuit of clonedCircuits) {
+  //   if (circuit.sceneObject == null) {
+  //     throw Error();
+  //   }
+  //   circuit.sceneObject.isSelected = false;
+  // }
+
+  // for (let wire of clonedWires) {
+  //   wire.isSelected = false;
+  // }
+
   clipboard.circuits = clonedCircuits;
   clipboard.wires = clonedWires;
   console.log("Clipboard: ", clipboard);
@@ -40,11 +51,20 @@ export function pasteFromClipboard() {
       wireCloneMapping
     );
   }
+
+  sceneManager.clearSelectedCircuits();
+
+  for (let wire of clonedWires) {
+    wire.configSceneObject();
+  }
+
   for (let circuit of clonedCircuits) {
     if (circuit.sceneObject == null) {
       throw Error();
     }
+
     circuit.configSceneObject(circuit.sceneObject.tightRectWrl.xy);
+    sceneManager.selectCircuit(circuit.sceneObject);
   }
 }
 

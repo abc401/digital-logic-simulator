@@ -4,9 +4,10 @@ import {
   ColliderObject,
   Scene,
   SceneObject,
+  debugObjects,
 } from "../scene-manager.js";
 import { domLog, sceneManager, simEngine, viewManager } from "@src/main.js";
-import { SimEvent } from "@src/engine.js";
+import { SimEvent, UpdationStrategy } from "@src/engine.js";
 import { ConsumerPin } from "./consumer-pin.js";
 import { ProducerPin } from "./producer-pin.js";
 import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from "@src/config.js";
@@ -16,14 +17,20 @@ import { cloneGraphAfterCircuit } from "@src/interactivity/common.js";
 
 type CircuitUpdateHandeler = (self: Circuit) => void;
 
+// export enum UpdationStrategy {
+//   InCurrentFrame,
+//   InNextFrame,
+//   Immediate,
+// }
+
 export interface Circuit {
   consumerPins: ConsumerPin[];
   producerPins: ProducerPin[];
   updateHandeler: CircuitUpdateHandeler;
 
-  allocSimFrameToSelf: boolean;
-  allocSimFrameToInputWires: boolean;
-  allocSimFrameToOutputWires: boolean;
+  updationStrategy: UpdationStrategy;
+  inputWireUpdationStrategy: UpdationStrategy;
+  outputWireUpdationStrategy: UpdationStrategy;
 
   simFrameAllocated: boolean;
 
@@ -173,6 +180,13 @@ function circuitCloneHelper(circuit: Circuit) {
 
   cloned.producerPins = new Array(circuit.producerPins.length);
   cloned.consumerPins = new Array(circuit.consumerPins.length);
+
+  if (circuit.simFrameAllocated) {
+    simEngine.nextFrameEvents.enqueue(
+      new SimEvent(cloned, cloned.updateHandeler)
+    );
+  }
+
   // cloned.sceneObject = undefined;
 
   for (let i = 0; i < circuit.producerPins.length; i++) {
@@ -195,9 +209,9 @@ function circuitCloneHelper(circuit: Circuit) {
 }
 
 export class InputCircuit implements Circuit {
-  allocSimFrameToSelf = true;
-  allocSimFrameToInputWires = true;
-  allocSimFrameToOutputWires = true;
+  updationStrategy = UpdationStrategy.InNextFrame;
+  inputWireUpdationStrategy = UpdationStrategy.InNextFrame;
+  outputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 
   simFrameAllocated = false;
 
@@ -224,7 +238,6 @@ export class InputCircuit implements Circuit {
   updateHandeler(self_: Circuit) {
     let self = self_ as InputCircuit;
     self.producerPins[0].setValue(self.value);
-    self.simFrameAllocated = false;
   }
 
   clone(): Circuit {
@@ -286,10 +299,10 @@ export class InputCircuit implements Circuit {
 export class ProcessingCircuit implements Circuit {
   simFrameAllocated = false;
 
-  allocSimFrameToSelf = true;
+  updationStrategy = UpdationStrategy.InNextFrame;
 
-  allocSimFrameToInputWires = true;
-  allocSimFrameToOutputWires = true;
+  inputWireUpdationStrategy = UpdationStrategy.InNextFrame;
+  outputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 
   updateHandeler: CircuitUpdateHandeler;
 
@@ -315,10 +328,7 @@ export class ProcessingCircuit implements Circuit {
       this.consumerPins[i] = new ConsumerPin(this, i);
     }
 
-    this.updateHandeler = (self) => {
-      updateHandeler(self);
-      self.simFrameAllocated = false;
-    };
+    this.updateHandeler = updateHandeler;
 
     this.updateHandeler(this);
   }
@@ -334,9 +344,9 @@ export class ProcessingCircuit implements Circuit {
 export class CustomCircuitInputs implements Circuit {
   simFrameAllocated = false;
 
-  allocSimFrameToInputWires = false;
-  allocSimFrameToOutputWires = false;
-  allocSimFrameToSelf = false;
+  inputWireUpdationStrategy = UpdationStrategy.Immediate;
+  outputWireUpdationStrategy = UpdationStrategy.Immediate;
+  updationStrategy = UpdationStrategy.Immediate;
 
   consumerPins: ConsumerPin[];
   producerPins: ProducerPin[];
@@ -402,9 +412,9 @@ export class CustomCircuitInputs implements Circuit {
 }
 
 export class CustomCircuitOutputs implements Circuit {
-  allocSimFrameToSelf = false;
-  allocSimFrameToInputWires = false;
-  allocSimFrameToOutputWires = false;
+  updationStrategy = UpdationStrategy.Immediate;
+  inputWireUpdationStrategy = UpdationStrategy.Immediate;
+  outputWireUpdationStrategy = UpdationStrategy.Immediate;
 
   simFrameAllocated = false;
 
@@ -479,9 +489,9 @@ export class CustomCircuitOutputs implements Circuit {
 }
 
 export class CustomCircuit implements Circuit {
-  allocSimFrameToSelf = false;
-  allocSimFrameToInputWires = true;
-  allocSimFrameToOutputWires = true;
+  updationStrategy = UpdationStrategy.Immediate;
+  inputWireUpdationStrategy = UpdationStrategy.InNextFrame;
+  outputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 
   isSelected: boolean = false;
   simFrameAllocated = false;
@@ -498,7 +508,6 @@ export class CustomCircuit implements Circuit {
   customOutputs: CustomCircuitOutputs;
 
   // scene: Scene;
-  onClicked = () => {};
 
   constructor(
     customInputs: CustomCircuitInputs,
@@ -555,6 +564,13 @@ export class CustomCircuit implements Circuit {
 
   configSceneObject(pos: Vec2): void {
     this.sceneObject = new CircuitSceneObject(this, pos);
+    this.sceneObject.onClicked = this.onClicked;
+  }
+
+  onClicked(self_: Circuit) {
+    let self = self_ as CustomCircuit;
+    debugObjects.circuits = self.circuits;
+    debugObjects.wires = self.wires;
   }
 
   clone(): Circuit {

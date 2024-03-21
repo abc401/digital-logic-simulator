@@ -5,15 +5,16 @@ import {
   SceneObject,
 } from "../scene-manager.js";
 import { sceneManager, simEngine, viewManager } from "@src/main.js";
-import { SimEvent } from "@src/engine.js";
+import { SimEvent, UpdationStrategy } from "@src/engine.js";
 import { ProducerPin } from "@src/scene/objects/producer-pin.js";
 import { ConsumerPin } from "@src/scene/objects/consumer-pin.js";
+import { OFF_COLOR, ON_COLOR } from "@src/config.js";
 
 export class Wire implements SceneObject {
   fromScr: Vec2 | undefined;
   toScr: Vec2 | undefined;
   id: number;
-  allocateSimFrame: boolean = true;
+  updationStrategy: UpdationStrategy = UpdationStrategy.InNextFrame;
   isSelected: boolean = false;
 
   constructor(
@@ -61,24 +62,30 @@ export class Wire implements SceneObject {
       return;
     }
 
+    self.consumerPin.value = self.producerPin.value;
+
     if (self.consumerPin.parentCircuit.simFrameAllocated) {
       return;
     }
 
-    self.consumerPin.value = self.producerPin.value;
-    if (!self.consumerPin.parentCircuit.allocSimFrameToSelf) {
-      self.consumerPin.parentCircuit.updateHandeler(
-        self.consumerPin.parentCircuit
-      );
-      return;
-    }
-
-    simEngine.nextFrameEvents.enqueue(
-      new SimEvent(
-        self.consumerPin.parentCircuit,
-        self.consumerPin.parentCircuit.updateHandeler
-      )
+    const simEvent = new SimEvent(
+      self.consumerPin.parentCircuit,
+      self.consumerPin.parentCircuit.updateHandeler
     );
+
+    const consumerCircuit = self.consumerPin.parentCircuit;
+
+    if (consumerCircuit.updationStrategy === UpdationStrategy.InCurrentFrame) {
+      simEngine.currentFrameEvents.enqueue(simEvent);
+      self.consumerPin.parentCircuit.simFrameAllocated = true;
+    } else if (
+      consumerCircuit.updationStrategy === UpdationStrategy.InNextFrame
+    ) {
+      simEngine.nextFrameEvents.enqueue(simEvent);
+      self.consumerPin.parentCircuit.simFrameAllocated = true;
+    } else {
+      consumerCircuit.updateHandeler(consumerCircuit);
+    }
   }
 
   detach() {
@@ -122,8 +129,11 @@ export class Wire implements SceneObject {
 
     console.log("[Wire.setProducerPin] wire: ", this);
 
-    if (!pin.parentCircuit.allocSimFrameToOutputWires) {
-      this.allocateSimFrame = false;
+    if (
+      pin.parentCircuit.outputWireUpdationStrategy !==
+      UpdationStrategy.InNextFrame
+    ) {
+      this.updationStrategy = pin.parentCircuit.outputWireUpdationStrategy;
     }
   }
 
@@ -147,6 +157,11 @@ export class Wire implements SceneObject {
     }
   }
 
+  configSceneObject() {
+    this.id = sceneManager.currentScene.registerWire(this);
+    this.isSelected = false;
+  }
+
   setProducerPin(pin: ProducerPin) {
     this.producerPin = pin;
     pin.attachWire(this);
@@ -154,8 +169,11 @@ export class Wire implements SceneObject {
 
     console.log("[Wire.setProducerPin] wire: ", this);
 
-    if (!pin.parentCircuit.allocSimFrameToOutputWires) {
-      this.allocateSimFrame = false;
+    if (
+      pin.parentCircuit.outputWireUpdationStrategy !==
+      UpdationStrategy.InNextFrame
+    ) {
+      this.updationStrategy = pin.parentCircuit.outputWireUpdationStrategy;
     }
 
     console.log("Producer", pin.parentCircuit);
@@ -175,8 +193,8 @@ export class Wire implements SceneObject {
     this.consumerPin = pin;
     this.updateIsSelected();
 
-    if (!pin.parentCircuit.allocSimFrameToInputWires) {
-      this.allocateSimFrame = false;
+    if (pin.parentCircuit.updationStrategy !== UpdationStrategy.InNextFrame) {
+      this.updationStrategy = pin.parentCircuit.inputWireUpdationStrategy;
     }
 
     console.log("Consumer: ", pin.parentCircuit);
@@ -191,8 +209,8 @@ export class Wire implements SceneObject {
     pin.wire = this;
     this.consumerPin = pin;
 
-    if (!pin.parentCircuit.allocSimFrameToInputWires) {
-      this.allocateSimFrame = false;
+    if (pin.parentCircuit.updationStrategy !== UpdationStrategy.InNextFrame) {
+      this.updationStrategy = pin.parentCircuit.inputWireUpdationStrategy;
     }
 
     console.log("Consumer: ", pin.parentCircuit);
@@ -233,16 +251,21 @@ export class Wire implements SceneObject {
     ctx.moveTo(from.x, from.y);
     ctx.lineTo(to.x, to.y);
     ctx.closePath();
+
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 12 * viewManager.zoomLevel;
     if (this.isSelected) {
       ctx.strokeStyle = "green";
-      ctx.lineWidth = 12 * viewManager.zoomLevel;
-      ctx.stroke();
     }
+    ctx.stroke();
 
-    if (this.consumerPin && this.consumerPin.value) {
-      ctx.strokeStyle = "blue";
+    if (
+      (this.consumerPin && this.consumerPin.value) ||
+      (this.producerPin && this.producerPin.value)
+    ) {
+      ctx.strokeStyle = ON_COLOR;
     } else {
-      ctx.strokeStyle = "black";
+      ctx.strokeStyle = OFF_COLOR;
     }
 
     ctx.lineWidth = 10 * viewManager.zoomLevel;

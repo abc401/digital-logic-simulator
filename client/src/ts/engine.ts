@@ -1,8 +1,16 @@
 import { sceneManager } from "./main.js";
+import { Circle } from "./math.js";
 import { Queue } from "./queue.js";
+import { Circuit } from "./scene/objects/circuit.js";
 
 export class SimEvent {
   constructor(readonly self: any, readonly handeler: (self: any) => void) {}
+}
+
+export enum UpdationStrategy {
+  InCurrentFrame,
+  InNextFrame,
+  Immediate,
 }
 
 export class SimEngine {
@@ -39,6 +47,7 @@ export class SimEngine {
     let event = this.currentFrameEvents.dequeue();
     while (event != null) {
       event.handeler(event.self);
+      (event.self as Circuit).simFrameAllocated = false;
       event = this.currentFrameEvents.dequeue();
     }
 

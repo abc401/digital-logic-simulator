@@ -16,6 +16,7 @@ export class Queue<T> {
       this.tail.next = new Node(item);
       this.tail = this.tail.next;
     }
+    console.log("Queue: ", this);
   }
 
   dequeue() {
