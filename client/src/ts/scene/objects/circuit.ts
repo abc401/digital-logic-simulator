@@ -11,7 +11,7 @@ import { SimEvent, UpdationStrategy } from "@src/engine.js";
 import { ConsumerPin } from "./consumer-pin.js";
 import { ProducerPin } from "./producer-pin.js";
 import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from "@src/config.js";
-import { Queue } from "@src/queue.js";
+import { Queue } from "@src/data-structures/queue.js";
 import { Wire } from "./wire.js";
 import { cloneGraphAfterCircuit } from "@src/interactivity/common.js";
 
@@ -41,7 +41,7 @@ export interface Circuit {
 }
 
 export class CircuitSceneObject {
-  id: number;
+  // id: number;
   parentScene: number;
 
   tightRectWrl: Rect;
@@ -56,7 +56,8 @@ export class CircuitSceneObject {
     this.looseRectWrl = this.calcLooseRect(this.tightRectWrl);
 
     this.parentScene = sceneManager.currentSceneId;
-    this.id = sceneManager.currentScene.registerCircuit(this);
+    // this.id = sceneManager.currentScene.registerCircuit(this);
+    sceneManager.currentScene.registerCircuit(this);
   }
 
   private calcTightRect(pos: Vec2) {
@@ -76,13 +77,53 @@ export class CircuitSceneObject {
     );
   }
 
-  private calcLooseRect(tightRect: Rect) {
+  private calcLooseRect(tightRectWrl: Rect) {
+    const pPinExtrusion =
+      this.parentCircuit.producerPins.length === 0 ? 0 : PIN_EXTRUSION_WRL;
+    const cPinExtrusion =
+      this.parentCircuit.consumerPins.length === 0 ? 0 : PIN_EXTRUSION_WRL;
     return new Rect(
-      tightRect.x - PIN_EXTRUSION_WRL,
-      tightRect.y - 3,
-      tightRect.w + 2 * PIN_EXTRUSION_WRL,
-      tightRect.h + 6
+      tightRectWrl.x - cPinExtrusion - 3,
+      tightRectWrl.y - 3,
+      tightRectWrl.w + cPinExtrusion + pPinExtrusion + 6,
+      tightRectWrl.h + 6
     );
+  }
+
+  looseCollisionCheck(pointWrl: Vec2) {
+    const res = this.looseRectWrl.pointIntersection(pointWrl);
+    if (res) {
+      console.log("Loose Collision Passed");
+    }
+    return res;
+  }
+
+  tightCollisionCheck(pointWrl: Vec2):
+    | {
+        kind: ConcreteObjectKind;
+        object: any;
+      }
+    | undefined {
+    if (this.tightRectWrl.pointIntersection(pointWrl)) {
+      console.log("Tight Collision Passed");
+      return { kind: ConcreteObjectKind.Circuit, object: this.parentCircuit };
+    }
+
+    for (let pin of this.parentCircuit.consumerPins) {
+      if (pin.pointCollision(pointWrl)) {
+        console.log("Tight Collision Passed");
+        return { kind: ConcreteObjectKind.ConsumerPin, object: pin };
+      }
+    }
+
+    for (let pin of this.parentCircuit.producerPins) {
+      if (pin.pointCollision(pointWrl)) {
+        console.log("Tight Collision Passed");
+        return { kind: ConcreteObjectKind.ProducerPin, object: pin };
+      }
+    }
+
+    return undefined;
   }
 
   calcRects() {
@@ -100,7 +141,16 @@ export class CircuitSceneObject {
   draw(ctx: CanvasRenderingContext2D) {
     const tightRectScr = viewManager.worldToScreenRect(this.tightRectWrl);
     ctx.fillStyle = "cyan";
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 1;
+
     ctx.fillRect(
+      tightRectScr.x,
+      tightRectScr.y,
+      tightRectScr.w,
+      tightRectScr.h
+    );
+    ctx.strokeRect(
       tightRectScr.x,
       tightRectScr.y,
       tightRectScr.w,
@@ -246,6 +296,7 @@ export class InputCircuit implements Circuit {
 
   configSceneObject(pos: Vec2): void {
     this.sceneObject = new CircuitSceneObject(this, pos);
+    this.sceneObject.onClicked = InputCircuit.onClicked;
   }
 
   static onClicked(self_: Circuit) {
@@ -380,7 +431,8 @@ export class CustomCircuitInputs implements Circuit {
     }
 
     this.sceneObject = new CircuitSceneObject(this, pos);
-    sceneManager.currentScene.customCircuitInputs = this.sceneObject.id;
+    // sceneManager.currentScene.customCircuitInputs = this.sceneObject.id;
+    sceneManager.currentScene.customCircuitInputs = this;
   }
 
   setValues(pins: ConsumerPin[]) {
@@ -467,7 +519,8 @@ export class CustomCircuitOutputs implements Circuit {
     }
 
     this.sceneObject = new CircuitSceneObject(this, pos);
-    sceneManager.currentScene.customCircuitOutputs = this.sceneObject.id;
+    // sceneManager.currentScene.customCircuitOutputs = this.sceneObject.id;
+    sceneManager.currentScene.customCircuitOutputs = this;
   }
 
   static addPin(self: CustomCircuitOutputs) {

@@ -9,6 +9,7 @@ import { TouchScreenStateMachine } from "./interactivity/touchscreen/state-machi
 import { creators, customCircuitCreator } from "./circuit-creators.js";
 import { CreatingCircuit as CreatingCircuitMouse } from "./interactivity/mouse/states/creating-circuit.js";
 import { CreatingCircuit as CreatingCircuitTouchScreen } from "./interactivity/touchscreen/states/creating-circuit.js";
+import { StackList } from "./data-structures/stacklist.js";
 
 export let canvas: HTMLCanvasElement;
 let tmp_canvas_ = document.getElementById("main-canvas");

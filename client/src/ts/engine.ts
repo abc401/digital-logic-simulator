@@ -1,6 +1,6 @@
 import { sceneManager } from "./main.js";
 import { Circle } from "./math.js";
-import { Queue } from "./queue.js";
+import { Queue } from "./data-structures/queue.js";
 import { Circuit } from "./scene/objects/circuit.js";
 
 export class SimEvent {

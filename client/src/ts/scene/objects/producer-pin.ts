@@ -15,7 +15,7 @@ export class ProducerPin {
   static radiusWrl = PIN_EXTRUSION_WRL / 2;
   wires: Wire[];
   value: boolean;
-  selected = false;
+  // selected = false;
 
   onWireAttached: (self: CustomCircuitInputs) => void = () => {};
 
@@ -95,13 +95,13 @@ export class ProducerPin {
       ctx.fillStyle = ON_COLOR;
     } else {
       ctx.fillStyle = OFF_COLOR;
-      ctx.strokeStyle = "red";
+      ctx.strokeStyle = "grey";
       ctx.stroke();
     }
-    if (this.selected) {
-      ctx.strokeStyle = "green";
-      ctx.stroke();
-    }
+    // if (this.selected) {
+    //   ctx.strokeStyle = "green";
+    //   ctx.stroke();
+    // }
     ctx.fill();
   }
 }

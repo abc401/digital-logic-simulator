@@ -1,4 +1,4 @@
-import { domLog } from "./main.js";
+import { domLog } from "../main.js";
 
 class Node<T> {
   constructor(public data: T, public next: Node<T> | undefined = undefined) {}

@@ -13,7 +13,7 @@ import { OFF_COLOR, ON_COLOR } from "@src/config.js";
 export class Wire implements SceneObject {
   fromScr: Vec2 | undefined;
   toScr: Vec2 | undefined;
-  id: number;
+  // id: number;
   updationStrategy: UpdationStrategy = UpdationStrategy.InNextFrame;
   isSelected: boolean = false;
 
@@ -23,7 +23,8 @@ export class Wire implements SceneObject {
   ) {
     console.log("[Wire Constructor]");
 
-    this.id = sceneManager.currentScene.registerWire(this);
+    // this.id =
+    sceneManager.currentScene.registerWire(this);
 
     if (producerPin != null) {
       // producerPin.attachWire(this);
@@ -106,8 +107,8 @@ export class Wire implements SceneObject {
       });
       this.producerPin = undefined;
     }
-    sceneManager.currentScene.unregisterWire(this.id);
-    console.log(`wire ${this.id} has been detached`);
+    sceneManager.currentScene.unregisterWire(this);
+    // console.log(`wire ${this.id} has been detached`);
   }
 
   clone() {
@@ -158,7 +159,8 @@ export class Wire implements SceneObject {
   }
 
   configSceneObject() {
-    this.id = sceneManager.currentScene.registerWire(this);
+    // this.id =
+    sceneManager.currentScene.registerWire(this);
     this.isSelected = false;
   }
 
@@ -252,7 +254,7 @@ export class Wire implements SceneObject {
     ctx.lineTo(to.x, to.y);
     ctx.closePath();
 
-    ctx.strokeStyle = "red";
+    ctx.strokeStyle = "grey";
     ctx.lineWidth = 12 * viewManager.zoomLevel;
     if (this.isSelected) {
       ctx.strokeStyle = "green";

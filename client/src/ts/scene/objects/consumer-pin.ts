@@ -73,7 +73,7 @@ export class ConsumerPin {
       ctx.lineWidth = 1;
       ctx.fillStyle = OFF_COLOR;
       ctx.fill();
-      ctx.strokeStyle = "red";
+      ctx.strokeStyle = "grey";
       ctx.stroke();
     }
   }
