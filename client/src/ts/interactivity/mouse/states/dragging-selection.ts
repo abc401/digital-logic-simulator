@@ -1,57 +1,56 @@
-import { Circuit, CircuitSceneObject } from "@src/scene/objects/circuit.js";
+import { CircuitSceneObject } from '@ts/scene/objects/circuit.js';
 import {
-  MouseAction,
-  MouseActionKind,
-  MouseStateMachine,
-  MouseState,
-  MouseButton,
-} from "../state-machine.js";
-import { Home } from "./home.js";
-import { logState, sceneManager, viewManager } from "@src/main.js";
-import { Vec2 } from "@src/math.js";
+	MouseAction,
+	MouseActionKind,
+	MouseStateMachine,
+	type MouseState,
+	MouseButton
+} from '../state-machine.js';
+import { Home } from './home.js';
+import { Vec2 } from '@ts/math.js';
+import { sceneManager, viewManager } from '@routes/+page.svelte';
+import { logState } from '@lib/stores/debugging.js';
 
 export class DraggingSelection implements MouseState {
-  constructor(
-    private focusCircuit: CircuitSceneObject,
-    private draggingOffsetWrl: Vec2,
-    mouseLocScr: Vec2 | undefined = undefined
-  ) {
-    if (mouseLocScr == null) {
-      return;
-    }
+	constructor(
+		private focusCircuit: CircuitSceneObject,
+		private draggingOffsetWrl: Vec2,
+		mouseLocScr: Vec2 | undefined = undefined
+	) {
+		if (mouseLocScr == null) {
+			return;
+		}
 
-    this.dragCircuits(mouseLocScr);
+		this.dragCircuits(mouseLocScr);
 
-    logState("Dragging");
-  }
+		logState('Dragging');
+	}
 
-  update(stateMachine: MouseStateMachine, action: MouseAction) {
-    const payload = action.payload;
-    const locScr = new Vec2(payload.offsetX, payload.offsetY);
+	update(stateMachine: MouseStateMachine, action: MouseAction) {
+		const payload = action.payload;
+		const locScr = new Vec2(payload.offsetX, payload.offsetY);
 
-    if (action.kind === MouseActionKind.MouseMove) {
-      this.dragCircuits(locScr);
-    }
+		if (action.kind === MouseActionKind.MouseMove) {
+			this.dragCircuits(locScr);
+		}
 
-    if (action.kind === MouseActionKind.MouseUp) {
-      if (payload.buttonEncoded !== MouseButton.Primary) {
-        return;
-      }
-      stateMachine.state = new Home();
-    }
-  }
+		if (action.kind === MouseActionKind.MouseUp) {
+			if (payload.buttonEncoded !== MouseButton.Primary) {
+				return;
+			}
+			stateMachine.state = new Home();
+		}
+	}
 
-  dragCircuits(mouseLocScr: Vec2) {
-    const focusCircuitNewPositionWrl = viewManager
-      .screenToWorld(mouseLocScr)
-      .add(this.draggingOffsetWrl);
+	dragCircuits(mouseLocScr: Vec2) {
+		const focusCircuitNewPositionWrl = viewManager
+			.screenToWorld(mouseLocScr)
+			.add(this.draggingOffsetWrl);
 
-    const dragMovement = focusCircuitNewPositionWrl.sub(
-      this.focusCircuit.tightRectWrl.xy
-    );
+		const dragMovement = focusCircuitNewPositionWrl.sub(this.focusCircuit.tightRectWrl.xy);
 
-    for (let circuit of sceneManager.selectedCircuits) {
-      circuit.setPos(circuit.tightRectWrl.xy.add(dragMovement));
-    }
-  }
+		for (let circuit of sceneManager.selectedCircuits) {
+			circuit.setPos(circuit.tightRectWrl.xy.add(dragMovement));
+		}
+	}
 }

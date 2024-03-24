@@ -1,328 +1,317 @@
 import {
-  Circuit,
-  CircuitColliderObject,
-  CircuitSceneObject,
-  CustomCircuitInputs,
-  CustomCircuitOutputs,
-} from "./objects/circuit.js";
-import { ProducerPin } from "./objects/producer-pin.js";
-import { ConsumerPin } from "./objects/consumer-pin.js";
-import { Wire } from "./objects/wire.js";
-import { domLog, secondaryCtx, viewManager } from "../main.js";
-import { BoundingBox, Vec2 } from "../math.js";
-import { StackList } from "@src/data-structures/stacklist.js";
+	type Circuit,
+	CircuitSceneObject,
+	CustomCircuitInputs,
+	CustomCircuitOutputs
+} from './objects/circuit.js';
+import { ProducerPin } from './objects/producer-pin.js';
+import { ConsumerPin } from './objects/consumer-pin.js';
+import { Wire } from './objects/wire.js';
+// import { circuitCreators, domLog, secondaryCtx, viewManager } from '../main.js';
+import { Vec2 } from '@ts/math.js';
+import { secondaryCtx, viewManager } from '@routes/+page.svelte';
+import { currentScene } from '@lib/stores/currentScene.js';
+import { Scene } from './scene.js';
+import { domLog } from '@lib/stores/debugging.js';
 
 export interface SceneObject {
-  // id: number;
+	// id: number;
 }
 
 export enum ConcreteObjectKind {
-  Circuit = "Circuit",
-  Wire = "Wire",
-  ConsumerPin = "ConsumerPin",
-  ProducerPin = "ProducerPin",
+	Circuit = 'Circuit',
+	Wire = 'Wire',
+	ConsumerPin = 'ConsumerPin',
+	ProducerPin = 'ProducerPin'
 }
 
 export interface ColliderObject {
-  looseCollisionCheck(pointWrl: Vec2): boolean;
-  tightCollisionCheck(pointWrl: Vec2):
-    | {
-        kind: ConcreteObjectKind;
-        object: any;
-      }
-    | undefined;
-}
-
-export class Scene {
-  // objects: Map<number, SceneObject> = new Map();
-  // nextObjectId = 0;
-
-  // customCircuitInputs: number | undefined;
-  // customCircuitOutputs: number | undefined;
-  customCircuitInputs: CustomCircuitInputs | undefined;
-  customCircuitOutputs: CustomCircuitOutputs | undefined;
-
-  circuits: StackList<CircuitSceneObject> = new StackList();
-  // wires: Set<number> = new Set();
-  wires: StackList<Wire> = new StackList();
-
-  // colliders: Map<number, ColliderObject> = new Map();
-
-  registerCircuit(circuit: CircuitSceneObject) {
-    // const id = this.nextObjectId;
-    // this.nextObjectId += 1;
-    // this.objects.set(id, circuit);
-    // this.circuits.push(id);
-    this.circuits.push(circuit);
-    // this.colliders.set(id, new CircuitColliderObject(circuit.parentCircuit));
-    // return id;
-  }
-
-  registerWire(wire: Wire) {
-    // const id = this.nextObjectId;
-    // this.nextObjectId += 1;
-    // this.objects.set(id, wire);
-    // this.wires.add(id);
-    this.wires.push(wire);
-    // return id;
-  }
-
-  unregisterWire(wire: Wire) {
-    // this.objects.delete(id);
-    // this.wires.delete(id);
-    this.wires.remove(wire);
-  }
-
-  // unregisterWire(id: number) {
-  //   // this.objects.delete(id);
-  //   // this.wires.delete(id);
-  //   this.wires.remove()
-  // }
+	looseCollisionCheck(pointWrl: Vec2): boolean;
+	tightCollisionCheck(pointWrl: Vec2):
+		| {
+				kind: ConcreteObjectKind;
+				object: any;
+		  }
+		| undefined;
 }
 
 export let debugObjects = {
-  circuits: new Array<Circuit>(),
-  wires: new Array<Wire>(),
+	circuits: new Array<Circuit>(),
+	wires: new Array<Wire>()
 };
 
 export class SceneManager {
-  static HOME_SCENE_ID = 0;
+	static HOME_SCENE_ID = 0;
+	static HOME_SCENE_NAME = 'Main';
 
-  selectedWires: Set<Wire> = new Set();
-  selectedCircuits: Set<CircuitSceneObject> = new Set();
+	selectedWires: Set<Wire> = new Set();
+	selectedCircuits: Set<CircuitSceneObject> = new Set();
 
-  scenes: Map<number, Scene> = new Map();
-  currentScene: Scene;
+	scenes: Map<number, Scene> = new Map();
+	// currentScene: Scene;
 
-  currentSceneId: number = 0;
+	nextSceneId = 1;
 
-  constructor() {
-    this.currentScene = new Scene();
-    this.newScene();
-    this.setCurrentScene(SceneManager.HOME_SCENE_ID);
-  }
+	constructor() {
+		// this.currentScene = new Scene();
+		// this.newScene();
+		let defaultScene = new Scene();
+		defaultScene.name = SceneManager.HOME_SCENE_NAME;
+		this.scenes.set(SceneManager.HOME_SCENE_ID, defaultScene);
 
-  newScene() {
-    const sceneId = this.currentSceneId;
-    let scene = new Scene();
+		this.setCurrentScene(SceneManager.HOME_SCENE_ID);
+	}
 
-    this.currentSceneId += 1;
-    this.scenes.set(sceneId, scene);
-    return sceneId;
-  }
+	newCustomScene() {
+		console.log('SceneManager: ', this);
+		let scene = new Scene();
 
-  setCurrentScene(sceneId: number) {
-    const scene = this.scenes.get(sceneId);
-    if (scene == null) {
-      domLog("[SceneManager.setCurrentScene] Provided sceneId is invalid.");
-      throw Error();
-    }
-    this.currentScene = scene;
-    this.clearSelectedCircuits();
-  }
+		const sceneId = this.nextSceneId;
+		this.nextSceneId += 1;
+		this.scenes.set(sceneId, scene);
 
-  draw(ctx: CanvasRenderingContext2D) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    // for (let id of this.currentScene.wires.values()) {
-    //   const wire = this.currentScene.objects.get(id);
-    //   if (wire == null) {
-    //     domLog("[SceneManager.draw] Registered Wire turned out to be null");
-    //   }
-    //   (wire as Wire).draw(ctx);
-    // }
-    for (let wire of this.currentScene.wires.bottomToTop()) {
-      // const wire = this.currentScene.objects.get(id);
-      // if (wire == null) {
-      // domLog("[SceneManager.draw] Registered Wire turned out to be null");
-      // }
-      // (wire as Wire).draw(ctx);
-      wire.data.draw(ctx);
-    }
+		// this.setCurrentScene(sceneId);
 
-    // for (let id of this.currentScene.circuits.bottomToTop()) {
-    //   const circuit = this.currentScene.objects.get(id.data);
-    //   if (circuit == null) {
-    //     domLog("[SceneManager.draw] Registered Circuit turned out to be null");
-    //   }
-    //   (circuit as CircuitSceneObject).draw(ctx);
-    // }
-    for (let circuit of this.currentScene.circuits.bottomToTop()) {
-      // const circuit = this.currentScene.objects.get(id.data);
-      // if (circuit == null) {
-      // domLog("[SceneManager.draw] Registered Circuit turned out to be null");
-      // }
-      // (circuit as CircuitSceneObject).draw(ctx);
-      circuit.data.draw(ctx);
-    }
+		let customInputs = new CustomCircuitInputs();
+		customInputs.configSceneObject(new Vec2(90, 220), scene);
+		if (customInputs.sceneObject == null) {
+			throw Error();
+		}
+		scene.circuits.push(customInputs.sceneObject);
+		scene.customCircuitInputs = customInputs;
 
-    this.debugDraw();
-  }
+		let customOutputs = new CustomCircuitOutputs();
+		customOutputs.configSceneObject(new Vec2(240, 220), scene);
+		if (customOutputs.sceneObject == null) {
+			throw Error();
+		}
 
-  debugDraw() {
-    secondaryCtx.clearRect(
-      0,
-      0,
-      secondaryCtx.canvas.width,
-      secondaryCtx.canvas.height
-    );
-    for (let wire of debugObjects.wires) {
-      wire.draw(secondaryCtx);
-    }
-    for (let circuit of debugObjects.circuits) {
-      if (circuit.sceneObject == null) {
-        throw Error();
-      }
-      circuit.sceneObject.draw(secondaryCtx);
-    }
-  }
+		scene.customCircuitOutputs = customOutputs;
 
-  clearSelectedCircuits() {
-    for (let circuit of this.selectedCircuits.values()) {
-      circuit.isSelected = false;
-    }
-    this.selectedCircuits = new Set();
+		return sceneId;
+	}
 
-    for (let wire of this.selectedWires.values()) {
-      wire.isSelected = false;
-    }
-    this.selectedWires = new Set();
-  }
+	setCurrentScene(sceneId: number) {
+		console.log('SceneManager: ', this);
+		const scene = this.scenes.get(sceneId);
+		if (scene == null) {
+			domLog('[SceneManager.setCurrentScene] Provided sceneId is invalid.');
+			throw Error();
+		}
 
-  selectCircuit(circuit: CircuitSceneObject) {
-    if (this.selectedCircuits.has(circuit)) {
-      return;
-    }
+		// if (scene === this.currentScene) {
+		// 	return;
+		// }
 
-    this.currentScene.circuits.remove(circuit);
-    this.currentScene.circuits.push(circuit);
+		currentScene.set(scene);
+		// this.currentScene = scene;
 
-    this.selectedCircuits.add(circuit);
-    circuit.isSelected = true;
-    if (circuit.onClicked != null) {
-      circuit.onClicked(circuit.parentCircuit);
-    }
-    console.log("[SceneManager] Selected Circuits: ", this.selectedCircuits);
+		this.clearSelectedCircuits();
+	}
 
-    if (this.selectedCircuits.size === 1) {
-      return;
-    }
+	getCurrentScene() {
+		let currentScene_ = new Scene();
 
-    for (let pin of circuit.parentCircuit.producerPins) {
-      console.log("[SceneManager] ProducerPin: ", pin);
-      for (let wire of pin.wires) {
-        if (wire.consumerPin == null) {
-          continue;
-        }
-        if (wire.consumerPin.parentCircuit.sceneObject == null) {
-          throw Error();
-        }
+		const unsubscribe = currentScene.subscribe((scene) => {
+			currentScene_ = scene;
+		});
+		unsubscribe();
+		return currentScene_;
+	}
 
-        if (
-          this.selectedCircuits.has(wire.consumerPin.parentCircuit.sceneObject)
-        ) {
-          this.selectedWires.add(wire);
-          wire.isSelected = true;
-        }
-      }
-    }
-    for (let pin of circuit.parentCircuit.consumerPins) {
-      console.log("[SceneManager] ConsumerPin: ", pin);
-      if (pin.wire == null) {
-        continue;
-      }
-      if (pin.wire.producerPin == null) {
-        continue;
-      }
+	draw(ctx: CanvasRenderingContext2D) {
+		const currentScene = this.getCurrentScene();
 
-      if (pin.wire.producerPin.parentCircuit.sceneObject == null) {
-        throw Error();
-      }
+		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+		// for (let id of this.currentScene.wires.values()) {
+		//   const wire = this.currentScene.objects.get(id);
+		//   if (wire == null) {
+		//     domLog("[SceneManager.draw] Registered Wire turned out to be null");
+		//   }
+		//   (wire as Wire).draw(ctx);
+		// }
+		for (let wire of currentScene.wires.bottomToTop()) {
+			// const wire = this.currentScene.objects.get(id);
+			// if (wire == null) {
+			// domLog("[SceneManager.draw] Registered Wire turned out to be null");
+			// }
+			// (wire as Wire).draw(ctx);
+			wire.data.draw(ctx);
+		}
 
-      if (
-        this.selectedCircuits.has(
-          pin.wire.producerPin.parentCircuit.sceneObject
-        )
-      ) {
-        this.selectedWires.add(pin.wire);
-        pin.wire.isSelected = true;
-      }
-    }
-    console.log("[SceneManager] Selected Wires: ", this.selectedWires);
-  }
+		// for (let id of this.currentScene.circuits.bottomToTop()) {
+		//   const circuit = this.currentScene.objects.get(id.data);
+		//   if (circuit == null) {
+		//     domLog("[SceneManager.draw] Registered Circuit turned out to be null");
+		//   }
+		//   (circuit as CircuitSceneObject).draw(ctx);
+		// }
+		for (let circuit of currentScene.circuits.bottomToTop()) {
+			// const circuit = this.currentScene.objects.get(id.data);
+			// if (circuit == null) {
+			// domLog("[SceneManager.draw] Registered Circuit turned out to be null");
+			// }
+			// (circuit as CircuitSceneObject).draw(ctx);
+			circuit.data.draw(ctx);
+		}
 
-  deselectCircuit(circuit: CircuitSceneObject) {
-    console.log("Deselect Circuit");
+		this.debugDraw();
+	}
 
-    if (!this.selectedCircuits.has(circuit)) {
-      return;
-    }
+	debugDraw() {
+		secondaryCtx.clearRect(0, 0, secondaryCtx.canvas.width, secondaryCtx.canvas.height);
+		for (let wire of debugObjects.wires) {
+			wire.draw(secondaryCtx);
+		}
+		for (let circuit of debugObjects.circuits) {
+			if (circuit.sceneObject == null) {
+				throw Error();
+			}
+			circuit.sceneObject.draw(secondaryCtx);
+		}
+	}
 
-    this.selectedCircuits.delete(circuit);
-    circuit.isSelected = false;
+	clearSelectedCircuits() {
+		for (let circuit of this.selectedCircuits.values()) {
+			circuit.isSelected = false;
+		}
+		this.selectedCircuits = new Set();
 
-    console.log("[SceneManager] Selected Circuits: ", this.selectedCircuits);
-    if (this.selectedCircuits.size === 0) {
-      return;
-    }
+		for (let wire of this.selectedWires.values()) {
+			wire.isSelected = false;
+		}
+		this.selectedWires = new Set();
+	}
 
-    for (let pin of circuit.parentCircuit.producerPins) {
-      console.log("[SceneManager] ProducerPin: ", pin);
-      for (let wire of pin.wires) {
-        if (wire.isSelected) {
-          this.deselectWire(wire);
-        }
-      }
-    }
-    for (let pin of circuit.parentCircuit.consumerPins) {
-      console.log("[SceneManager] ConsumerPin: ", pin);
-      if (pin.wire == null) {
-        continue;
-      }
-      if (pin.wire.isSelected) {
-        this.deselectWire(pin.wire);
-      }
-    }
-    console.log("[SceneManager] Selected Wires: ", this.selectedWires);
-  }
+	selectCircuit(circuit: CircuitSceneObject) {
+		if (this.selectedCircuits.has(circuit)) {
+			return;
+		}
+		let currentScene = this.getCurrentScene();
 
-  selectWire(wire: Wire) {
-    this.selectedWires.add(wire);
-    wire.isSelected = true;
-  }
+		currentScene.circuits.remove(circuit);
+		currentScene.circuits.push(circuit);
 
-  deselectWire(wire: Wire) {
-    this.selectedWires.delete(wire);
-    wire.isSelected = false;
-  }
+		this.selectedCircuits.add(circuit);
+		circuit.isSelected = true;
+		if (circuit.onClicked != null) {
+			circuit.onClicked(circuit.parentCircuit);
+		}
+		console.log('[SceneManager] Selected Circuits: ', this.selectedCircuits);
 
-  getObjectAt(locScr: Vec2) {
-    // for (let object of this.currentScene.colliders.values()) {
-    //   if (!object.looseCollisionCheck(viewManager.screenToWorld(locScr))) {
-    //     continue;
-    //   }
-    //   const tightCollisionResult = object.tightCollisionCheck(
-    //     viewManager.screenToWorld(locScr)
-    //   );
-    //   if (tightCollisionResult == null) {
-    //     continue;
-    //   }
-    //   return tightCollisionResult;
-    // }
-    // return undefined;
-    for (let circuit of this.currentScene.circuits.topToBottom()) {
-      if (
-        !circuit.data.looseCollisionCheck(viewManager.screenToWorld(locScr))
-      ) {
-        continue;
-      }
-      const tightCollisionResult = circuit.data.tightCollisionCheck(
-        viewManager.screenToWorld(locScr)
-      );
-      if (tightCollisionResult == null) {
-        continue;
-      }
-      return tightCollisionResult;
-    }
-    return undefined;
-  }
+		if (this.selectedCircuits.size === 1) {
+			return;
+		}
+
+		for (let pin of circuit.parentCircuit.producerPins) {
+			console.log('[SceneManager] ProducerPin: ', pin);
+			for (let wire of pin.wires) {
+				if (wire.consumerPin == null) {
+					continue;
+				}
+				if (wire.consumerPin.parentCircuit.sceneObject == null) {
+					throw Error();
+				}
+
+				if (this.selectedCircuits.has(wire.consumerPin.parentCircuit.sceneObject)) {
+					this.selectedWires.add(wire);
+					wire.isSelected = true;
+				}
+			}
+		}
+		for (let pin of circuit.parentCircuit.consumerPins) {
+			console.log('[SceneManager] ConsumerPin: ', pin);
+			if (pin.wire == null) {
+				continue;
+			}
+			if (pin.wire.producerPin == null) {
+				continue;
+			}
+
+			if (pin.wire.producerPin.parentCircuit.sceneObject == null) {
+				throw Error();
+			}
+
+			if (this.selectedCircuits.has(pin.wire.producerPin.parentCircuit.sceneObject)) {
+				this.selectedWires.add(pin.wire);
+				pin.wire.isSelected = true;
+			}
+		}
+		console.log('[SceneManager] Selected Wires: ', this.selectedWires);
+	}
+
+	deselectCircuit(circuit: CircuitSceneObject) {
+		console.log('Deselect Circuit');
+
+		if (!this.selectedCircuits.has(circuit)) {
+			return;
+		}
+
+		this.selectedCircuits.delete(circuit);
+		circuit.isSelected = false;
+
+		console.log('[SceneManager] Selected Circuits: ', this.selectedCircuits);
+		if (this.selectedCircuits.size === 0) {
+			return;
+		}
+
+		for (let pin of circuit.parentCircuit.producerPins) {
+			console.log('[SceneManager] ProducerPin: ', pin);
+			for (let wire of pin.wires) {
+				if (wire.isSelected) {
+					this.deselectWire(wire);
+				}
+			}
+		}
+		for (let pin of circuit.parentCircuit.consumerPins) {
+			console.log('[SceneManager] ConsumerPin: ', pin);
+			if (pin.wire == null) {
+				continue;
+			}
+			if (pin.wire.isSelected) {
+				this.deselectWire(pin.wire);
+			}
+		}
+		console.log('[SceneManager] Selected Wires: ', this.selectedWires);
+	}
+
+	selectWire(wire: Wire) {
+		this.selectedWires.add(wire);
+		wire.isSelected = true;
+	}
+
+	deselectWire(wire: Wire) {
+		this.selectedWires.delete(wire);
+		wire.isSelected = false;
+	}
+
+	getObjectAt(locScr: Vec2) {
+		// for (let object of this.currentScene.colliders.values()) {
+		//   if (!object.looseCollisionCheck(viewManager.screenToWorld(locScr))) {
+		//     continue;
+		//   }
+		//   const tightCollisionResult = object.tightCollisionCheck(
+		//     viewManager.screenToWorld(locScr)
+		//   );
+		//   if (tightCollisionResult == null) {
+		//     continue;
+		//   }
+		//   return tightCollisionResult;
+		// }
+		// return undefined;
+		let currentScene = this.getCurrentScene();
+		for (let circuit of currentScene.circuits.topToBottom()) {
+			if (!circuit.data.looseCollisionCheck(viewManager.screenToWorld(locScr))) {
+				continue;
+			}
+			const tightCollisionResult = circuit.data.tightCollisionCheck(
+				viewManager.screenToWorld(locScr)
+			);
+			if (tightCollisionResult == null) {
+				continue;
+			}
+			return tightCollisionResult;
+		}
+		return undefined;
+	}
 }

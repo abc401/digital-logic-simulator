@@ -1,276 +1,280 @@
-import { Vec2, Circle } from "@src/math.js";
-import {
-  ConcreteObjectKind,
-  ColliderObject,
-  SceneObject,
-} from "../scene-manager.js";
-import { sceneManager, simEngine, viewManager } from "@src/main.js";
-import { SimEvent, UpdationStrategy } from "@src/engine.js";
-import { ProducerPin } from "@src/scene/objects/producer-pin.js";
-import { ConsumerPin } from "@src/scene/objects/consumer-pin.js";
-import { OFF_COLOR, ON_COLOR } from "@src/config.js";
+import { Vec2, Circle } from '@ts/math.js';
+import type { ConcreteObjectKind, ColliderObject, SceneObject } from '../scene-manager.js';
+import { SimEvent, UpdationStrategy } from '@ts/engine.js';
+import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
+import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
+import { OFF_COLOR, ON_COLOR } from '@ts/config.js';
+import { sceneManager, simEngine, viewManager } from '@routes/+page.svelte';
 
 export class Wire implements SceneObject {
-  fromScr: Vec2 | undefined;
-  toScr: Vec2 | undefined;
-  // id: number;
-  updationStrategy: UpdationStrategy = UpdationStrategy.InNextFrame;
-  isSelected: boolean = false;
+	fromScr: Vec2 | undefined;
+	toScr: Vec2 | undefined;
+	value = false;
+	// id: number;
+	updationStrategy: UpdationStrategy = UpdationStrategy.InNextFrame;
+	isSelected: boolean = false;
 
-  constructor(
-    public producerPin: ProducerPin | undefined,
-    public consumerPin: ConsumerPin | undefined
-  ) {
-    console.log("[Wire Constructor]");
+	constructor(
+		public producerPin: ProducerPin | undefined,
+		public consumerPin: ConsumerPin | undefined
+	) {
+		console.log('[Wire Constructor]');
 
-    // this.id =
-    sceneManager.currentScene.registerWire(this);
+		// this.id =
+		sceneManager.getCurrentScene().registerWire(this);
 
-    if (producerPin != null) {
-      // producerPin.attachWire(this);
-      this.setProducerPin(producerPin);
-      // if (!producerPin.parentCircuit.allocateSimFrame) {
-      //   this.allocateSimFrame = false;
-      // }
-    }
+		if (producerPin != null) {
+			// producerPin.attachWire(this);
+			this.setProducerPin(producerPin);
+			// if (!producerPin.parentCircuit.allocateSimFrame) {
+			//   this.allocateSimFrame = false;
+			// }
+		}
 
-    if (consumerPin != null) {
-      // consumerPin.attachWire(this);
-      this.setConsumerPin(consumerPin);
-      // if (!consumerPin.parentCircuit.allocateSimFrame) {
-      //   this.allocateSimFrame = false;
-      // }
-    }
+		if (consumerPin != null) {
+			// consumerPin.attachWire(this);
+			this.setConsumerPin(consumerPin);
+			// if (!consumerPin.parentCircuit.allocateSimFrame) {
+			//   this.allocateSimFrame = false;
+			// }
+		}
 
-    if (producerPin == null || consumerPin == null) {
-      console.log(
-        "[Wire Constructor] producerPin == null || consumerPin == null"
-      );
-      return;
-    }
+		if (producerPin == null || consumerPin == null) {
+			console.log('[Wire Constructor] producerPin == null || consumerPin == null');
+			return;
+		}
 
-    this.update(this);
-  }
+		Wire.update(this);
+	}
 
-  update(self: Wire) {
-    if (self.consumerPin == null) {
-      console.log("Consumer == null");
-    }
-    if (self.producerPin == null) {
-      console.log("Producer == null");
-    }
-    if (self.consumerPin == null || self.producerPin == null) {
-      return;
-    }
+	static update(self: Wire) {
+		// console.log("Wire.update");
+		if (self.consumerPin == null) {
+			console.log('Consumer == null');
+		}
+		if (self.producerPin == null) {
+			console.log('Producer == null');
+		}
+		if (self.consumerPin == null || self.producerPin == null) {
+			return;
+		}
 
-    self.consumerPin.value = self.producerPin.value;
+		self.value = self.producerPin.value;
+		self.consumerPin.value = self.producerPin.value;
+		console.log('self.producerPin.value', self.producerPin.value);
+		console.log('this.value', self.value);
+		console.log('self.consumerPin.value', self.consumerPin.value);
 
-    if (self.consumerPin.parentCircuit.simFrameAllocated) {
-      return;
-    }
+		if (self.consumerPin.parentCircuit.simFrameAllocated) {
+			return;
+		}
 
-    const simEvent = new SimEvent(
-      self.consumerPin.parentCircuit,
-      self.consumerPin.parentCircuit.updateHandeler
-    );
+		const simEvent = new SimEvent(
+			self.consumerPin.parentCircuit,
+			self.consumerPin.parentCircuit.updateHandeler
+		);
 
-    const consumerCircuit = self.consumerPin.parentCircuit;
+		const consumerCircuit = self.consumerPin.parentCircuit;
 
-    if (consumerCircuit.updationStrategy === UpdationStrategy.InCurrentFrame) {
-      simEngine.currentFrameEvents.enqueue(simEvent);
-      self.consumerPin.parentCircuit.simFrameAllocated = true;
-    } else if (
-      consumerCircuit.updationStrategy === UpdationStrategy.InNextFrame
-    ) {
-      simEngine.nextFrameEvents.enqueue(simEvent);
-      self.consumerPin.parentCircuit.simFrameAllocated = true;
-    } else {
-      consumerCircuit.updateHandeler(consumerCircuit);
-    }
-  }
+		if (consumerCircuit.updationStrategy === UpdationStrategy.InCurrentFrame) {
+			simEngine.currentFrameEvents.enqueue(simEvent);
+			self.consumerPin.parentCircuit.simFrameAllocated = true;
+		} else if (consumerCircuit.updationStrategy === UpdationStrategy.InNextFrame) {
+			simEngine.nextFrameEvents.enqueue(simEvent);
+			self.consumerPin.parentCircuit.simFrameAllocated = true;
+		} else {
+			consumerCircuit.updateHandeler(consumerCircuit);
+		}
+	}
 
-  detach() {
-    if (this.consumerPin != null) {
-      this.consumerPin.value = false;
-      simEngine.nextFrameEvents.enqueue(
-        new SimEvent(
-          this.consumerPin.parentCircuit,
-          this.consumerPin.parentCircuit.updateHandeler
-        )
-      );
-      this.consumerPin.wire = undefined;
-      this.consumerPin = undefined;
-    }
-    if (this.producerPin != null) {
-      this.producerPin.wires = this.producerPin.wires.filter((wire) => {
-        return wire !== this;
-      });
-      this.producerPin = undefined;
-    }
-    sceneManager.currentScene.unregisterWire(this);
-    // console.log(`wire ${this.id} has been detached`);
-  }
+	detach() {
+		// console.log("Wire.detach");
+		if (this.consumerPin != null) {
+			this.consumerPin.value = false;
+			simEngine.nextFrameEvents.enqueue(
+				new SimEvent(this.consumerPin.parentCircuit, this.consumerPin.parentCircuit.updateHandeler)
+			);
+			this.consumerPin.wire = undefined;
+			this.consumerPin = undefined;
+		}
+		if (this.producerPin != null) {
+			this.producerPin.wires = this.producerPin.wires.filter((wire) => {
+				return wire !== this;
+			});
+			this.producerPin = undefined;
+		}
+		sceneManager.getCurrentScene().unregisterWire(this);
+		// console.log(`wire ${this.id} has been detached`);
+	}
 
-  clone() {
-    let cloned = Object.assign({}, this) as Wire;
-    cloned.consumerPin = undefined;
-    cloned.producerPin = undefined;
-    Object.setPrototypeOf(cloned, Wire.prototype);
-    return cloned;
-  }
+	clone() {
+		// console.log("Wire.clone");
+		let cloned = Object.assign({}, this) as Wire;
+		cloned.consumerPin = undefined;
+		cloned.producerPin = undefined;
+		Object.setPrototypeOf(cloned, Wire.prototype);
+		return cloned;
+	}
 
-  getProducerPin() {
-    return this.producerPin;
-  }
+	getProducerPin() {
+		// console.log("Wire.getProducerPin");
+		return this.producerPin;
+	}
 
-  setProducerPinNoUpdate(pin: ProducerPin) {
-    this.producerPin = pin;
-    pin.wires.push(this);
-    pin.attachWire(this);
+	setProducerPinNoUpdate(pin: ProducerPin) {
+		// console.log("Wire.setProducerPinNoUpdate");
+		this.producerPin = pin;
+		pin.wires.push(this);
+		// pin.attachWire(this);
 
-    console.log("[Wire.setProducerPin] wire: ", this);
+		console.log('[Wire.setProducerPin] wire: ', this);
 
-    if (
-      pin.parentCircuit.outputWireUpdationStrategy !==
-      UpdationStrategy.InNextFrame
-    ) {
-      this.updationStrategy = pin.parentCircuit.outputWireUpdationStrategy;
-    }
-  }
+		if (pin.parentCircuit.outputWireUpdationStrategy !== UpdationStrategy.InNextFrame) {
+			this.updationStrategy = pin.parentCircuit.outputWireUpdationStrategy;
+		}
+	}
 
-  updateIsSelected() {
-    if (this.consumerPin == null || this.producerPin == null) {
-      return;
-    }
-    if (
-      this.consumerPin.parentCircuit.sceneObject == null ||
-      this.producerPin.parentCircuit.sceneObject == null
-    ) {
-      this.isSelected = false;
-      return;
-    }
-    if (
-      this.consumerPin.parentCircuit.sceneObject.isSelected &&
-      this.producerPin.parentCircuit.sceneObject.isSelected
-    ) {
-      sceneManager.selectWire(this);
-      this.isSelected = true;
-    }
-  }
+	updateIsSelected() {
+		// console.log("Wire.updateIsSelected");
+		if (this.consumerPin == null || this.producerPin == null) {
+			return;
+		}
+		if (
+			this.consumerPin.parentCircuit.sceneObject == null ||
+			this.producerPin.parentCircuit.sceneObject == null
+		) {
+			this.isSelected = false;
+			return;
+		}
+		if (
+			this.consumerPin.parentCircuit.sceneObject.isSelected &&
+			this.producerPin.parentCircuit.sceneObject.isSelected
+		) {
+			sceneManager.selectWire(this);
+			this.isSelected = true;
+		}
+	}
 
-  configSceneObject() {
-    // this.id =
-    sceneManager.currentScene.registerWire(this);
-    this.isSelected = false;
-  }
+	configSceneObject() {
+		// console.log("Wire.configSceneObject");
+		// this.id =
+		sceneManager.getCurrentScene().registerWire(this);
+		this.isSelected = false;
+	}
 
-  setProducerPin(pin: ProducerPin) {
-    this.producerPin = pin;
-    pin.attachWire(this);
-    this.updateIsSelected();
+	setProducerPin(pin: ProducerPin) {
+		// console.log("Wire.setProducerPin");
+		this.producerPin = pin;
+		pin.attachWire(this);
+		this.updateIsSelected();
 
-    console.log("[Wire.setProducerPin] wire: ", this);
+		console.log('[Wire.setProducerPin] wire: ', this);
 
-    if (
-      pin.parentCircuit.outputWireUpdationStrategy !==
-      UpdationStrategy.InNextFrame
-    ) {
-      this.updationStrategy = pin.parentCircuit.outputWireUpdationStrategy;
-    }
+		if (pin.parentCircuit.outputWireUpdationStrategy !== UpdationStrategy.InNextFrame) {
+			this.updationStrategy = pin.parentCircuit.outputWireUpdationStrategy;
+		}
 
-    console.log("Producer", pin.parentCircuit);
-    if (this.consumerPin == null) {
-      return;
-    }
-    console.log("propogated Value");
-    this.update(this);
-  }
+		console.log('Producer', pin.parentCircuit);
+		if (this.consumerPin == null) {
+			this.value = this.producerPin.value;
+			return;
+		}
 
-  getConsumerPin() {
-    return this.consumerPin;
-  }
+		console.log('propogated Value');
+		Wire.update(this);
+	}
 
-  setConsumerPin(pin: ConsumerPin) {
-    pin.attachWire(this);
-    this.consumerPin = pin;
-    this.updateIsSelected();
+	getConsumerPin() {
+		// console.log("Wire.getConsumerPin");
+		return this.consumerPin;
+	}
 
-    if (pin.parentCircuit.updationStrategy !== UpdationStrategy.InNextFrame) {
-      this.updationStrategy = pin.parentCircuit.inputWireUpdationStrategy;
-    }
+	setConsumerPin(pin: ConsumerPin) {
+		// console.log("Wire.setConsumerPin");
+		pin.attachWire(this);
+		this.consumerPin = pin;
+		if (pin.parentCircuit.updationStrategy !== UpdationStrategy.InNextFrame) {
+			this.updationStrategy = pin.parentCircuit.inputWireUpdationStrategy;
+		}
 
-    console.log("Consumer: ", pin.parentCircuit);
-    if (this.producerPin == null) {
-      return;
-    }
+		this.updateIsSelected();
 
-    console.log("Propogated Value");
-    this.update(this);
-  }
-  setConsumerPinNoUpdate(pin: ConsumerPin) {
-    pin.wire = this;
-    this.consumerPin = pin;
+		console.log('Consumer: ', pin.parentCircuit);
+		if (this.producerPin == null) {
+			this.value = this.consumerPin.value;
+			return;
+		}
 
-    if (pin.parentCircuit.updationStrategy !== UpdationStrategy.InNextFrame) {
-      this.updationStrategy = pin.parentCircuit.inputWireUpdationStrategy;
-    }
+		console.log('Propogated Value');
+		Wire.update(this);
+	}
 
-    console.log("Consumer: ", pin.parentCircuit);
-  }
+	setConsumerPinNoUpdate(pin: ConsumerPin) {
+		// console.log("Wire.setConsumerPinNoUpdate");
+		pin.wire = this;
+		this.consumerPin = pin;
 
-  // propogateValue(value: boolean) {
-  //   if (this.consumerPin == null) {
-  //     console.log("Consumer was null");
-  //     return;
-  //   }
+		if (pin.parentCircuit.updationStrategy !== UpdationStrategy.InNextFrame) {
+			this.updationStrategy = pin.parentCircuit.inputWireUpdationStrategy;
+		}
+		if (this.producerPin == null) {
+			this.value = this.consumerPin.value;
+		}
 
-  //   if (value === this.consumerPin.value) {
-  //     console.log("produced === consumed");
-  //     return;
-  //   }
-  //   this.consumerPin.value = value;
+		console.log('Consumer: ', pin.parentCircuit);
+	}
 
-  //   console.log("Enqueued");
-  //   simEngine.nextFrameEvents.enqueue(
-  //     new SimEvent(
-  //       this.consumerPin.parentCircuit,
-  //       this.consumerPin.parentCircuit.updateHandeler
-  //     )
-  //   );
-  // }
+	// propogateValue(value: boolean) {
+	//   if (this.consumerPin == null) {
+	//     console.log("Consumer was null");
+	//     return;
+	//   }
 
-  draw(ctx: CanvasRenderingContext2D) {
-    const from =
-      this.producerPin == null ? this.fromScr : this.producerPin.getLocScr();
-    const to =
-      this.consumerPin == null ? this.toScr : this.consumerPin.getLocScr();
+	//   if (value === this.consumerPin.value) {
+	//     console.log("produced === consumed");
+	//     return;
+	//   }
+	//   this.consumerPin.value = value;
 
-    if (from == null || to == null) {
-      return;
-    }
+	//   console.log("Enqueued");
+	//   simEngine.nextFrameEvents.enqueue(
+	//     new SimEvent(
+	//       this.consumerPin.parentCircuit,
+	//       this.consumerPin.parentCircuit.updateHandeler
+	//     )
+	//   );
+	// }
 
-    ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
-    ctx.lineTo(to.x, to.y);
-    ctx.closePath();
+	draw(ctx: CanvasRenderingContext2D) {
+		// console.log("Wire.draw");
+		const from = this.producerPin == null ? this.fromScr : this.producerPin.getLocScr();
+		const to = this.consumerPin == null ? this.toScr : this.consumerPin.getLocScr();
 
-    ctx.strokeStyle = "grey";
-    ctx.lineWidth = 12 * viewManager.zoomLevel;
-    if (this.isSelected) {
-      ctx.strokeStyle = "green";
-    }
-    ctx.stroke();
+		if (from == null || to == null) {
+			return;
+		}
 
-    if (
-      (this.consumerPin && this.consumerPin.value) ||
-      (this.producerPin && this.producerPin.value)
-    ) {
-      ctx.strokeStyle = ON_COLOR;
-    } else {
-      ctx.strokeStyle = OFF_COLOR;
-    }
+		ctx.beginPath();
+		ctx.moveTo(from.x, from.y);
+		ctx.lineTo(to.x, to.y);
+		ctx.closePath();
 
-    ctx.lineWidth = 10 * viewManager.zoomLevel;
-    ctx.stroke();
-  }
+		ctx.strokeStyle = 'grey';
+		ctx.lineWidth = 12 * viewManager.zoomLevel;
+		if (this.isSelected) {
+			ctx.strokeStyle = 'green';
+		}
+		ctx.stroke();
+
+		// (this.consumerPin && this.consumerPin.value) ||
+		// (this.producerPin && this.producerPin.value)
+		if (this.value) {
+			ctx.strokeStyle = ON_COLOR;
+		} else {
+			ctx.strokeStyle = OFF_COLOR;
+		}
+
+		ctx.lineWidth = 10 * viewManager.zoomLevel;
+		ctx.stroke();
+	}
 }

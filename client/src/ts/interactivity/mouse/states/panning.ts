@@ -1,31 +1,32 @@
-import { logState, viewManager } from "@src/main.js";
 import {
-  MouseAction,
-  MouseActionKind,
-  MouseStateMachine,
-  MouseState,
-  MouseButton,
-} from "@src/interactivity/mouse/state-machine.js";
-import { Home } from "./home.js";
-import { Vec2 } from "@src/math.js";
+	MouseAction,
+	MouseActionKind,
+	MouseStateMachine,
+	type MouseState,
+	MouseButton
+} from '@ts/interactivity/mouse/state-machine.js';
+import { Home } from './home.js';
+import { Vec2 } from '@ts/math.js';
+import { viewManager } from '@routes/+page.svelte';
+import { logState } from '@lib/stores/debugging.js';
 
 export class Panning implements MouseState {
-  constructor() {
-    logState("Panning");
-  }
+	constructor() {
+		logState('Panning');
+	}
 
-  update(stateMachine: MouseStateMachine, action: MouseAction) {
-    const payload = action.payload;
+	update(stateMachine: MouseStateMachine, action: MouseAction) {
+		const payload = action.payload;
 
-    if (action.kind === MouseActionKind.MouseUp) {
-      if (payload.buttonEncoded !== MouseButton.Primary) {
-        return;
-      }
-      stateMachine.state = new Home();
-    }
-    if (action.kind === MouseActionKind.MouseMove) {
-      const delta = new Vec2(payload.movementX, payload.movementY);
-      viewManager.pan(delta);
-    }
-  }
+		if (action.kind === MouseActionKind.MouseUp) {
+			if (payload.buttonEncoded !== MouseButton.Primary) {
+				return;
+			}
+			stateMachine.state = new Home();
+		}
+		if (action.kind === MouseActionKind.MouseMove) {
+			const delta = new Vec2(payload.movementX, payload.movementY);
+			viewManager.pan(delta);
+		}
+	}
 }

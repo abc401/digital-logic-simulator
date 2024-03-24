@@ -1,37 +1,36 @@
-import { Circuit, CircuitSceneObject } from "@src/scene/objects/circuit.js";
+import { sceneManager, touchScreenStateMachine, viewManager } from '@routes/+page.svelte';
 import {
-  MouseAction,
-  MouseActionKind,
-  MouseState,
-  MouseStateMachine,
-} from "../state-machine.js";
-import {
-  logState,
-  sceneManager,
-  touchScreenStateMachine,
-  viewManager,
-} from "@src/main.js";
-import { Home as MouseHome } from "./home.js";
-import { Home as TouchScreenHome } from "@src/interactivity/touchscreen/states/home.js";
-import { Vec2 } from "@src/math.js";
+	MouseAction,
+	MouseActionKind,
+	MouseStateMachine,
+	type MouseState
+} from '../state-machine.js';
+import { Home as MouseHome } from './home.js';
+import { Home as TouchScreenHome } from '@ts/interactivity/touchscreen/states/home.js';
+import { Vec2 } from '@ts/math.js';
+import type { Circuit } from '@ts/scene/objects/circuit.js';
+import { logState } from '@lib/stores/debugging.js';
 
 export class CreatingCircuit implements MouseState {
-  constructor(private name: string, private creator: () => Circuit) {
-    logState(`CreatingCircuit(${this.name})`);
-  }
+	constructor(
+		private name: string,
+		private creator: () => Circuit
+	) {
+		logState(`CreatingCircuit(${this.name})`);
+	}
 
-  update(stateMachine: MouseStateMachine, action: MouseAction) {
-    const payload = action.payload;
-    const locScr = new Vec2(payload.offsetX, payload.offsetY);
+	update(stateMachine: MouseStateMachine, action: MouseAction) {
+		const payload = action.payload;
+		const locScr = new Vec2(payload.offsetX, payload.offsetY);
 
-    if (action.kind === MouseActionKind.MouseUp) {
-      let circuit = this.creator();
-      circuit.configSceneObject(viewManager.screenToWorld(locScr));
+		if (action.kind === MouseActionKind.MouseUp) {
+			let circuit = this.creator();
+			circuit.configSceneObject(viewManager.screenToWorld(locScr), undefined);
 
-      console.log(`Created ${this.name}`);
-      console.log("scene: ", sceneManager.currentScene);
-      stateMachine.state = new MouseHome();
-      touchScreenStateMachine.state = new TouchScreenHome();
-    }
-  }
+			console.log(`Created ${this.name}`);
+			console.log('scene: ', sceneManager.getCurrentScene());
+			stateMachine.state = new MouseHome();
+			touchScreenStateMachine.state = new TouchScreenHome();
+		}
+	}
 }
