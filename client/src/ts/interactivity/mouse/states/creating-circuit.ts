@@ -10,6 +10,8 @@ import { Home as TouchScreenHome } from '@ts/interactivity/touchscreen/states/ho
 import { Vec2 } from '@ts/math.js';
 import type { Circuit } from '@ts/scene/objects/circuit.js';
 import { logState } from '@lib/stores/debugging.js';
+import { SceneManager } from '@ts/scene/scene-manager.js';
+import { HOME_SCENE_NAME } from '@ts/config.js';
 
 export class CreatingCircuit implements MouseState {
 	constructor(
@@ -25,7 +27,8 @@ export class CreatingCircuit implements MouseState {
 
 		if (action.kind === MouseActionKind.MouseUp) {
 			let circuit = this.creator();
-			circuit.configSceneObject(viewManager.screenToWorld(locScr), undefined);
+			const currentScene = sceneManager.getCurrentScene();
+			circuit.configSceneObject(viewManager.screenToWorld(locScr), currentScene);
 
 			console.log(`Created ${this.name}`);
 			console.log('scene: ', sceneManager.getCurrentScene());

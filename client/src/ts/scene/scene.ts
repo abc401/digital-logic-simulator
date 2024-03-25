@@ -1,75 +1,87 @@
 import {
 	CircuitSceneObject,
+	CustomCircuit,
 	CustomCircuitInputs,
 	CustomCircuitOutputs
 } from './objects/circuit.js';
 import { Wire } from './objects/wire.js';
 import { StackList } from '@ts/data-structures/stacklist.js';
+import { sceneManager } from '@routes/+page.svelte';
+import { customCircuits } from '@lib/stores/customCircuits.js';
+import { sceneUpdates } from './scene-manager.js';
+import { HOME_SCENE_NAME } from '@ts/config.js';
 
 export class Scene {
-	// objects: Map<number, SceneObject> = new Map();
-	// nextObjectId = 0;
-	// customCircuitInputs: number | undefined;
-	// customCircuitOutputs: number | undefined;
 	name: string = '';
 	customCircuitInputs: CustomCircuitInputs | undefined;
 	customCircuitOutputs: CustomCircuitOutputs | undefined;
 
 	circuits: StackList<CircuitSceneObject> = new StackList();
-	// wires: Set<number> = new Set();
 	wires: StackList<Wire> = new StackList();
 
-	tmpCircuits: StackList<CircuitSceneObject> = new StackList();
-	// wires: Set<number> = new Set();
-	tmpWires: StackList<Wire> = new StackList();
+	tmpCircuits = new Set<CircuitSceneObject>();
+	tmpWires = new Set<Wire>();
 
-	// colliders: Map<number, ColliderObject> = new Map();
-	registerCircuitTmp(circuit: CircuitSceneObject) {
-		this.tmpCircuits.push(circuit);
-	}
+	lastUpdateIdx = 0;
 
-	registerWireTmp(wire: Wire) {
-		this.tmpWires.push(wire);
-	}
-
-	unregisterWireTmp(wire: Wire) {
-		this.tmpWires.remove(wire);
-	}
+	customCircuitInstances = new Map<
+		string,
+		{ lastUpdateIdx: number; instances: Set<CustomCircuit> }
+	>();
 
 	commitTmpObjects() {
-		for (let circuit of this.tmpCircuits.bottomToTop()) {
-			this.circuits.push(circuit.data);
+		if (this.tmpCircuits.size > 0 || this.tmpWires.size > 0) {
+			this.lastUpdateIdx += 1;
+			console.log(`${this.name} updated with index ${this.lastUpdateIdx}`);
+		} else {
+			console.log(`${this.name} wasnt updated`);
 		}
-		for (let wire of this.tmpWires.bottomToTop()) {
-			this.wires.push(wire.data);
-		}
-
-		this.tmpCircuits = new StackList();
-		this.tmpWires = new StackList();
+		this.tmpCircuits = new Set();
+		this.tmpWires = new Set();
+		console.log(`${this.name} Commited`);
 	}
 
 	registerCircuit(circuit: CircuitSceneObject) {
-		// const id = this.nextObjectId;
-		// this.nextObjectId += 1;
-		// this.objects.set(id, circuit);
-		// this.circuits.push(id);
 		this.circuits.push(circuit);
-		// this.colliders.set(id, new CircuitColliderObject(circuit.parentCircuit));
-		// return id;
+		if (this.name != HOME_SCENE_NAME) {
+			this.tmpCircuits.add(circuit);
+		}
 	}
 
 	registerWire(wire: Wire) {
-		// const id = this.nextObjectId;
-		// this.nextObjectId += 1;
-		// this.objects.set(id, wire);
-		// this.wires.add(id);
 		this.wires.push(wire);
-		// return id;
+		if (this.name != HOME_SCENE_NAME) {
+			this.tmpWires.add(wire);
+		}
 	}
 
 	unregisterWire(wire: Wire) {
-		// this.objects.delete(id);
-		// this.wires.delete(id);
 		this.wires.remove(wire);
+		this.tmpWires.delete(wire);
+	}
+
+	reEvaluateCustomCircuits() {
+		console.log(`${this.name} customCircuitInstances: `, this.customCircuitInstances);
+		for (let [sceneName, entries] of this.customCircuitInstances) {
+			let id = customCircuits.getSceneIdFor(sceneName);
+			console.log('ID: ', id);
+			if (id == null) {
+				throw Error();
+			}
+			let scene = sceneManager.scenes.get(id);
+			console.log('Scene: ', scene);
+			if (scene == null) {
+				throw Error();
+			}
+			if (entries.lastUpdateIdx === scene.lastUpdateIdx) {
+				continue;
+			}
+			console.log('entries.lastUpdateIdx != scene.lastUpdateIdx');
+			console.log(`${this.name} reevaluated`);
+			for (let instance of entries.instances) {
+				instance.updateCircuitGraph();
+			}
+			entries.lastUpdateIdx = scene.lastUpdateIdx;
+		}
 	}
 }

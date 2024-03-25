@@ -31,6 +31,7 @@ export class CreatingWire implements MouseState {
 				this.wire.toScr = locScr;
 			}
 		}
+
 		if (action.kind === MouseActionKind.MouseUp) {
 			const focusObject = sceneManager.getObjectAt(locScr);
 			if (focusObject == null) {

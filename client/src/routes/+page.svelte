@@ -11,7 +11,6 @@
 	export let mouseStateMachine: MouseStateMachine;
 	export let touchScreenStateMachine: TouchScreenStateMachine;
 
-	// export let customCircuitScenes = new Map<string, number>([['Main', SceneManager.HOME_SCENE_ID]]);
 	export let sceneManager = new SceneManager();
 </script>
 
@@ -19,7 +18,7 @@
 	import { circuitCreators, customCircuitCreator } from '@lib/stores/circuitCreators';
 	import { currentScene } from '@lib/stores/currentScene';
 
-	import { customCircuitsScenes } from '@lib/stores/customCircuitsScenes';
+	import { customCircuits } from '@lib/stores/customCircuits';
 	import { canvasState, logs } from '@lib/stores/debugging';
 
 	import { SimEngine } from '@ts/engine';
@@ -57,33 +56,23 @@
 	});
 
 	function newCustomCircuit() {
-		let tmp = prompt('Enter name for custom circuit');
+		let circuitName = prompt('Enter name for custom circuit');
 		while (true) {
-			if (tmp == null) {
+			if (circuitName == null) {
 				return;
 			}
-			if (tmp.trim() === '') {
-				tmp = prompt('The name for the custom circuit cannot be empty');
+			if (circuitName.trim() === '') {
+				circuitName = prompt('The name for the custom circuit cannot be empty');
 				continue;
 			}
 
-			if ($customCircuitsScenes.get(tmp) != null) {
-				tmp = prompt('The provided name has already been used for another circuit');
+			if ($customCircuits.get(circuitName) != null) {
+				circuitName = prompt('The provided name has already been used for another circuit');
 				continue;
 			}
 			break;
 		}
-		const circuitName = tmp;
-		const sceneId = sceneManager.newCustomScene();
-
-		let scene = sceneManager.scenes.get(sceneId);
-		if (scene == null) {
-			throw Error();
-		}
-		scene.name = circuitName;
-
-		customCircuitsScenes.newCircuit(circuitName);
-		circuitCreators.newCustomCreator(circuitName, customCircuitCreator(circuitName));
+		customCircuits.newCustomCircuit(circuitName);
 	}
 </script>
 
@@ -104,15 +93,15 @@
 		</div>
 		<button on:click={newCustomCircuit}>New Custom Circuit</button>
 		<div id="custom-circuits">
-			{#each $customCircuitsScenes as [name, sceneId] (name)}
-				{#if name != $currentScene.name}
-					<button
-						on:click={() => {
-							console.log(`Switching to ${name} scene`);
-							sceneManager.setCurrentScene(sceneId);
-						}}>{name}</button
-					>
-				{/if}
+			{#each $customCircuits as [name, sceneId] (name)}
+				<!-- {#if name != $currentScene.name} -->
+				<button
+					on:click={() => {
+						console.log(`Switching to ${name} scene`);
+						sceneManager.setCurrentScene(sceneId);
+					}}>{name}</button
+				>
+				<!-- {/if} -->
 			{/each}
 		</div>
 	</div>

@@ -7,22 +7,18 @@ import {
 import { writable } from 'svelte/store';
 import { sceneManager } from '@routes/+page.svelte';
 import { Scene } from '@ts/scene/scene';
-import { customCircuitsScenes } from './customCircuitsScenes';
+import { customCircuits } from './customCircuits';
 import { domLog } from './debugging';
 
+// let customCircuitInstances = new Map<number, CustomCircuit[]>();
+
 export let customCircuitCreator = (circuitName: string) => () => {
-	let scene: Scene | undefined = new Scene();
+	let sceneId = customCircuits.getSceneIdFor(circuitName);
+	if (sceneId == null) {
+		throw Error();
+	}
 
-	const unsubscribe = customCircuitsScenes.subscribe((circuits) => {
-		const sceneId = circuits.get(circuitName);
-		if (sceneId == null) {
-			domLog(`[CircuitCreator][${circuitName}] sceneId == null`);
-			throw Error();
-		}
-
-		scene = sceneManager.scenes.get(sceneId);
-	});
-	unsubscribe();
+	let scene = sceneManager.scenes.get(sceneId);
 	if (scene == null) {
 		throw Error();
 	}
@@ -34,7 +30,9 @@ export let customCircuitCreator = (circuitName: string) => () => {
 		throw Error();
 	}
 
-	return new CustomCircuit(scene);
+	let circuit = new CustomCircuit(scene);
+
+	return circuit;
 };
 
 let { subscribe, set, update } = writable(

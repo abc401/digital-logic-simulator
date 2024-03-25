@@ -13,10 +13,13 @@ import { secondaryCtx, viewManager } from '@routes/+page.svelte';
 import { currentScene } from '@lib/stores/currentScene.js';
 import { Scene } from './scene.js';
 import { domLog } from '@lib/stores/debugging.js';
+import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config.js';
 
 export interface SceneObject {
 	// id: number;
 }
+
+export let sceneUpdates = new Map<string, number>();
 
 export enum ConcreteObjectKind {
 	Circuit = 'Circuit',
@@ -41,9 +44,6 @@ export let debugObjects = {
 };
 
 export class SceneManager {
-	static HOME_SCENE_ID = 0;
-	static HOME_SCENE_NAME = 'Main';
-
 	selectedWires: Set<Wire> = new Set();
 	selectedCircuits: Set<CircuitSceneObject> = new Set();
 
@@ -56,10 +56,10 @@ export class SceneManager {
 		// this.currentScene = new Scene();
 		// this.newScene();
 		let defaultScene = new Scene();
-		defaultScene.name = SceneManager.HOME_SCENE_NAME;
-		this.scenes.set(SceneManager.HOME_SCENE_ID, defaultScene);
+		defaultScene.name = HOME_SCENE_NAME;
+		this.scenes.set(HOME_SCENE_ID, defaultScene);
 
-		this.setCurrentScene(SceneManager.HOME_SCENE_ID);
+		this.setCurrentScene(HOME_SCENE_ID);
 	}
 
 	newCustomScene() {
@@ -99,11 +99,17 @@ export class SceneManager {
 			throw Error();
 		}
 
-		// if (scene === this.currentScene) {
-		// 	return;
-		// }
+		let currentScene_ = this.getCurrentScene();
+		if (scene === currentScene_) {
+			return;
+		}
+
+		currentScene_.commitTmpObjects();
+
+		scene.reEvaluateCustomCircuits();
 
 		currentScene.set(scene);
+
 		// this.currentScene = scene;
 
 		this.clearSelectedCircuits();

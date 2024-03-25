@@ -1,15 +1,27 @@
 import { sceneManager } from '@routes/+page.svelte';
 import { writable } from 'svelte/store';
 import { circuitCreators, customCircuitCreator } from './circuitCreators';
-import { SceneManager } from '@ts/scene/scene-manager';
+import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config';
 
 let { subscribe, set, update } = writable(
-	new Map<string, number>([[SceneManager.HOME_SCENE_NAME, SceneManager.HOME_SCENE_ID]])
+	new Map<string, number>([[HOME_SCENE_NAME, HOME_SCENE_ID]])
 );
 
-export let customCircuitsScenes = {
+export let customCircuits = {
 	subscribe,
-	newCircuit: function (circuitName: string) {
+	getSceneIdFor: function (circuitName: string) {
+		let sceneId: number | undefined = -1;
+		const unsubscribe = subscribe((value) => {
+			sceneId = value.get(circuitName);
+		});
+		unsubscribe();
+		if (sceneId === -1) {
+			return undefined;
+		} else {
+			return sceneId;
+		}
+	},
+	newCustomCircuit: function (circuitName: string) {
 		const sceneId = sceneManager.newCustomScene();
 
 		let scene = sceneManager.scenes.get(sceneId);
