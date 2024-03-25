@@ -1,4 +1,4 @@
-import { CircuitSceneObject } from '@ts/scene/objects/circuit.js';
+import { CircuitSceneObject } from '@ts/scene/objects/circuits/circuit.js';
 import {
 	MouseAction,
 	MouseActionKind,

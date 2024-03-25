@@ -1,9 +1,7 @@
-import {
-	type Circuit,
-	CustomCircuit,
-	InputCircuit,
-	ProcessingCircuit
-} from '@ts/scene/objects/circuit';
+import { type Circuit } from '@ts/scene/objects/circuits/circuit';
+import { CustomCircuit } from '@ts/scene/objects/circuits/custom-circuit';
+import { ProcessingCircuit } from '@ts/scene/objects/circuits/processing-circuit';
+import { InputCircuit } from '@ts/scene/objects/circuits/input-circuit';
 import { writable } from 'svelte/store';
 import { sceneManager } from '@routes/+page.svelte';
 import { Scene } from '@ts/scene/scene';

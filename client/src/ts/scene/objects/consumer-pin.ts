@@ -1,6 +1,7 @@
 // import { sceneManager, viewManager } from '../../main.js';
 import { Wire } from './wire.js';
-import type { Circuit, CustomCircuitOutputs } from './circuit.js';
+import type { Circuit } from './circuits/circuit.js';
+import type { CustomCircuitOutputs } from './circuits/custom-circuit-outputs.js';
 import { OFF_COLOR, ON_COLOR, PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
 import { Vec2 } from '@ts/math.js';
 import { viewManager } from '@routes/+page.svelte';

@@ -6,7 +6,7 @@ import {
 	discriminateTouches
 } from '../state-machine.js';
 import { Vec2 } from '@ts/math.js';
-import type { Circuit } from '@ts/scene/objects/circuit.js';
+import type { Circuit } from '@ts/scene/objects/circuits/circuit.js';
 import { Panning } from './panning.js';
 import { Zooming } from './zooming.js';
 import { ConcreteObjectKind } from '@ts/scene/scene-manager.js';

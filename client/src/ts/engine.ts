@@ -1,7 +1,7 @@
 // import { sceneManager } from "./main.js";
 import { Circle } from './math.js';
 import { Queue } from './data-structures/queue.js';
-import type { Circuit } from './scene/objects/circuit.js';
+import type { Circuit } from './scene/objects/circuits/circuit.js';
 import { sceneManager } from '@routes/+page.svelte';
 
 export class SimEvent {

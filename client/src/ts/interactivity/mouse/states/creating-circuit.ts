@@ -8,7 +8,7 @@ import {
 import { Home as MouseHome } from './home.js';
 import { Home as TouchScreenHome } from '@ts/interactivity/touchscreen/states/home.js';
 import { Vec2 } from '@ts/math.js';
-import type { Circuit } from '@ts/scene/objects/circuit.js';
+import type { Circuit } from '@ts/scene/objects/circuits/circuit.js';
 import { logState } from '@lib/stores/debugging.js';
 import { SceneManager } from '@ts/scene/scene-manager.js';
 import { HOME_SCENE_NAME } from '@ts/config.js';

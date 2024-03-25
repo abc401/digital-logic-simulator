@@ -6,7 +6,7 @@ import {
 	MouseButton
 } from '../state-machine.js';
 import { ConcreteObjectKind } from '@ts/scene/scene-manager.js';
-import type { Circuit } from '@ts/scene/objects/circuit.js';
+import type { Circuit } from '@ts/scene/objects/circuits/circuit.js';
 import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
 import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
 import { Wire } from '@ts/scene/objects/wire.js';

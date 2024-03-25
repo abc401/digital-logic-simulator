@@ -1,4 +1,4 @@
-import type { Circuit } from '@ts/scene/objects/circuit.js';
+import type { Circuit } from '@ts/scene/objects/circuits/circuit.js';
 import {
 	TouchAction,
 	TouchActionKind,

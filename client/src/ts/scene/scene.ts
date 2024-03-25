@@ -1,9 +1,7 @@
-import {
-	CircuitSceneObject,
-	CustomCircuit,
-	CustomCircuitInputs,
-	CustomCircuitOutputs
-} from './objects/circuit.js';
+import { CircuitSceneObject } from './objects/circuits/circuit.js';
+import { CustomCircuit } from './objects/circuits/custom-circuit.js';
+import { CustomCircuitOutputs } from './objects/circuits/custom-circuit-outputs.js';
+import { CustomCircuitInputs } from './objects/circuits/custom-circuit-inputs.js';
 import { Wire } from './objects/wire.js';
 import { StackList } from '@ts/data-structures/stacklist.js';
 import { sceneManager } from '@routes/+page.svelte';

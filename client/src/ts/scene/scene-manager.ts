@@ -1,9 +1,6 @@
-import {
-	type Circuit,
-	CircuitSceneObject,
-	CustomCircuitInputs,
-	CustomCircuitOutputs
-} from './objects/circuit.js';
+import { type Circuit, CircuitSceneObject } from './objects/circuits/circuit.js';
+import { CustomCircuitOutputs } from './objects/circuits/custom-circuit-outputs.js';
+import { CustomCircuitInputs } from './objects/circuits/custom-circuit-inputs.js';
 import { ProducerPin } from './objects/producer-pin.js';
 import { ConsumerPin } from './objects/consumer-pin.js';
 import { Wire } from './objects/wire.js';

@@ -1,6 +1,6 @@
 // import { clipboard, sceneManager } from '@ts/main';
 import { sceneManager } from '@routes/+page.svelte';
-import { type Circuit, cloneGraphAfterCircuit } from '@ts/scene/objects/circuit';
+import { type Circuit, cloneGraphAfterCircuit } from '@ts/scene/objects/circuits/circuit';
 import { Wire } from '@ts/scene/objects/wire';
 
 export let clipboard = {

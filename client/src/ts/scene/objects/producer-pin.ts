@@ -2,7 +2,8 @@ import { Circle, Vec2 } from '../../math.js';
 // import { sceneManager, simEngine, viewManager } from '../../main.js';
 import { SimEvent, UpdationStrategy } from '../../engine.js';
 import { Wire } from './wire.js';
-import type { Circuit, CustomCircuitInputs } from './circuit.js';
+import type { Circuit } from './circuits/circuit.js';
+import type { CustomCircuitInputs } from './circuits/custom-circuit-inputs.js';
 import { OFF_COLOR, ON_COLOR, PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
 import { simEngine, viewManager } from '@routes/+page.svelte';
 
