@@ -19,7 +19,8 @@ const config = {
 		alias: {
 			'@ts': path.resolve('./src/ts'),
 			'@routes': path.resolve('./src/routes'),
-			'@lib': path.resolve('./src/lib')
+			'@lib': path.resolve('./src/lib'),
+			'@src': path.resolve('./src')
 		}
 	}
 };

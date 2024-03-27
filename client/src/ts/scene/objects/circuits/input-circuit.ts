@@ -4,12 +4,22 @@ import { SimEvent, UpdationStrategy } from '@ts/engine.js';
 import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
 import { simEngine } from '@routes/+page.svelte';
-import { type Circuit, CircuitSceneObject, circuitCloneHelper } from './circuit.js';
+import {
+	type Circuit,
+	CircuitSceneObject,
+	circuitCloneHelper,
+	type Props,
+	type CircuitPropValue,
+	parsePropValue,
+	CircuitPropType
+} from './circuit.js';
 
 export class InputCircuit implements Circuit {
 	updationStrategy = UpdationStrategy.InNextFrame;
 	inputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 	outputWireUpdationStrategy = UpdationStrategy.InNextFrame;
+
+	props: Props;
 
 	simFrameAllocated = false;
 
@@ -28,6 +38,8 @@ export class InputCircuit implements Circuit {
 			this.producerPins[i] = new ProducerPin(this, i);
 		}
 
+		this.props = new Map([['value', { type: CircuitPropType.Bool, value: false }]]);
+
 		this.updateHandeler(this);
 
 		simEngine.recurringEvents.push(new SimEvent(this, this.updateHandeler));
@@ -40,6 +52,18 @@ export class InputCircuit implements Circuit {
 
 	clone(): Circuit {
 		return circuitCloneHelper(this);
+	}
+
+	setProp(name: string, value: string): void {
+		let parsedValue = parsePropValue(this.props, name, value);
+		if (parsedValue == null) {
+			throw Error();
+		}
+		let entry = this.props.get(name);
+		if (entry == null) {
+			throw Error();
+		}
+		entry.value = parsedValue;
 	}
 
 	configSceneObject(pos: Vec2, scene: Scene | undefined = undefined): void {

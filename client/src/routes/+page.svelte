@@ -15,11 +15,16 @@
 </script>
 
 <script lang="ts">
+	import Button from '@lib/Button.svelte';
+
+	import CircuitPropsPane from '@lib/CircuitPropsPane.svelte';
+	import Scenes from '@lib/Scenes.svelte';
 	import { circuitCreators, customCircuitCreator } from '@lib/stores/circuitCreators';
 	import { currentScene } from '@lib/stores/currentScene';
 
 	import { customCircuits } from '@lib/stores/customCircuits';
 	import { canvasState, logs } from '@lib/stores/debugging';
+	import { mostRecentlySelectedCircuit } from '@lib/stores/mostRecentlySelectedCircuit';
 
 	import { SimEngine } from '@ts/engine';
 	import { MouseStateMachine } from '@ts/interactivity/mouse/state-machine';
@@ -30,6 +35,10 @@
 	import { SceneManager } from '@ts/scene/scene-manager';
 	import { ViewManager } from '@ts/view-manager';
 	import { onMount } from 'svelte';
+
+	$: {
+		console.log('Most recently selected circuit: ', $mostRecentlySelectedCircuit);
+	}
 
 	onMount(() => {
 		console.log('Hello');
@@ -45,6 +54,10 @@
 		ctx = ctx_;
 		secondaryCtx = secondaryCtx_;
 
+		let canvasBoundingRect = canvas.getBoundingClientRect();
+		canvas.width = canvasBoundingRect.width;
+		canvas.height = canvasBoundingRect.height;
+
 		mouseStateMachine = new MouseStateMachine();
 		touchScreenStateMachine = new TouchScreenStateMachine();
 
@@ -54,87 +67,65 @@
 		}, 1000 / 60);
 		// scheduler.runSim(ctx);
 	});
-
-	function newCustomCircuit() {
-		let circuitName = prompt('Enter name for custom circuit');
-		while (true) {
-			if (circuitName == null) {
-				return;
-			}
-			if (circuitName.trim() === '') {
-				circuitName = prompt('The name for the custom circuit cannot be empty');
-				continue;
-			}
-
-			if ($customCircuits.get(circuitName) != null) {
-				circuitName = prompt('The provided name has already been used for another circuit');
-				continue;
-			}
-			break;
-		}
-		customCircuits.newCustomCircuit(circuitName);
-	}
 </script>
 
-<div style="display: flex; flex-direction: row; width: 100%; gap: 1rem">
-	<div id="version">10</div>
-	<div style="display: flex; flex-direction: column; gap: 1rem">
-		<div id="circuit-buttons">
-			{#each $circuitCreators as [name, creator] (name)}
-				{#if name != $currentScene.name}
-					<button
-						on:click={() => {
-							mouseStateMachine.state = new CreatingCircuitMouse(name, creator);
-							touchScreenStateMachine.state = new CreatingCircuitTouchScreen(name, creator);
-						}}>{name}</button
-					>
-				{/if}
-			{/each}
-		</div>
-		<button on:click={newCustomCircuit}>New Custom Circuit</button>
-		<div id="custom-circuits">
-			{#each $customCircuits as [name, sceneId] (name)}
-				<!-- {#if name != $currentScene.name} -->
-				<button
-					on:click={() => {
-						console.log(`Switching to ${name} scene`);
-						sceneManager.setCurrentScene(sceneId);
-					}}>{name}</button
-				>
-				<!-- {/if} -->
-			{/each}
-		</div>
+<div>
+	<div class="fixed right-0 top-0 border border-red-600">
+		<CircuitPropsPane />
 	</div>
+	<div id="version">10</div>
+	<div id="circuit-buttons">
+		{#each $circuitCreators as [name, creator] (name)}
+			{#if name != $currentScene.name}
+				<Button
+					on:click={() => {
+						mouseStateMachine.state = new CreatingCircuitMouse(name, creator);
+						touchScreenStateMachine.state = new CreatingCircuitTouchScreen(name, creator);
+					}}>{name}</Button
+				>
+			{/if}
+		{/each}
+	</div>
+	<div class="w=screen relative flex max-h-screen gap-4">
+		<Scenes />
 
-	<div id="root">
-		<div id="canvas-parent">
-			<div id="canvas-state">{@html $canvasState}</div>
-			<canvas width="500" height="500" bind:this={canvas} id="main-canvas">
-				Your browser does not support the canvas element
-			</canvas>
-		</div>
+		<div class="pointer-events-none absolute right-0 touch-none">{@html $canvasState}</div>
+		<canvas
+			width="500"
+			height="500"
+			class="flex-grow"
+			bind:this={canvas}
+			on:resize={(ev) => {
+				let boundingRect = canvas.getBoundingClientRect();
+				canvas.width = boundingRect.width;
+				canvas.height = boundingRect.height;
+			}}
+			id="main-canvas"
+		>
+			Your browser does not support the canvas element
+		</canvas>
 	</div>
 </div>
 <canvas width="500" height="500" bind:this={secondaryCanvas} id="secondary-canvas">
 	Your browser does not support the canvas element
 </canvas>
 
-<div>
+<div class="fixed bottom-0 left-1/2 -translate-x-1/2">
 	<h2>Sim Controls</h2>
-	<button
+	<Button
 		on:click={() => {
 			simEngine.runSim();
-		}}>Run</button
+		}}>Run</Button
 	>
-	<button
+	<Button
 		on:click={() => {
 			simEngine.tick();
-		}}>Tick</button
+		}}>Tick</Button
 	>
-	<button
+	<Button
 		on:click={() => {
 			simEngine.paused = true;
-		}}>Pause</button
+		}}>Pause</Button
 	>
 </div>
 
@@ -145,28 +136,12 @@
 </div>
 
 <style>
-	*,
-	*::after,
-	*::before {
-		margin: 0;
-		padding: 0;
-	}
-
 	canvas {
 		position: relative;
 		outline: solid red 1px;
 		outline-offset: -1px;
 		touch-action: none;
 		z-index: 1;
-	}
-	#canvas-parent {
-		position: relative;
-	}
-
-	#canvas-state {
-		position: absolute;
-		pointer-events: none;
-		touch-action: none;
 	}
 
 	#version {

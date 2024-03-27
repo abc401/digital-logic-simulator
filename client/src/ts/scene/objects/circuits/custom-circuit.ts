@@ -12,13 +12,17 @@ import {
 	type Circuit,
 	CircuitSceneObject,
 	cloneGraphAfterCircuit,
-	circuitCloneHelper
+	circuitCloneHelper,
+	type Props
 } from './circuit.js';
 
 export class CustomCircuit implements Circuit {
 	updationStrategy = UpdationStrategy.Immediate;
 	inputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 	outputWireUpdationStrategy = UpdationStrategy.InNextFrame;
+
+	props: Props = new Map();
+	setProp(name: string, value: string): void {}
 
 	isSelected: boolean = false;
 	simFrameAllocated = false;

@@ -4,14 +4,19 @@ import { UpdationStrategy } from '@ts/engine.js';
 import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
 import {
+	CircuitSceneObject,
+	circuitCloneHelper,
 	type Circuit,
 	type CircuitUpdateHandeler,
-	CircuitSceneObject,
-	circuitCloneHelper
+	type Props,
+	type CircuitPropValue
 } from './circuit.js';
 
 export class ProcessingCircuit implements Circuit {
 	simFrameAllocated = false;
+
+	props: Props = new Map();
+	setProp(name: string, value: CircuitPropValue): void {}
 
 	updationStrategy = UpdationStrategy.InNextFrame;
 

@@ -7,90 +7,28 @@ import { ProducerPin } from '../producer-pin.js';
 import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
 import { Wire } from '../wire.js';
 import { sceneManager, simEngine, viewManager } from '@routes/+page.svelte';
+import { InputCircuit } from './input-circuit.js';
 
 export type CircuitUpdateHandeler = (self: Circuit) => void;
 
-export function cloneGraphAfterCircuit(
-	start: Circuit,
-	clonedCircuits: Circuit[],
-	clonedWires: Wire[],
-	circuitCloneMapping: Map<Circuit, Circuit>,
-	wireCloneMapping: Map<Wire, Wire>
-) {
-	const tmp = circuitCloneMapping.get(start);
-	if (tmp != null) {
-		return tmp;
-	}
-
-	let circuit = start;
-	let cloned = circuit.clone();
-
-	clonedCircuits.push(cloned);
-	circuitCloneMapping.set(circuit, cloned);
-
-	for (let pPinIdx = 0; pPinIdx < circuit.producerPins.length; pPinIdx++) {
-		for (let wireIdx = 0; wireIdx < circuit.producerPins[pPinIdx].wires.length; wireIdx++) {
-			console.log('[cloneCircuitTree] pPinIdx: ', pPinIdx);
-			console.log('[cloneCircuitTree] circuit: ', circuit);
-			console.log('[cloneCircuitTree] cloned: ', cloned);
-			cloned.producerPins[pPinIdx].wires[wireIdx] = cloneGraphAfterWire(
-				circuit.producerPins[pPinIdx].wires[wireIdx],
-				clonedCircuits,
-				clonedWires,
-				circuitCloneMapping,
-				wireCloneMapping
-			) as Wire;
-		}
-	}
-	return cloned;
+export enum CircuitPropType {
+	Bool,
+	String,
+	NaturalNumber
 }
+export type CircuitPropValue = string | number | boolean;
 
-function cloneGraphAfterWire(
-	start: Wire,
-	clonedCircuits: Circuit[],
-	clonedWires: Wire[],
-	circuitCloneMapping: Map<Circuit, Circuit>,
-	wireCloneMapping: Map<Wire, Wire>
-) {
-	const tmp = wireCloneMapping.get(start);
-	if (tmp != null) {
-		return tmp;
-	}
+export type Prop = {
+	type: CircuitPropType;
+	value: CircuitPropValue | undefined;
+};
 
-	let wire = start;
-	let cloned = wire.clone();
-
-	clonedWires.push(cloned);
-	wireCloneMapping.set(wire, cloned);
-
-	if (wire.consumerPin != null) {
-		let consumerCircuit = cloneGraphAfterCircuit(
-			wire.consumerPin.parentCircuit,
-			clonedCircuits,
-			clonedWires,
-			circuitCloneMapping,
-			wireCloneMapping
-		);
-
-		// console.log("[cloneCircuitTree] [Wire] id: ", start.id);
-		// console.log("[cloneCircuitTree] [Wire] wire: ", wire);
-		// console.log("[cloneCircuitTree] [Wire] cloned: ", cloned);
-		cloned.setConsumerPinNoUpdate(consumerCircuit.consumerPins[wire.consumerPin.pinIndex]);
-	}
-	if (wire.producerPin != null) {
-		let producerCircuit = cloneGraphAfterCircuit(
-			wire.producerPin.parentCircuit,
-			clonedCircuits,
-			clonedWires,
-			circuitCloneMapping,
-			wireCloneMapping
-		);
-		cloned.setProducerPinNoUpdate(producerCircuit.producerPins[wire.producerPin.pinIndex]);
-	}
-	return cloned;
-}
+export type Props = Map<string, Prop>;
 
 export interface Circuit {
+	setProp(name: string, value: CircuitPropValue): void;
+	props: Props;
+
 	consumerPins: ConsumerPin[];
 	producerPins: ProducerPin[];
 	updateHandeler: CircuitUpdateHandeler;
@@ -105,6 +43,58 @@ export interface Circuit {
 
 	clone(): Circuit;
 	configSceneObject(pos: Vec2, scene: Scene | undefined): void;
+}
+
+const validTrueValues = ['true', '1', 'on'];
+const validFalseValues = ['false', '0', 'off'];
+
+export function parsePropValue(props: Props, propName: string, propValue: string) {
+	let currentValue = props.get(propName);
+	if (currentValue == null) {
+		console.log('[setProp] Props: ', props, 'PropName: ', propName, 'PropValue: ', propValue);
+		throw Error();
+	}
+
+	if (currentValue.type === CircuitPropType.Bool) {
+		if (validTrueValues.indexOf(propValue) != -1) {
+			return true;
+		}
+		if (validFalseValues.indexOf(propValue) != -1) {
+			return false;
+		}
+		return undefined;
+	} else if (currentValue.type === CircuitPropType.String) {
+		return propValue.trim();
+	} else if (currentValue.type === CircuitPropType.NaturalNumber) {
+		const nat = +propValue;
+		if (Number.isNaN(nat) || !Number.isFinite(nat) || nat < 1) {
+			return undefined;
+		} else {
+			return nat;
+		}
+	}
+}
+
+function dummyCircuit() {
+	let circuit: Circuit = {
+		consumerPins: [],
+		producerPins: [],
+
+		props: new Map(),
+		setProp: () => {},
+
+		updateHandeler: () => {},
+
+		updationStrategy: UpdationStrategy.InNextFrame,
+		inputWireUpdationStrategy: UpdationStrategy.InNextFrame,
+		outputWireUpdationStrategy: UpdationStrategy.InNextFrame,
+		simFrameAllocated: true,
+
+		sceneObject: undefined,
+		configSceneObject: () => {},
+		clone: dummyCircuit
+	};
+	return circuit;
 }
 
 export class CircuitSceneObject {
@@ -138,6 +128,10 @@ export class CircuitSceneObject {
 		// sceneObject.id = sceneManager.currentScene.registerCircuit(this);
 		sceneObject.parentScene.registerCircuit(sceneObject);
 		return sceneObject;
+	}
+
+	static dummy() {
+		return new CircuitSceneObject(dummyCircuit(), new Vec2(0, 0));
 	}
 
 	private calcTightRect(pos: Vec2) {
@@ -309,5 +303,85 @@ export function circuitCloneHelper(circuit: Circuit) {
 	}
 	console.log('[circuitCloneHelper] circuit: ', circuit);
 	console.log('[circuitCloneHelper] cloned: ', cloned);
+	return cloned;
+}
+
+export function cloneGraphAfterCircuit(
+	start: Circuit,
+	clonedCircuits: Circuit[],
+	clonedWires: Wire[],
+	circuitCloneMapping: Map<Circuit, Circuit>,
+	wireCloneMapping: Map<Wire, Wire>
+) {
+	const tmp = circuitCloneMapping.get(start);
+	if (tmp != null) {
+		return tmp;
+	}
+
+	let circuit = start;
+	let cloned = circuit.clone();
+
+	clonedCircuits.push(cloned);
+	circuitCloneMapping.set(circuit, cloned);
+
+	for (let pPinIdx = 0; pPinIdx < circuit.producerPins.length; pPinIdx++) {
+		for (let wireIdx = 0; wireIdx < circuit.producerPins[pPinIdx].wires.length; wireIdx++) {
+			console.log('[cloneCircuitTree] pPinIdx: ', pPinIdx);
+			console.log('[cloneCircuitTree] circuit: ', circuit);
+			console.log('[cloneCircuitTree] cloned: ', cloned);
+			cloned.producerPins[pPinIdx].wires[wireIdx] = cloneGraphAfterWire(
+				circuit.producerPins[pPinIdx].wires[wireIdx],
+				clonedCircuits,
+				clonedWires,
+				circuitCloneMapping,
+				wireCloneMapping
+			) as Wire;
+		}
+	}
+	return cloned;
+}
+
+function cloneGraphAfterWire(
+	start: Wire,
+	clonedCircuits: Circuit[],
+	clonedWires: Wire[],
+	circuitCloneMapping: Map<Circuit, Circuit>,
+	wireCloneMapping: Map<Wire, Wire>
+) {
+	const tmp = wireCloneMapping.get(start);
+	if (tmp != null) {
+		return tmp;
+	}
+
+	let wire = start;
+	let cloned = wire.clone();
+
+	clonedWires.push(cloned);
+	wireCloneMapping.set(wire, cloned);
+
+	if (wire.consumerPin != null) {
+		let consumerCircuit = cloneGraphAfterCircuit(
+			wire.consumerPin.parentCircuit,
+			clonedCircuits,
+			clonedWires,
+			circuitCloneMapping,
+			wireCloneMapping
+		);
+
+		// console.log("[cloneCircuitTree] [Wire] id: ", start.id);
+		// console.log("[cloneCircuitTree] [Wire] wire: ", wire);
+		// console.log("[cloneCircuitTree] [Wire] cloned: ", cloned);
+		cloned.setConsumerPinNoUpdate(consumerCircuit.consumerPins[wire.consumerPin.pinIndex]);
+	}
+	if (wire.producerPin != null) {
+		let producerCircuit = cloneGraphAfterCircuit(
+			wire.producerPin.parentCircuit,
+			clonedCircuits,
+			clonedWires,
+			circuitCloneMapping,
+			wireCloneMapping
+		);
+		cloned.setProducerPinNoUpdate(producerCircuit.producerPins[wire.producerPin.pinIndex]);
+	}
 	return cloned;
 }

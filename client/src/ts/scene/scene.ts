@@ -6,7 +6,6 @@ import { Wire } from './objects/wire.js';
 import { StackList } from '@ts/data-structures/stacklist.js';
 import { sceneManager } from '@routes/+page.svelte';
 import { customCircuits } from '@lib/stores/customCircuits.js';
-import { sceneUpdates } from './scene-manager.js';
 import { HOME_SCENE_NAME } from '@ts/config.js';
 
 export class Scene {

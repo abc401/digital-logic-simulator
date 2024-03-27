@@ -11,6 +11,7 @@ import { currentScene } from '@lib/stores/currentScene.js';
 import { Scene } from './scene.js';
 import { domLog } from '@lib/stores/debugging.js';
 import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config.js';
+import { mostRecentlySelectedCircuit } from '@lib/stores/mostRecentlySelectedCircuit.js';
 
 export interface SceneObject {
 	// id: number;
@@ -179,6 +180,7 @@ export class SceneManager {
 			circuit.isSelected = false;
 		}
 		this.selectedCircuits = new Set();
+		mostRecentlySelectedCircuit.set(undefined);
 
 		for (let wire of this.selectedWires.values()) {
 			wire.isSelected = false;
@@ -194,6 +196,8 @@ export class SceneManager {
 
 		currentScene.circuits.remove(circuit);
 		currentScene.circuits.push(circuit);
+
+		mostRecentlySelectedCircuit.set(circuit);
 
 		this.selectedCircuits.add(circuit);
 		circuit.isSelected = true;
@@ -251,6 +255,7 @@ export class SceneManager {
 		}
 
 		this.selectedCircuits.delete(circuit);
+		mostRecentlySelectedCircuit.set(undefined);
 		circuit.isSelected = false;
 
 		console.log('[SceneManager] Selected Circuits: ', this.selectedCircuits);
