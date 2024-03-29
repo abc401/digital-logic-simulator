@@ -9,14 +9,11 @@ import {
 	type Circuit,
 	type CircuitUpdateHandeler,
 	type Props,
-	type CircuitPropValue
+	type PropTypes
 } from './circuit.js';
 
 export class ProcessingCircuit implements Circuit {
 	simFrameAllocated = false;
-
-	props: Props = new Map();
-	setProp(name: string, value: CircuitPropValue): void {}
 
 	updationStrategy = UpdationStrategy.InNextFrame;
 
@@ -30,7 +27,15 @@ export class ProcessingCircuit implements Circuit {
 
 	sceneObject: CircuitSceneObject | undefined;
 
-	constructor(nConsumerPins: number, nProducerPins: number, updateHandeler: CircuitUpdateHandeler) {
+	constructor(
+		nConsumerPins: number,
+		nProducerPins: number,
+		updateHandeler: CircuitUpdateHandeler,
+		public props: Props = {},
+		public propTypes: PropTypes = {},
+		public setPropCustom: (circuit: ProcessingCircuit, name: string, value: any) => boolean = () =>
+			false
+	) {
 		this.sceneObject = undefined;
 
 		this.producerPins = new Array(nProducerPins);
@@ -46,6 +51,12 @@ export class ProcessingCircuit implements Circuit {
 		this.updateHandeler = updateHandeler;
 
 		this.updateHandeler(this);
+	}
+
+	setProp(name: string, value: any) {
+		const ret = this.setPropCustom(this, name, value);
+		console.log('[ProcessingCircuit.setProp] ret: ', ret);
+		return ret;
 	}
 
 	configSceneObject(pos: Vec2, scene: Scene | undefined = undefined): void {

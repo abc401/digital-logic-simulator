@@ -9,17 +9,32 @@ import {
 	CircuitSceneObject,
 	circuitCloneHelper,
 	type Props,
-	type CircuitPropValue,
-	parsePropValue,
-	CircuitPropType
+	CircuitPropType,
+	type PropTypes
 } from './circuit.js';
+
+interface InputCircuitProps {
+	value: boolean;
+	abc: number;
+	def: string;
+}
 
 export class InputCircuit implements Circuit {
 	updationStrategy = UpdationStrategy.InNextFrame;
 	inputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 	outputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 
-	props: Props;
+	props: InputCircuitProps = {
+		value: false,
+		abc: 1,
+		def: 'abc'
+	};
+
+	propTypes = {
+		value: CircuitPropType.Bool,
+		abc: CircuitPropType.NaturalNumber,
+		def: CircuitPropType.String
+	};
 
 	simFrameAllocated = false;
 
@@ -28,7 +43,7 @@ export class InputCircuit implements Circuit {
 
 	sceneObject: CircuitSceneObject | undefined;
 
-	constructor(public value: boolean) {
+	constructor(value: boolean) {
 		this.sceneObject = undefined;
 
 		this.consumerPins = new Array();
@@ -38,42 +53,33 @@ export class InputCircuit implements Circuit {
 			this.producerPins[i] = new ProducerPin(this, i);
 		}
 
-		this.props = new Map([['value', { type: CircuitPropType.Bool, value: false }]]);
-
 		this.updateHandeler(this);
 
 		simEngine.recurringEvents.push(new SimEvent(this, this.updateHandeler));
 	}
 
+	setProp(name: string, value: any) {
+		if (name === 'value') {
+			if (typeof value != 'boolean') {
+				throw Error();
+			}
+			this.props.value = value;
+			this.producerPins[0].setValue(this.props.value);
+			return true;
+		}
+		return false;
+	}
+
 	updateHandeler(self_: Circuit) {
 		let self = self_ as InputCircuit;
-		self.producerPins[0].setValue(self.value);
+		self.producerPins[0].setValue(self.props.value);
 	}
 
 	clone(): Circuit {
 		return circuitCloneHelper(this);
 	}
 
-	setProp(name: string, value: string): void {
-		let parsedValue = parsePropValue(this.props, name, value);
-		if (parsedValue == null) {
-			throw Error();
-		}
-		let entry = this.props.get(name);
-		if (entry == null) {
-			throw Error();
-		}
-		entry.value = parsedValue;
-	}
-
 	configSceneObject(pos: Vec2, scene: Scene | undefined = undefined): void {
 		this.sceneObject = CircuitSceneObject.new(this, pos, scene);
-		this.sceneObject.onClicked = InputCircuit.onClicked;
-	}
-
-	static onClicked(self_: Circuit) {
-		let self = self_ as InputCircuit;
-		self.value = !self.value;
-		self.producerPins[0].setValue(self.value);
 	}
 }

@@ -1,4 +1,4 @@
-import { sceneManager, touchScreenStateMachine, viewManager } from '@routes/+page.svelte';
+import { canvas, sceneManager, touchScreenStateMachine, viewManager } from '@routes/+page.svelte';
 import {
 	MouseAction,
 	MouseActionKind,
@@ -23,6 +23,9 @@ export class CreatingCircuit implements MouseState {
 
 	update(stateMachine: MouseStateMachine, action: MouseAction) {
 		const payload = action.payload;
+		if (payload.target != canvas) {
+			return;
+		}
 		const locScr = new Vec2(payload.offsetX, payload.offsetY);
 
 		if (action.kind === MouseActionKind.MouseUp) {

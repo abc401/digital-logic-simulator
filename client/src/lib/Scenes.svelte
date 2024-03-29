@@ -1,7 +1,6 @@
 <script>
 	import { sceneManager } from '@routes/+page.svelte';
 	import { customCircuits } from './stores/customCircuits';
-	import Button from './Button.svelte';
 	import clsx from 'clsx';
 
 	let className = '';
@@ -31,15 +30,15 @@
 <ul class={clsx('flex flex-col', className)} {...$$restProps}>
 	{#each $customCircuits as [name, sceneId] (name)}
 		<!-- {#if name != $currentScene.name} -->
-		<Button
+		<button
 			on:click={() => {
 				console.log(`Switching to ${name} scene`);
 				sceneManager.setCurrentScene(sceneId);
 			}}
 		>
 			{name}
-		</Button>
+		</button>
 		<!-- {/if} -->
 	{/each}
-	<Button on:click={newCustomCircuit}>New Custom Circuit</Button>
+	<button on:click={newCustomCircuit}>New Custom Circuit</button>
 </ul>

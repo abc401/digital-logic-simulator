@@ -21,8 +21,11 @@ export class CustomCircuit implements Circuit {
 	inputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 	outputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 
-	props: Props = new Map();
-	setProp(name: string, value: string): void {}
+	props = {};
+	propTypes = {};
+	setProp(name: string, value: any) {
+		return false;
+	}
 
 	isSelected: boolean = false;
 	simFrameAllocated = false;

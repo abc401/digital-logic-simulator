@@ -3,7 +3,7 @@ import { writable } from 'svelte/store';
 
 let { subscribe, set, update } = writable<CircuitSceneObject | undefined>(undefined);
 
-export let mostRecentlySelectedCircuit = {
+export let focusedCircuit = {
 	subscribe,
 	set,
 	get: function () {

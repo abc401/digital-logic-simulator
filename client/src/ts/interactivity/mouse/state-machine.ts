@@ -69,22 +69,33 @@ export class MouseStateMachine {
 			}
 		});
 
-		canvas.addEventListener('mousedown', (ev) => {
+		document.addEventListener('mousedown', (ev) => {
 			this.state.update(this, new MouseAction(MouseActionKind.MouseDown, ev));
 		});
 
-		canvas.addEventListener('mouseup', (ev) => {
+		document.addEventListener('mouseup', (ev) => {
 			this.state.update(this, new MouseAction(MouseActionKind.MouseUp, ev));
 		});
 
-		canvas.addEventListener('mousemove', (ev) => {
+		document.addEventListener('mousemove', (ev) => {
 			this.state.update(this, new MouseAction(MouseActionKind.MouseMove, ev));
 		});
 
-		canvas.addEventListener('wheel', (ev) => {
-			viewManager.zoom(new Vec2(ev.offsetX, ev.offsetY), viewManager.zoomLevel - ev.deltaY * 0.001);
+		document.addEventListener(
+			'wheel',
+			(ev) => {
+				// console.log('[Wheel]: ', ev);
+				if (ev.target != canvas) {
+					return;
+				}
+				viewManager.zoom(
+					new Vec2(ev.offsetX, ev.offsetY),
+					viewManager.zoomLevel - ev.deltaY * 0.001
+				);
 
-			ev.preventDefault();
-		});
+				ev.preventDefault();
+			},
+			{ passive: false }
+		);
 	}
 }

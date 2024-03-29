@@ -8,7 +8,7 @@ import {
 } from '../state-machine.js';
 import { Home } from './home.js';
 import { Vec2 } from '@ts/math.js';
-import { sceneManager, viewManager } from '@routes/+page.svelte';
+import { canvas, sceneManager, viewManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 
 export class DraggingSelection implements MouseState {
@@ -28,6 +28,10 @@ export class DraggingSelection implements MouseState {
 
 	update(stateMachine: MouseStateMachine, action: MouseAction) {
 		const payload = action.payload;
+
+		if (payload.target != canvas) {
+			return;
+		}
 		const locScr = new Vec2(payload.offsetX, payload.offsetY);
 
 		if (action.kind === MouseActionKind.MouseMove) {

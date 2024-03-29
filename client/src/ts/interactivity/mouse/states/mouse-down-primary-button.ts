@@ -10,7 +10,7 @@ import { Panning } from './panning.js';
 import { Vec2 } from '@ts/math.js';
 import { Home } from './home.js';
 import { DraggingSelection } from './dragging-selection.js';
-import { sceneManager } from '@routes/+page.svelte';
+import { canvas, sceneManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 
 export class MouseDownPrimaryButton implements MouseState {
@@ -23,6 +23,9 @@ export class MouseDownPrimaryButton implements MouseState {
 
 	update(stateMachine: MouseStateMachine, action: MouseAction): void {
 		const payload = action.payload;
+		if (payload.target != canvas) {
+			return;
+		}
 		if (action.kind === MouseActionKind.MouseMove) {
 			if (this.circuit == null) {
 				stateMachine.state = new Panning();

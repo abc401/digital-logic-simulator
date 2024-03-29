@@ -16,7 +16,7 @@ export class ConsumerPin {
 
 	constructor(
 		readonly parentCircuit: Circuit,
-		readonly pinIndex: number,
+		public pinIndex: number,
 		public value = false
 	) {}
 

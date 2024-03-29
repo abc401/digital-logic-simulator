@@ -10,7 +10,7 @@ import {
 import { Home } from './home.js';
 import { ConcreteObjectKind } from '@ts/scene/scene-manager.js';
 import { Vec2 } from '@ts/math.js';
-import { sceneManager } from '@routes/+page.svelte';
+import { canvas, sceneManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 
 export class CreatingWire implements MouseState {
@@ -22,6 +22,9 @@ export class CreatingWire implements MouseState {
 
 	update(stateMachine: MouseStateMachine, action: MouseAction) {
 		const payload = action.payload;
+		if (payload.target != canvas) {
+			return;
+		}
 		const locScr = new Vec2(payload.offsetX, payload.offsetY);
 
 		if (action.kind === MouseActionKind.MouseMove) {

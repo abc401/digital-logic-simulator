@@ -5,13 +5,22 @@ import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
 import { Wire } from '../wire.js';
 import { sceneManager } from '@routes/+page.svelte';
-import { type Circuit, CircuitSceneObject, circuitCloneHelper, type Props } from './circuit.js';
+import {
+	type Circuit,
+	CircuitSceneObject,
+	circuitCloneHelper,
+	type Props,
+	type PropTypes
+} from './circuit.js';
 
 export class CustomCircuitInputs implements Circuit {
 	simFrameAllocated = false;
 
-	props: Props = new Map();
-	setProp(name: string, value: string): void {}
+	props = {};
+	propTypes = {};
+	setProp(name: string, value: any) {
+		return false;
+	}
 
 	inputWireUpdationStrategy = UpdationStrategy.Immediate;
 	outputWireUpdationStrategy = UpdationStrategy.Immediate;

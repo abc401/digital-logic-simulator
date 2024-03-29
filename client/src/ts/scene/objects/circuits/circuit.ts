@@ -16,18 +16,15 @@ export enum CircuitPropType {
 	String,
 	NaturalNumber
 }
-export type CircuitPropValue = string | number | boolean;
 
-export type Prop = {
-	type: CircuitPropType;
-	value: CircuitPropValue | undefined;
-};
-
-export type Props = Map<string, Prop>;
+export type Props = { [key: string]: any };
+export type PropTypes = { [key: string]: CircuitPropType };
 
 export interface Circuit {
-	setProp(name: string, value: CircuitPropValue): void;
 	props: Props;
+	propTypes: PropTypes;
+
+	setProp(name: string, value: any): boolean;
 
 	consumerPins: ConsumerPin[];
 	producerPins: ProducerPin[];
@@ -45,43 +42,14 @@ export interface Circuit {
 	configSceneObject(pos: Vec2, scene: Scene | undefined): void;
 }
 
-const validTrueValues = ['true', '1', 'on'];
-const validFalseValues = ['false', '0', 'off'];
-
-export function parsePropValue(props: Props, propName: string, propValue: string) {
-	let currentValue = props.get(propName);
-	if (currentValue == null) {
-		console.log('[setProp] Props: ', props, 'PropName: ', propName, 'PropValue: ', propValue);
-		throw Error();
-	}
-
-	if (currentValue.type === CircuitPropType.Bool) {
-		if (validTrueValues.indexOf(propValue) != -1) {
-			return true;
-		}
-		if (validFalseValues.indexOf(propValue) != -1) {
-			return false;
-		}
-		return undefined;
-	} else if (currentValue.type === CircuitPropType.String) {
-		return propValue.trim();
-	} else if (currentValue.type === CircuitPropType.NaturalNumber) {
-		const nat = +propValue;
-		if (Number.isNaN(nat) || !Number.isFinite(nat) || nat < 1) {
-			return undefined;
-		} else {
-			return nat;
-		}
-	}
-}
-
 function dummyCircuit() {
 	let circuit: Circuit = {
 		consumerPins: [],
 		producerPins: [],
 
-		props: new Map(),
-		setProp: () => {},
+		setProp: () => false,
+		props: {},
+		propTypes: {},
 
 		updateHandeler: () => {},
 
@@ -384,4 +352,37 @@ function cloneGraphAfterWire(
 		cloned.setProducerPinNoUpdate(producerCircuit.producerPins[wire.producerPin.pinIndex]);
 	}
 	return cloned;
+}
+
+export function setConsumerPinNumber(circuit: Circuit, nConsumerPins: number) {
+	console.log('[setConsumerPinNumber] Circuit: ', circuit);
+	console.log('nConsumerPins: ', nConsumerPins);
+	if (circuit.consumerPins.length === nConsumerPins) {
+		return true;
+	}
+	let nConnectedPins = 0;
+	for (let pin of circuit.consumerPins) {
+		if (pin.wire != undefined) {
+			nConnectedPins += 1;
+		}
+	}
+	console.log('nConnectedPins: ', nConnectedPins);
+	if (nConnectedPins > nConsumerPins) {
+		return false;
+	}
+	let newPins = new Array<ConsumerPin>(nConsumerPins);
+	let pinIndex = 0;
+	for (let pin of circuit.consumerPins) {
+		if (pin.wire != null) {
+			newPins[pinIndex] = pin;
+			pin.pinIndex = pinIndex;
+			pinIndex += 1;
+		}
+	}
+	for (let i = nConnectedPins; i < nConsumerPins; i++) {
+		newPins[i] = new ConsumerPin(circuit, i);
+	}
+	circuit.consumerPins = newPins;
+	console.log('[setConsumerPinNumber] Circuit: ', circuit);
+	return true;
 }

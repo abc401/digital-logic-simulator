@@ -15,7 +15,7 @@
 </script>
 
 <script lang="ts">
-	import Button from '@lib/Button.svelte';
+	// import button from '@lib/button.svelte';
 
 	import CircuitPropsPane from '@lib/CircuitPropsPane.svelte';
 	import Scenes from '@lib/Scenes.svelte';
@@ -24,7 +24,7 @@
 
 	import { customCircuits } from '@lib/stores/customCircuits';
 	import { canvasState, logs } from '@lib/stores/debugging';
-	import { mostRecentlySelectedCircuit } from '@lib/stores/mostRecentlySelectedCircuit';
+	import { focusedCircuit } from '@lib/stores/mostRecentlySelectedCircuit';
 
 	import { SimEngine } from '@ts/engine';
 	import { MouseStateMachine } from '@ts/interactivity/mouse/state-machine';
@@ -37,7 +37,7 @@
 	import { onMount } from 'svelte';
 
 	$: {
-		console.log('Most recently selected circuit: ', $mostRecentlySelectedCircuit);
+		console.log('Most recently selected circuit: ', $focusedCircuit);
 	}
 
 	onMount(() => {
@@ -61,27 +61,29 @@
 		mouseStateMachine = new MouseStateMachine();
 		touchScreenStateMachine = new TouchScreenStateMachine();
 
-		setInterval(function () {
+		function draw() {
 			sceneManager.draw(ctx);
-			// console.log('draw');
-		}, 1000 / 60);
+			setTimeout(draw, 1000 / 60);
+		}
+		draw();
 		// scheduler.runSim(ctx);
 	});
 </script>
 
 <div>
-	<div class="fixed right-0 top-0 border border-red-600">
+	<div class="fixed right-0 top-0 z-10 border border-red-600">
 		<CircuitPropsPane />
 	</div>
-	<div id="version">10</div>
+	<button class="">Hello</button>
+	<div class="absolute bottom-0 right-0">10</div>
 	<div id="circuit-buttons">
 		{#each $circuitCreators as [name, creator] (name)}
 			{#if name != $currentScene.name}
-				<Button
+				<button
 					on:click={() => {
 						mouseStateMachine.state = new CreatingCircuitMouse(name, creator);
 						touchScreenStateMachine.state = new CreatingCircuitTouchScreen(name, creator);
-					}}>{name}</Button
+					}}>{name}</button
 				>
 			{/if}
 		{/each}
@@ -93,7 +95,7 @@
 		<canvas
 			width="500"
 			height="500"
-			class="flex-grow"
+			class="relative flex-grow touch-none outline outline-1 -outline-offset-1 outline-red-600"
 			bind:this={canvas}
 			on:resize={(ev) => {
 				let boundingRect = canvas.getBoundingClientRect();
@@ -112,20 +114,20 @@
 
 <div class="fixed bottom-0 left-1/2 -translate-x-1/2">
 	<h2>Sim Controls</h2>
-	<Button
+	<button
 		on:click={() => {
 			simEngine.runSim();
-		}}>Run</Button
+		}}>Run</button
 	>
-	<Button
+	<button
 		on:click={() => {
 			simEngine.tick();
-		}}>Tick</Button
+		}}>Tick</button
 	>
-	<Button
+	<button
 		on:click={() => {
 			simEngine.paused = true;
-		}}>Pause</Button
+		}}>Pause</button
 	>
 </div>
 
@@ -134,19 +136,3 @@
 
 	<div>{@html $logs}</div>
 </div>
-
-<style>
-	canvas {
-		position: relative;
-		outline: solid red 1px;
-		outline-offset: -1px;
-		touch-action: none;
-		z-index: 1;
-	}
-
-	#version {
-		position: absolute;
-		right: 0;
-		bottom: 0;
-	}
-</style>

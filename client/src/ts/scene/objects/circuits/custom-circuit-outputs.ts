@@ -11,8 +11,11 @@ export class CustomCircuitOutputs implements Circuit {
 	inputWireUpdationStrategy = UpdationStrategy.Immediate;
 	outputWireUpdationStrategy = UpdationStrategy.Immediate;
 
-	props: Props = new Map();
-	setProp(name: string, value: string): void {}
+	props = {};
+	propTypes = {};
+	setProp(name: string, value: any) {
+		return false;
+	}
 
 	simFrameAllocated = false;
 

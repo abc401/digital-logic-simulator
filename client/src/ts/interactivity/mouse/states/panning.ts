@@ -7,7 +7,7 @@ import {
 } from '@ts/interactivity/mouse/state-machine.js';
 import { Home } from './home.js';
 import { Vec2 } from '@ts/math.js';
-import { viewManager } from '@routes/+page.svelte';
+import { canvas, viewManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 
 export class Panning implements MouseState {
@@ -17,6 +17,10 @@ export class Panning implements MouseState {
 
 	update(stateMachine: MouseStateMachine, action: MouseAction) {
 		const payload = action.payload;
+
+		if (payload.target != canvas) {
+			return;
+		}
 
 		if (action.kind === MouseActionKind.MouseUp) {
 			if (payload.buttonEncoded !== MouseButton.Primary) {
