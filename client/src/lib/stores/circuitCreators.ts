@@ -37,7 +37,7 @@ export let customCircuitCreator = (circuitName: string) => () => {
 	return circuit;
 };
 
-let { subscribe, set, update } = writable<Map<string, () => Circuit>>(
+let { subscribe, set, update } = writable(
 	new Map([
 		[
 			'Input',

@@ -19,6 +19,8 @@
 
 	import CircuitPropsPane from '@lib/CircuitPropsPane.svelte';
 	import Scenes from '@lib/Scenes.svelte';
+	import SimControls from '@lib/SimControls.svelte';
+	import TopMenu from '@lib/TopMenu.svelte';
 	import { circuitCreators, customCircuitCreator } from '@lib/stores/circuitCreators';
 	import { currentScene } from '@lib/stores/currentScene';
 
@@ -74,20 +76,8 @@
 	<div class="fixed right-0 top-0 z-10 border border-red-600">
 		<CircuitPropsPane />
 	</div>
-	<button class="">Hello</button>
 	<div class="absolute bottom-0 right-0">10</div>
-	<div id="circuit-buttons">
-		{#each $circuitCreators as [name, creator] (name)}
-			{#if name != $currentScene.name}
-				<button
-					on:click={() => {
-						mouseStateMachine.state = new CreatingCircuitMouse(name, creator);
-						touchScreenStateMachine.state = new CreatingCircuitTouchScreen(name, creator);
-					}}>{name}</button
-				>
-			{/if}
-		{/each}
-	</div>
+	<TopMenu />
 	<div class="w=screen relative flex max-h-screen gap-4">
 		<Scenes />
 
@@ -112,24 +102,7 @@
 	Your browser does not support the canvas element
 </canvas>
 
-<div class="fixed bottom-0 left-1/2 -translate-x-1/2">
-	<h2>Sim Controls</h2>
-	<button
-		on:click={() => {
-			simEngine.runSim();
-		}}>Run</button
-	>
-	<button
-		on:click={() => {
-			simEngine.tick();
-		}}>Tick</button
-	>
-	<button
-		on:click={() => {
-			simEngine.paused = true;
-		}}>Pause</button
-	>
-</div>
+<SimControls />
 
 <div>
 	<h2>Logging</h2>

@@ -3,6 +3,7 @@ import { Circle } from './math.js';
 import { Queue } from './data-structures/queue.js';
 import type { Circuit } from './scene/objects/circuits/circuit.js';
 import { sceneManager } from '@routes/+page.svelte';
+import { simulation } from '@lib/stores/simulation.js';
 
 export class SimEvent {
 	constructor(
@@ -20,7 +21,7 @@ export enum UpdationStrategy {
 export class SimEngine {
 	static fps = 60;
 
-	paused = true;
+	// paused = true;
 
 	currentFrameEvents: Queue<SimEvent> = new Queue();
 	nextFrameEvents: Queue<SimEvent> = new Queue();
@@ -33,7 +34,7 @@ export class SimEngine {
 		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 
-	tick() {
+	step() {
 		console.log('Tick start');
 
 		this.tickNumber += 1;
@@ -60,13 +61,21 @@ export class SimEngine {
 		console.log('tick end');
 		console.log('Scene 1: ', sceneManager.scenes.get(1));
 	}
-	// ctx: CanvasRenderingContext2D
+
+	tick() {
+		this.step();
+		simulation.setPaused(true);
+	}
+
 	async runSim() {
-		this.paused = false;
-		while (!this.paused) {
-			this.tick();
-			// console.debug("Queue: ", this.nextFrameEvents);
-			await this.sleep(1000 / SimEngine.fps);
-		}
+		simulation.setPaused(false);
+		let callback = () => {
+			this.step();
+			if (simulation.get().paused) {
+				return;
+			}
+			setTimeout(callback, 1000 / SimEngine.fps);
+		};
+		callback();
 	}
 }
