@@ -1,7 +1,7 @@
 <script>
 	import { mouseStateMachine, touchScreenStateMachine } from '@routes/+page.svelte';
 	import { circuitCreators } from './stores/circuitCreators';
-	import { currentScene } from './stores/currentScene';
+	import { currentScene } from '@ts/scene/scene';
 	import { CreatingCircuit as CreatingCircuitMouse } from '@ts/interactivity/mouse/states/creating-circuit';
 	import { CreatingCircuit as CreatingCircuitTouchScreen } from '@ts/interactivity/touchscreen/states/creating-circuit';
 </script>

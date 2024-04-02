@@ -4,18 +4,17 @@ import { UpdationStrategy } from '@ts/engine.js';
 import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
 import { sceneManager } from '@routes/+page.svelte';
-import { type Circuit, CircuitSceneObject, circuitCloneHelper, type Props } from './circuit.js';
+import { type Circuit, circuitCloneHelper, type Props } from './circuit.js';
+import { CircuitSceneObject } from '@ts/scene/scene.js';
 
 export class CustomCircuitOutputs implements Circuit {
 	updationStrategy = UpdationStrategy.Immediate;
 	inputWireUpdationStrategy = UpdationStrategy.Immediate;
 	outputWireUpdationStrategy = UpdationStrategy.Immediate;
 
-	props = {};
+	props = { label: 'CustomCircuitOutputs' };
 	propTypes = {};
-	setProp(name: string, value: any) {
-		return false;
-	}
+	propSetters = {};
 
 	simFrameAllocated = false;
 
@@ -60,13 +59,17 @@ export class CustomCircuitOutputs implements Circuit {
 		}
 	}
 
-	configSceneObject(pos: Vec2, scene: Scene | undefined = undefined): void {
+	configSceneObject(
+		pos: Vec2,
+		scene: Scene | undefined = undefined,
+		ctx: CanvasRenderingContext2D
+	): void {
 		let parentScene = scene || sceneManager.getCurrentScene();
 		if (parentScene.customCircuitOutputs != null) {
 			throw Error();
 		}
 
-		this.sceneObject = CircuitSceneObject.new(this, pos, scene);
+		this.sceneObject = CircuitSceneObject.new(this, pos, scene, ctx);
 		// sceneManager.currentScene.customCircuitOutputs = this.sceneObject.id;
 		parentScene.customCircuitOutputs = this;
 	}

@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 @layer base {
+	:root {
+		--clr-circuit: #2f323a;
+		--clr-off: #555151;
+		--clr-on: #cb4444;
+	}
 	body {
 		@apply bg-neutral-900 font-bold text-neutral-50;
 	}

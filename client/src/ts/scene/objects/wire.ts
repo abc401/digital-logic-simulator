@@ -3,8 +3,8 @@ import type { ConcreteObjectKind, ColliderObject, SceneObject } from '../scene-m
 import { SimEvent, UpdationStrategy } from '@ts/engine.js';
 import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
 import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
-import { OFF_COLOR, ON_COLOR } from '@ts/config.js';
-import { sceneManager, simEngine, viewManager } from '@routes/+page.svelte';
+import { offColor, onColor, sceneManager, simEngine, viewManager } from '@routes/+page.svelte';
+import { SELECTED_COLOR } from '@ts/config.js';
 
 export class Wire implements SceneObject {
 	fromScr: Vec2 | undefined;
@@ -259,19 +259,18 @@ export class Wire implements SceneObject {
 		ctx.lineTo(to.x, to.y);
 		ctx.closePath();
 
-		ctx.strokeStyle = 'grey';
-		ctx.lineWidth = 12 * viewManager.zoomLevel;
 		if (this.isSelected) {
-			ctx.strokeStyle = 'green';
+			ctx.lineWidth = 12 * viewManager.zoomLevel;
+			ctx.strokeStyle = SELECTED_COLOR;
+			ctx.stroke();
 		}
-		ctx.stroke();
 
 		// (this.consumerPin && this.consumerPin.value) ||
 		// (this.producerPin && this.producerPin.value)
 		if (this.value) {
-			ctx.strokeStyle = ON_COLOR;
+			ctx.strokeStyle = onColor;
 		} else {
-			ctx.strokeStyle = OFF_COLOR;
+			ctx.strokeStyle = offColor;
 		}
 
 		ctx.lineWidth = 10 * viewManager.zoomLevel;

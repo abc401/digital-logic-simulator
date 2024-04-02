@@ -9,16 +9,10 @@ export default {
 				sans: ['Advent Pro', ...defaultTheme.fontFamily.sans]
 			},
 			colors: {
-				...defaultTheme.colors,
-				neutral: {
-					900: '#1e1e1e',
-					800: '#2c2c2c',
-					700: '#5a5a5a',
-					100: '#e1e1e1'
-				},
-				off: '#555151',
-				on: '#cb4444',
-				circuit: '#2f323a'
+				off: 'var(--clr-off)',
+				on: 'var(--clr-on)',
+				circuit: 'var(--clr-circuit)',
+				...defaultTheme.colors
 			}
 		}
 	},

@@ -8,24 +8,17 @@ import { Wire } from '../wire.js';
 import { sceneManager } from '@routes/+page.svelte';
 import { CustomCircuitInputs } from './custom-circuit-inputs.js';
 import { CustomCircuitOutputs } from './custom-circuit-outputs.js';
-import {
-	type Circuit,
-	CircuitSceneObject,
-	cloneGraphAfterCircuit,
-	circuitCloneHelper,
-	type Props
-} from './circuit.js';
+import { type Circuit, cloneGraphAfterCircuit, circuitCloneHelper, type Props } from './circuit.js';
+import { CircuitSceneObject } from '@ts/scene/scene.js';
 
 export class CustomCircuit implements Circuit {
 	updationStrategy = UpdationStrategy.Immediate;
 	inputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 	outputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 
-	props = {};
+	props = { label: '' };
 	propTypes = {};
-	setProp(name: string, value: any) {
-		return false;
-	}
+	propSetters = {};
 
 	isSelected: boolean = false;
 	simFrameAllocated = false;
@@ -92,6 +85,7 @@ export class CustomCircuit implements Circuit {
 		}
 
 		this.customOutputs.customCircuitProducerPins = this.producerPins;
+		this.props.label = scene.name;
 
 		console.log('CustomCircuit.constructor: ', this);
 	}
@@ -163,12 +157,16 @@ export class CustomCircuit implements Circuit {
 		console.log('CustomCircuit.constructor: ', this);
 	}
 
-	configSceneObject(pos: Vec2, targetScene: Scene | undefined = undefined): void {
+	configSceneObject(
+		pos: Vec2,
+		targetScene: Scene | undefined = undefined,
+		ctx: CanvasRenderingContext2D
+	): void {
 		if (targetScene == null) {
 			targetScene = sceneManager.getCurrentScene();
 		}
 
-		this.sceneObject = CircuitSceneObject.new(this, pos, targetScene);
+		this.sceneObject = CircuitSceneObject.new(this, pos, targetScene, ctx);
 		let entry = targetScene.customCircuitInstances.get(this.scene.name);
 		if (entry == null) {
 			entry = {

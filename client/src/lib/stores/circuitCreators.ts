@@ -8,9 +8,7 @@ import { ProcessingCircuit } from '@ts/scene/objects/circuits/processing-circuit
 import { InputCircuit } from '@ts/scene/objects/circuits/input-circuit';
 import { writable } from 'svelte/store';
 import { sceneManager } from '@routes/+page.svelte';
-import { Scene } from '@ts/scene/scene';
 import { customCircuits } from './customCircuits';
-import { domLog } from './debugging';
 
 // let customCircuitInstances = new Map<number, CustomCircuit[]>();
 
@@ -61,7 +59,7 @@ let { subscribe, set, update } = writable(
 		[
 			'And',
 			() => {
-				return new ProcessingCircuit(
+				let circuit = new ProcessingCircuit(
 					2,
 					1,
 					(self) => {
@@ -74,65 +72,80 @@ let { subscribe, set, update } = writable(
 						}
 						self.producerPins[0].setValue(value);
 					},
-					{ Inputs: 2 },
-					{ Inputs: CircuitPropType.NaturalNumber },
-					function (circuit, name, value) {
-						if (name != 'Inputs') {
-							throw Error();
-						}
-
-						const num = +value;
-						if (Number.isNaN(num) || !Number.isFinite(num) || num < 1) {
-							console.log('Hello1');
-							return false;
-						}
-						if (!setConsumerPinNumber(circuit, num)) {
-							console.log('Hello2');
-							return false;
-						}
-						circuit.props.Inputs = num;
-						if (circuit.sceneObject != null) {
-							circuit.sceneObject.calcRects();
-						}
-						return true;
-					}
+					'And'
 				);
+				circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
+					const num = +value;
+					if (Number.isNaN(num) || !Number.isFinite(num) || num < 1) {
+						console.log('Hello1');
+						return false;
+					}
+					if (!setConsumerPinNumber(circuit, num)) {
+						console.log('Hello2');
+						return false;
+					}
+					circuit.props.Inputs = num;
+					if (circuit.sceneObject != null) {
+						circuit.sceneObject.calcRects();
+					}
+					return true;
+				});
 			}
 		],
 		[
 			'Or',
 			() => {
-				return new ProcessingCircuit(2, 1, (self) => {
-					self.producerPins[0].setValue(self.consumerPins[0].value || self.consumerPins[1].value);
-				});
+				return new ProcessingCircuit(
+					2,
+					1,
+					(self) => {
+						self.producerPins[0].setValue(self.consumerPins[0].value || self.consumerPins[1].value);
+					},
+					'Or'
+				);
 			}
 		],
 		[
 			'Not',
 			() => {
-				return new ProcessingCircuit(1, 1, (self) => {
-					self.producerPins[0].setValue(!self.consumerPins[0].value);
-				});
+				return new ProcessingCircuit(
+					1,
+					1,
+					(self) => {
+						self.producerPins[0].setValue(!self.consumerPins[0].value);
+					},
+					'Not'
+				);
 			}
 		],
 		[
 			'Nand',
 			() => {
-				return new ProcessingCircuit(2, 1, (self) => {
-					self.producerPins[0].setValue(
-						!(self.consumerPins[0].value && self.consumerPins[1].value)
-					);
-				});
+				return new ProcessingCircuit(
+					2,
+					1,
+					(self) => {
+						self.producerPins[0].setValue(
+							!(self.consumerPins[0].value && self.consumerPins[1].value)
+						);
+					},
+					'Nand'
+				);
 			}
 		],
 		[
 			'Nor',
 			() => {
-				return new ProcessingCircuit(2, 1, (self) => {
-					self.producerPins[0].setValue(
-						!(self.consumerPins[0].value || self.consumerPins[1].value)
-					);
-				});
+				return new ProcessingCircuit(
+					2,
+					1,
+					(self) => {
+						self.producerPins[0].setValue(
+							!(self.consumerPins[0].value || self.consumerPins[1].value)
+						);
+					},
+					'Nor'
+				);
 			}
 		]
 	])

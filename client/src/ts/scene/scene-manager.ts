@@ -1,17 +1,16 @@
-import { type Circuit, CircuitSceneObject } from './objects/circuits/circuit.js';
+import { type Circuit } from './objects/circuits/circuit.js';
+import { CircuitSceneObject } from './scene.js';
 import { CustomCircuitOutputs } from './objects/circuits/custom-circuit-outputs.js';
 import { CustomCircuitInputs } from './objects/circuits/custom-circuit-inputs.js';
-import { ProducerPin } from './objects/producer-pin.js';
-import { ConsumerPin } from './objects/consumer-pin.js';
 import { Wire } from './objects/wire.js';
 // import { circuitCreators, domLog, secondaryCtx, viewManager } from '../main.js';
 import { Vec2 } from '@ts/math.js';
-import { secondaryCtx, viewManager } from '@routes/+page.svelte';
-import { currentScene } from '@lib/stores/currentScene.js';
+import { ctx, secondaryCtx, viewManager } from '@routes/+page.svelte';
 import { Scene } from './scene.js';
+import { currentScene } from './scene.js';
 import { domLog } from '@lib/stores/debugging.js';
 import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config.js';
-import { focusedCircuit } from '@lib/stores/mostRecentlySelectedCircuit.js';
+import { focusedCircuit } from '@lib/stores/focusedCircuit.js';
 
 export interface SceneObject {
 	// id: number;
@@ -71,7 +70,7 @@ export class SceneManager {
 		// this.setCurrentScene(sceneId);
 
 		let customInputs = new CustomCircuitInputs();
-		customInputs.configSceneObject(new Vec2(90, 220), scene);
+		customInputs.configSceneObject(new Vec2(90, 220), scene, ctx);
 		if (customInputs.sceneObject == null) {
 			throw Error();
 		}
@@ -79,7 +78,7 @@ export class SceneManager {
 		scene.customCircuitInputs = customInputs;
 
 		let customOutputs = new CustomCircuitOutputs();
-		customOutputs.configSceneObject(new Vec2(240, 220), scene);
+		customOutputs.configSceneObject(new Vec2(240, 220), scene, ctx);
 		if (customOutputs.sceneObject == null) {
 			throw Error();
 		}

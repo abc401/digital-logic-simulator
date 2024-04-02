@@ -12,6 +12,10 @@
 	export let touchScreenStateMachine: TouchScreenStateMachine;
 
 	export let sceneManager = new SceneManager();
+
+	export let onColor: string;
+	export let offColor: string;
+	export let circuitColor: string;
 </script>
 
 <script lang="ts">
@@ -21,18 +25,13 @@
 	import Scenes from '@lib/Scenes.svelte';
 	import SimControls from '@lib/SimControls.svelte';
 	import TopMenu from '@lib/TopMenu.svelte';
-	import { circuitCreators, customCircuitCreator } from '@lib/stores/circuitCreators';
-	import { currentScene } from '@lib/stores/currentScene';
 
-	import { customCircuits } from '@lib/stores/customCircuits';
 	import { canvasState, logs } from '@lib/stores/debugging';
-	import { focusedCircuit } from '@lib/stores/mostRecentlySelectedCircuit';
+	import { focusedCircuit } from '@lib/stores/focusedCircuit';
 
 	import { SimEngine } from '@ts/engine';
 	import { MouseStateMachine } from '@ts/interactivity/mouse/state-machine';
-	import { CreatingCircuit as CreatingCircuitMouse } from '@ts/interactivity/mouse/states/creating-circuit';
 	import { TouchScreenStateMachine } from '@ts/interactivity/touchscreen/state-machine';
-	import { CreatingCircuit as CreatingCircuitTouchScreen } from '@ts/interactivity/touchscreen/states/creating-circuit';
 
 	import { SceneManager } from '@ts/scene/scene-manager';
 	import { ViewManager } from '@ts/view-manager';
@@ -43,7 +42,6 @@
 	}
 
 	onMount(() => {
-		console.log('Hello');
 		const ctx_ = canvas.getContext('2d');
 		const secondaryCtx_ = secondaryCanvas.getContext('2d');
 
@@ -63,12 +61,16 @@
 		mouseStateMachine = new MouseStateMachine();
 		touchScreenStateMachine = new TouchScreenStateMachine();
 
+		const style = getComputedStyle(document.body);
+		onColor = style.getPropertyValue('--clr-on');
+		offColor = style.getPropertyValue('--clr-off');
+		circuitColor = style.getPropertyValue('--clr-circuit');
+
 		function draw() {
 			sceneManager.draw(ctx);
 			setTimeout(draw, 1000 / 60);
 		}
 		draw();
-		// scheduler.runSim(ctx);
 	});
 </script>
 

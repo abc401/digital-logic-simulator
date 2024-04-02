@@ -4,13 +4,16 @@ import { UpdationStrategy } from '@ts/engine.js';
 import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
 import {
-	CircuitSceneObject,
 	circuitCloneHelper,
 	type Circuit,
 	type CircuitUpdateHandeler,
 	type Props,
-	type PropTypes
+	type PropTypes,
+	type PropSetters,
+	CircuitPropType,
+	defaultPropTypes
 } from './circuit.js';
+import { CircuitSceneObject } from '@ts/scene/scene.js';
 
 export class ProcessingCircuit implements Circuit {
 	simFrameAllocated = false;
@@ -25,16 +28,17 @@ export class ProcessingCircuit implements Circuit {
 	consumerPins: ConsumerPin[];
 	producerPins: ProducerPin[];
 
+	props: Props = { label: '' };
+	propTypes: PropTypes = {};
+	propSetters: PropSetters = {};
+
 	sceneObject: CircuitSceneObject | undefined;
 
 	constructor(
 		nConsumerPins: number,
 		nProducerPins: number,
 		updateHandeler: CircuitUpdateHandeler,
-		public props: Props = {},
-		public propTypes: PropTypes = {},
-		public setPropCustom: (circuit: ProcessingCircuit, name: string, value: any) => boolean = () =>
-			false
+		label: string
 	) {
 		this.sceneObject = undefined;
 
@@ -48,19 +52,33 @@ export class ProcessingCircuit implements Circuit {
 			this.consumerPins[i] = new ConsumerPin(this, i);
 		}
 
+		this.props.label = label;
+
 		this.updateHandeler = updateHandeler;
 
 		this.updateHandeler(this);
 	}
 
-	setProp(name: string, value: any) {
-		const ret = this.setPropCustom(this, name, value);
-		console.log('[ProcessingCircuit.setProp] ret: ', ret);
-		return ret;
+	newProp(
+		name: string,
+		propType: CircuitPropType,
+		initialValue: any,
+		setter: (circuit: Circuit, value: any) => boolean
+	) {
+		if (name in defaultPropTypes || name in this.props) {
+			throw Error();
+		}
+		this.props[name] = initialValue;
+		this.propTypes[name] = propType;
+		this.propSetters[name] = setter;
 	}
 
-	configSceneObject(pos: Vec2, scene: Scene | undefined = undefined): void {
-		this.sceneObject = CircuitSceneObject.new(this, pos, scene);
+	configSceneObject(
+		pos: Vec2,
+		scene: Scene | undefined = undefined,
+		ctx: CanvasRenderingContext2D
+	): void {
+		this.sceneObject = CircuitSceneObject.new(this, pos, scene, ctx);
 	}
 
 	clone(): Circuit {

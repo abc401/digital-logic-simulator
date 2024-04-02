@@ -2,13 +2,12 @@
 import { Wire } from './wire.js';
 import type { Circuit } from './circuits/circuit.js';
 import type { CustomCircuitOutputs } from './circuits/custom-circuit-outputs.js';
-import { OFF_COLOR, ON_COLOR, PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
+import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
 import { Vec2 } from '@ts/math.js';
 import { viewManager } from '@routes/+page.svelte';
+import { CircuitSceneObject } from '../scene.js';
 
 export class ConsumerPin {
-	static radiusWrl = PIN_EXTRUSION_WRL / 2;
-
 	wire: Wire | undefined;
 	// value: boolean = false;
 
@@ -25,12 +24,14 @@ export class ConsumerPin {
 			throw Error();
 		}
 
-		const rectWrl = this.parentCircuit.sceneObject.tightRectWrl;
+		const circuitBodyRect = this.parentCircuit.sceneObject.bodyRectWrl;
+		// bodyPos.x,
 		return new Vec2(
-			rectWrl.x - ConsumerPin.radiusWrl,
-			rectWrl.y +
-				(ConsumerPin.radiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) * this.pinIndex +
-				ConsumerPin.radiusWrl
+			circuitBodyRect.x,
+			circuitBodyRect.y +
+				CircuitSceneObject.bodyPaddingYWrl +
+				this.pinIndex * (CircuitSceneObject.pinRadiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) +
+				CircuitSceneObject.pinRadiusWrl
 		);
 	}
 
@@ -49,22 +50,36 @@ export class ConsumerPin {
 
 	pointCollision(pointWrl: Vec2) {
 		const locWrl = this.getLocWrl();
-		return locWrl.sub(pointWrl).mag() < ConsumerPin.radiusWrl;
+		return locWrl.sub(pointWrl).mag() < CircuitSceneObject.pinRadiusWrl;
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {
 		const pos = this.getLocScr();
+		const style = getComputedStyle(document.body);
+
+		const onColor = style.getPropertyValue('--clr-on');
+		const offColor = style.getPropertyValue('--clr-off');
+
+		ctx.lineWidth = 5 * viewManager.zoomLevel;
+		ctx.strokeStyle = '#32424B';
 		ctx.beginPath();
-		ctx.arc(pos.x, pos.y, ConsumerPin.radiusWrl * viewManager.zoomLevel, 0, 2 * Math.PI);
+		ctx.arc(
+			pos.x,
+			pos.y,
+			CircuitSceneObject.pinRadiusWrl * viewManager.zoomLevel,
+			(1 / 2) * Math.PI,
+			(3 / 2) * Math.PI,
+			true
+		);
+		ctx.stroke();
+		ctx.beginPath();
+
+		ctx.arc(pos.x, pos.y, CircuitSceneObject.pinRadiusWrl * viewManager.zoomLevel, 0, 2 * Math.PI);
 		if (this.value) {
-			ctx.fillStyle = ON_COLOR;
-			ctx.fill();
+			ctx.fillStyle = onColor;
 		} else {
-			ctx.lineWidth = 1;
-			ctx.fillStyle = OFF_COLOR;
-			ctx.fill();
-			ctx.strokeStyle = 'grey';
-			ctx.stroke();
+			ctx.fillStyle = offColor;
 		}
+		ctx.fill();
 	}
 }

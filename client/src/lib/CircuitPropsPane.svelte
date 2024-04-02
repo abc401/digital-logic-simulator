@@ -1,33 +1,42 @@
 <script lang="ts">
 	// import type { Circuit } from '@ts/scene/objects/circuits/circuit';
-	import { focusedCircuit } from '@lib/stores/mostRecentlySelectedCircuit';
-	import { CircuitPropType } from '@ts/scene/objects/circuits/circuit';
+	import { focusedCircuit } from '@lib/stores/focusedCircuit';
+	import {
+		CircuitPropType,
+		defaultPropSetters,
+		defaultPropTypes,
+		getPropType
+	} from '@ts/scene/objects/circuits/circuit';
 	import BoolProp from './circuitProps/BoolProp.svelte';
 	import NumberProp from './circuitProps/NumberProp.svelte';
+	import StringProp from './circuitProps/StringProp.svelte';
+	// import StringProp from './circuitProps/StringProp.Svelte';
+	// import StringProp from './circuitProps/StringProp.svelte';
 
-	type OnSubmitEvent = SubmitEvent & {
-		currentTarget: EventTarget & HTMLFormElement;
-	};
-
-	function onSubmit(ev: OnSubmitEvent, name: string) {
-		let formData = new FormData(ev.currentTarget);
-		let value = formData.get(name);
-		if (value == null) {
-			return;
-		}
-		if ($focusedCircuit == null) {
-			throw Error();
-		}
-	}
+	// function getPropType(name: string) {
+	// 	if ($focusedCircuit == null) {
+	// 		throw Error();
+	// 	}
+	// 	let propType = $focusedCircuit.parentCircuit.propTypes[name];
+	// 	if (propType == null) {
+	// 		propType = defaultPropTypes[name];
+	// 	}
+	// 	if (propType == null) {
+	// 		throw Error();
+	// 	}
+	// 	return propType;
+	// }
 </script>
 
 <div>
 	{#if $focusedCircuit != null}
 		{#each Object.keys($focusedCircuit.parentCircuit.props) as name (name)}
-			{#if $focusedCircuit.parentCircuit.propTypes[name] === CircuitPropType.Bool}
+			{#if getPropType($focusedCircuit.parentCircuit, name) === CircuitPropType.Bool}
 				<BoolProp {name} circuit={$focusedCircuit.parentCircuit} />
-			{:else if $focusedCircuit.parentCircuit.propTypes[name] === CircuitPropType.NaturalNumber}
+			{:else if getPropType($focusedCircuit.parentCircuit, name) === CircuitPropType.NaturalNumber}
 				<NumberProp {name} circuit={$focusedCircuit.parentCircuit} />
+			{:else if getPropType($focusedCircuit.parentCircuit, name) === CircuitPropType.String}
+				<StringProp {name} circuit={$focusedCircuit.parentCircuit} />
 			{/if}
 			<!-- <datalist id={'datalist-' + name}>
 				{#if prop.type === CircuitPropType.Bool}

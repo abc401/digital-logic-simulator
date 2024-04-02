@@ -1,4 +1,10 @@
-import { canvas, sceneManager, touchScreenStateMachine, viewManager } from '@routes/+page.svelte';
+import {
+	canvas,
+	ctx,
+	sceneManager,
+	touchScreenStateMachine,
+	viewManager
+} from '@routes/+page.svelte';
 import {
 	MouseAction,
 	MouseActionKind,
@@ -31,7 +37,7 @@ export class CreatingCircuit implements MouseState {
 		if (action.kind === MouseActionKind.MouseUp) {
 			let circuit = this.creator();
 			const currentScene = sceneManager.getCurrentScene();
-			circuit.configSceneObject(viewManager.screenToWorld(locScr), currentScene);
+			circuit.configSceneObject(viewManager.screenToWorld(locScr), currentScene, ctx);
 
 			console.log(`Created ${this.name}`);
 			console.log('scene: ', sceneManager.getCurrentScene());

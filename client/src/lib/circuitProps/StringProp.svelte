@@ -1,10 +1,7 @@
 <script lang="ts">
-	import CircuitPropsPane from '@lib/CircuitPropsPane.svelte';
 	import {
 		CircuitPropType,
 		type Circuit,
-		type PropSetter,
-		defaultPropSetters,
 		getPropType,
 		getPropSetter
 	} from '@ts/scene/objects/circuits/circuit';
@@ -13,21 +10,28 @@
 	export let circuit: Circuit;
 
 	if (getPropType(circuit, name) != CircuitPropType.String) {
-		console.log('circuit.propTypes[name] != CircuitPropType.String');
+		console.log(`circuit.propTypes[${name}] != CircuitPropType.String`);
 		throw Error();
 	}
+
 	let propSetter = getPropSetter(circuit, name);
 </script>
 
 <label for={'prop-' + name}>
 	<span>{name}</span>
 	<input
-		on:change={(ev) => {
-			if (!propSetter(circuit, ev.currentTarget.value)) {
+		class="text-neutral-900"
+		on:input={(ev) => {
+			const value = ev.currentTarget.value;
+			console.log('value: ', value);
+			if (!propSetter(circuit, value.trim())) {
+				console.log('value was invalid');
 				ev.currentTarget.value = circuit.props[name];
+				return;
 			}
+			console.log('value was valid');
 		}}
-		type="number"
+		type="text"
 		value={circuit.props[name]}
 		id={'prop-' + name}
 	/>

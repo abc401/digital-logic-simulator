@@ -4,11 +4,12 @@ import { SimEvent, UpdationStrategy } from '../../engine.js';
 import { Wire } from './wire.js';
 import type { Circuit } from './circuits/circuit.js';
 import type { CustomCircuitInputs } from './circuits/custom-circuit-inputs.js';
-import { OFF_COLOR, ON_COLOR, PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
+import { PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
 import { simEngine, viewManager } from '@routes/+page.svelte';
+import { CircuitSceneObject } from '../scene.js';
+// import { CircuitSceneObject } from '../scene.js';
 
 export class ProducerPin {
-	static radiusWrl = PIN_EXTRUSION_WRL / 2;
 	wires: Wire[];
 	value: boolean;
 	// selected = false;
@@ -53,13 +54,14 @@ export class ProducerPin {
 			throw Error();
 		}
 
-		const rectWrl = this.parentCircuit.sceneObject.tightRectWrl;
+		const bodyRectWrl = this.parentCircuit.sceneObject.bodyRectWrl;
 
 		return new Vec2(
-			rectWrl.x + rectWrl.w + ProducerPin.radiusWrl,
-			rectWrl.y +
-				(ProducerPin.radiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) * this.pinIndex +
-				ProducerPin.radiusWrl
+			bodyRectWrl.x + bodyRectWrl.w,
+			bodyRectWrl.y +
+				CircuitSceneObject.bodyPaddingYWrl +
+				this.pinIndex * (CircuitSceneObject.pinRadiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) +
+				CircuitSceneObject.pinRadiusWrl
 		);
 	}
 
@@ -69,26 +71,43 @@ export class ProducerPin {
 
 	pointCollision(pointWrl: Vec2) {
 		const locWrl = this.getLocWrl();
-		return locWrl.sub(pointWrl).mag() < ProducerPin.radiusWrl;
+		return locWrl.sub(pointWrl).mag() < CircuitSceneObject.pinRadiusWrl;
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {
-		const pos = this.getLocScr();
+		const posScr = this.getLocScr();
+
+		const style = getComputedStyle(document.body);
+
+		const onColor = style.getPropertyValue('--clr-on');
+		const offColor = style.getPropertyValue('--clr-off');
+
+		ctx.lineWidth = 5 * viewManager.zoomLevel;
+		ctx.strokeStyle = '#32424B';
 		ctx.beginPath();
-		ctx.arc(pos.x, pos.y, ProducerPin.radiusWrl * viewManager.zoomLevel, 0, 2 * Math.PI);
-		ctx.closePath();
-		ctx.lineWidth = 1;
+		ctx.arc(
+			posScr.x,
+			posScr.y,
+			CircuitSceneObject.pinRadiusWrl * viewManager.zoomLevel,
+			(1 / 2) * Math.PI,
+			(3 / 2) * Math.PI
+		);
+		ctx.stroke();
+
+		ctx.beginPath();
+		ctx.arc(
+			posScr.x,
+			posScr.y,
+			CircuitSceneObject.pinRadiusWrl * viewManager.zoomLevel,
+			0,
+			2 * Math.PI
+		);
+
 		if (this.value) {
-			ctx.fillStyle = ON_COLOR;
+			ctx.fillStyle = onColor;
 		} else {
-			ctx.fillStyle = OFF_COLOR;
-			ctx.strokeStyle = 'grey';
-			ctx.stroke();
+			ctx.fillStyle = offColor;
 		}
-		// if (this.selected) {
-		//   ctx.strokeStyle = "green";
-		//   ctx.stroke();
-		// }
 		ctx.fill();
 	}
 }

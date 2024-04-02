@@ -6,18 +6,16 @@ import { ProducerPin } from '../producer-pin.js';
 import { simEngine } from '@routes/+page.svelte';
 import {
 	type Circuit,
-	CircuitSceneObject,
 	circuitCloneHelper,
 	type Props,
 	CircuitPropType,
 	type PropTypes
 } from './circuit.js';
+import { CircuitSceneObject } from '@ts/scene/scene.js';
 
-interface InputCircuitProps {
+type InputCircuitProps = Props & {
 	value: boolean;
-	abc: number;
-	def: string;
-}
+};
 
 export class InputCircuit implements Circuit {
 	updationStrategy = UpdationStrategy.InNextFrame;
@@ -25,15 +23,22 @@ export class InputCircuit implements Circuit {
 	outputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 
 	props: InputCircuitProps = {
-		value: false,
-		abc: 1,
-		def: 'abc'
+		label: 'InputCircuit',
+		value: false
 	};
 
 	propTypes = {
-		value: CircuitPropType.Bool,
-		abc: CircuitPropType.NaturalNumber,
-		def: CircuitPropType.String
+		value: CircuitPropType.Bool
+	};
+	propSetters = {
+		value: (circuit: Circuit, value: any) => {
+			if (typeof value != 'boolean') {
+				throw Error();
+			}
+			this.props.value = value;
+			this.producerPins[0].setValue(this.props.value);
+			return true;
+		}
 	};
 
 	simFrameAllocated = false;
@@ -79,7 +84,11 @@ export class InputCircuit implements Circuit {
 		return circuitCloneHelper(this);
 	}
 
-	configSceneObject(pos: Vec2, scene: Scene | undefined = undefined): void {
-		this.sceneObject = CircuitSceneObject.new(this, pos, scene);
+	configSceneObject(
+		pos: Vec2,
+		scene: Scene | undefined = undefined,
+		ctx: CanvasRenderingContext2D
+	): void {
+		this.sceneObject = CircuitSceneObject.new(this, pos, scene, ctx);
 	}
 }

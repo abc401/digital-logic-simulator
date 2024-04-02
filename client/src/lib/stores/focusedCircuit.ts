@@ -1,4 +1,5 @@
-import { CircuitSceneObject, type Circuit } from '@ts/scene/objects/circuits/circuit';
+import { type Circuit } from '@ts/scene/objects/circuits/circuit';
+import { CircuitSceneObject } from '@ts/scene/scene';
 import { writable } from 'svelte/store';
 
 let { subscribe, set, update } = writable<CircuitSceneObject | undefined>(undefined);
