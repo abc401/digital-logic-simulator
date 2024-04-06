@@ -1,34 +1,13 @@
 <script lang="ts">
 	// import type { Circuit } from '@ts/scene/objects/circuits/circuit';
-	import { focusedCircuit } from '@lib/stores/focusedCircuit';
-	import {
-		CircuitPropType,
-		defaultPropSetters,
-		defaultPropTypes,
-		getPropType
-	} from '@ts/scene/objects/circuits/circuit';
-	import BoolProp from './circuitProps/BoolProp.svelte';
-	import NumberProp from './circuitProps/NumberProp.svelte';
-	import StringProp from './circuitProps/StringProp.svelte';
-	// import StringProp from './circuitProps/StringProp.Svelte';
-	// import StringProp from './circuitProps/StringProp.svelte';
-
-	// function getPropType(name: string) {
-	// 	if ($focusedCircuit == null) {
-	// 		throw Error();
-	// 	}
-	// 	let propType = $focusedCircuit.parentCircuit.propTypes[name];
-	// 	if (propType == null) {
-	// 		propType = defaultPropTypes[name];
-	// 	}
-	// 	if (propType == null) {
-	// 		throw Error();
-	// 	}
-	// 	return propType;
-	// }
+	import { focusedCircuit } from '@stores/focusedCircuit';
+	import { CircuitPropType, getPropType } from '@ts/scene/objects/circuits/circuit';
+	import BoolProp from '@comps/CircuitProps/BoolProp.svelte';
+	import NumberProp from '@comps/CircuitProps/NumberProp.svelte';
+	import StringProp from '@comps/CircuitProps/StringProp.svelte';
 </script>
 
-<div>
+<div {...$$restProps}>
 	{#if $focusedCircuit != null}
 		{#each Object.keys($focusedCircuit.parentCircuit.props) as name (name)}
 			{#if getPropType($focusedCircuit.parentCircuit, name) === CircuitPropType.Bool}

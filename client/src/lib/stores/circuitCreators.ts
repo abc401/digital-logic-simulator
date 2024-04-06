@@ -35,127 +35,92 @@ export let customCircuitCreator = (circuitName: string) => () => {
 	return circuit;
 };
 
-let { subscribe, set, update } = writable(
-	new Map([
-		[
-			'Input',
-			() => {
-				return new InputCircuit(false) as Circuit;
-			}
-		],
-		// [
-		//   "CustomCircuitInputs",
-		//   () => {
-		//     return new CustomCircuitInputs();
-		//   },
-		// ],
-		// [
-		//   "CustomCircuitOutputs",
-		//   () => {
-		//     return new CustomCircuitOutputs();
-		//   },
-		// ],
+let { subscribe, set, update } = writable<{ [key: string]: () => void }>({
+	Input: () => {
+		return new InputCircuit(false) as Circuit;
+	},
 
-		[
-			'And',
-			() => {
-				let circuit = new ProcessingCircuit(
-					2,
-					1,
-					(self) => {
-						let value = true;
-						for (let pin of self.consumerPins) {
-							value = value && pin.value;
-							if (!value) {
-								break;
-							}
-						}
-						self.producerPins[0].setValue(value);
-					},
-					'And'
-				);
-				circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
-					const num = +value;
-					if (Number.isNaN(num) || !Number.isFinite(num) || num < 1) {
-						console.log('Hello1');
-						return false;
+	And: () => {
+		let circuit = new ProcessingCircuit(
+			2,
+			1,
+			(self) => {
+				let value = true;
+				for (let pin of self.consumerPins) {
+					value = value && pin.value;
+					if (!value) {
+						break;
 					}
-					if (!setConsumerPinNumber(circuit, num)) {
-						console.log('Hello2');
-						return false;
-					}
-					circuit.props.Inputs = num;
-					if (circuit.sceneObject != null) {
-						circuit.sceneObject.calcRects();
-					}
-					return true;
-				});
+				}
+				self.producerPins[0].setValue(value);
+			},
+			'And'
+		);
+		circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
+			const num = +value;
+			if (Number.isNaN(num) || !Number.isFinite(num) || num < 1) {
+				console.log('Hello1');
+				return false;
 			}
-		],
-		[
-			'Or',
-			() => {
-				return new ProcessingCircuit(
-					2,
-					1,
-					(self) => {
-						self.producerPins[0].setValue(self.consumerPins[0].value || self.consumerPins[1].value);
-					},
-					'Or'
-				);
+			if (!setConsumerPinNumber(circuit, num)) {
+				console.log('Hello2');
+				return false;
 			}
-		],
-		[
-			'Not',
-			() => {
-				return new ProcessingCircuit(
-					1,
-					1,
-					(self) => {
-						self.producerPins[0].setValue(!self.consumerPins[0].value);
-					},
-					'Not'
-				);
+			circuit.props.Inputs = num;
+			if (circuit.sceneObject != null) {
+				circuit.sceneObject.calcRects();
 			}
-		],
-		[
-			'Nand',
-			() => {
-				return new ProcessingCircuit(
-					2,
-					1,
-					(self) => {
-						self.producerPins[0].setValue(
-							!(self.consumerPins[0].value && self.consumerPins[1].value)
-						);
-					},
-					'Nand'
-				);
-			}
-		],
-		[
-			'Nor',
-			() => {
-				return new ProcessingCircuit(
-					2,
-					1,
-					(self) => {
-						self.producerPins[0].setValue(
-							!(self.consumerPins[0].value || self.consumerPins[1].value)
-						);
-					},
-					'Nor'
-				);
-			}
-		]
-	])
-);
+			return true;
+		});
+		return circuit;
+	},
+	Or: () => {
+		return new ProcessingCircuit(
+			2,
+			1,
+			(self) => {
+				self.producerPins[0].setValue(self.consumerPins[0].value || self.consumerPins[1].value);
+			},
+			'Or'
+		);
+	},
+	Not: () => {
+		return new ProcessingCircuit(
+			1,
+			1,
+			(self) => {
+				self.producerPins[0].setValue(!self.consumerPins[0].value);
+			},
+			'Not'
+		);
+	},
+	Nand: () => {
+		return new ProcessingCircuit(
+			2,
+			1,
+			(self) => {
+				self.producerPins[0].setValue(!(self.consumerPins[0].value && self.consumerPins[1].value));
+			},
+			'Nand'
+		);
+	},
+	Nor: () => {
+		return new ProcessingCircuit(
+			2,
+			1,
+			(self) => {
+				self.producerPins[0].setValue(!(self.consumerPins[0].value || self.consumerPins[1].value));
+			},
+			'Nor'
+		);
+	}
+});
 
 export let circuitCreators = {
 	subscribe,
 	newCustomCreator: function (name: string, creator: () => Circuit) {
 		update((creators) => {
-			creators.set(name, creator);
+			creators[name] = creator;
 			return creators;
 		});
 	}

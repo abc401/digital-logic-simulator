@@ -2,8 +2,8 @@
 	export let canvas: HTMLCanvasElement;
 	export let ctx: CanvasRenderingContext2D;
 
-	export let secondaryCanvas: HTMLCanvasElement;
-	export let secondaryCtx: CanvasRenderingContext2D;
+	// export let secondaryCanvas: HTMLCanvasElement;
+	// export let secondaryCtx: CanvasRenderingContext2D;
 
 	export let simEngine = new SimEngine();
 	export let viewManager = new ViewManager();
@@ -21,10 +21,10 @@
 <script lang="ts">
 	// import button from '@lib/button.svelte';
 
-	import CircuitPropsPane from '@lib/CircuitPropsPane.svelte';
-	import Scenes from '@lib/Scenes.svelte';
-	import SimControls from '@lib/SimControls.svelte';
-	import TopMenu from '@lib/TopMenu.svelte';
+	import CircuitPropsPane from '@comps/CircuitPropsPane.svelte';
+	import ICS from '@comps/ICS.svelte';
+	import SimControls from '@comps/SimControls.svelte';
+	import TopMenu from '@comps/TopMenu.svelte';
 
 	import { canvasState, logs } from '@lib/stores/debugging';
 	import { focusedCircuit } from '@lib/stores/focusedCircuit';
@@ -43,20 +43,26 @@
 
 	onMount(() => {
 		const ctx_ = canvas.getContext('2d');
-		const secondaryCtx_ = secondaryCanvas.getContext('2d');
+		// const secondaryCtx_ = secondaryCanvas.getContext('2d');
 
 		if (ctx_ == null) {
 			throw Error();
 		}
-		if (secondaryCtx_ == null) {
-			throw Error();
-		}
+		// if (secondaryCtx_ == null) {
+		// 	throw Error();
+		// }
 		ctx = ctx_;
-		secondaryCtx = secondaryCtx_;
+		// secondaryCtx = secondaryCtx_;
 
 		let canvasBoundingRect = canvas.getBoundingClientRect();
 		canvas.width = canvasBoundingRect.width;
 		canvas.height = canvasBoundingRect.height;
+
+		window.onresize = (ev) => {
+			let canvasBoundingRect = canvas.getBoundingClientRect();
+			canvas.width = canvasBoundingRect.width;
+			canvas.height = canvasBoundingRect.height;
+		};
 
 		mouseStateMachine = new MouseStateMachine();
 		touchScreenStateMachine = new TouchScreenStateMachine();
@@ -74,40 +80,41 @@
 	});
 </script>
 
-<div>
-	<div class="fixed right-0 top-0 z-10 border border-red-600">
-		<CircuitPropsPane />
-	</div>
-	<div class="absolute bottom-0 right-0">10</div>
-	<TopMenu />
-	<div class="w=screen relative flex max-h-screen gap-4">
-		<Scenes />
+<svelte:head>
+	<title>Digital Logic Simulator</title>
+</svelte:head>
 
-		<div class="pointer-events-none absolute right-0 touch-none">{@html $canvasState}</div>
+<div class="grid h-screen w-screen grid-rows-[auto_minmax(0,1fr)] sm:bg-red-700">
+	<!-- <CircuitPropsPane class="fixed right-0 top-0 z-10 border border-red-600" /> -->
+	<!-- <div class="absolute bottom-0 right-0">10</div> -->
+	<!-- <ICS class="flex flex-col gap-2 border border-neutral-700" /> -->
+	<TopMenu />
+	<div class="relative">
 		<canvas
-			width="500"
-			height="500"
-			class="relative flex-grow touch-none outline outline-1 -outline-offset-1 outline-red-600"
+			class="h-full w-full border border-l-0 border-neutral-700 bg-neutral-900"
 			bind:this={canvas}
-			on:resize={(ev) => {
+		>
+			Please use a newer browser
+		</canvas>
+		<div class="pointer-events-none absolute right-0 top-0 z-10 touch-none p-1 text-neutral-50">
+			{@html $canvasState}
+		</div>
+		<SimControls
+			class="absolute bottom-0 left-1/2 grid -translate-x-1/2 grid-flow-col justify-center rounded-lg border border-neutral-700 px-2"
+		/>
+	</div>
+</div>
+<!-- on:resize={(ev) => {
 				let boundingRect = canvas.getBoundingClientRect();
 				canvas.width = boundingRect.width;
 				canvas.height = boundingRect.height;
-			}}
-			id="main-canvas"
-		>
-			Your browser does not support the canvas element
-		</canvas>
-	</div>
-</div>
-<canvas width="500" height="500" bind:this={secondaryCanvas} id="secondary-canvas">
+			}} -->
+<!-- <canvas width="500" height="500" bind:this={secondaryCanvas} id="secondary-canvas">
 	Your browser does not support the canvas element
-</canvas>
+</canvas> -->
 
-<SimControls />
-
-<div>
+<!-- <div>
 	<h2>Logging</h2>
 
 	<div>{@html $logs}</div>
-</div>
+</div> -->

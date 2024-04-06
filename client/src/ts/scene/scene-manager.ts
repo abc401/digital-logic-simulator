@@ -5,7 +5,7 @@ import { CustomCircuitInputs } from './objects/circuits/custom-circuit-inputs.js
 import { Wire } from './objects/wire.js';
 // import { circuitCreators, domLog, secondaryCtx, viewManager } from '../main.js';
 import { Vec2 } from '@ts/math.js';
-import { ctx, secondaryCtx, viewManager } from '@routes/+page.svelte';
+import { ctx, viewManager } from '@routes/+page.svelte';
 import { Scene } from './scene.js';
 import { currentScene } from './scene.js';
 import { domLog } from '@lib/stores/debugging.js';
@@ -158,21 +158,21 @@ export class SceneManager {
 			circuit.data.draw(ctx);
 		}
 
-		this.debugDraw();
+		// this.debugDraw();
 	}
 
-	debugDraw() {
-		secondaryCtx.clearRect(0, 0, secondaryCtx.canvas.width, secondaryCtx.canvas.height);
-		for (let wire of debugObjects.wires) {
-			wire.draw(secondaryCtx);
-		}
-		for (let circuit of debugObjects.circuits) {
-			if (circuit.sceneObject == null) {
-				throw Error();
-			}
-			circuit.sceneObject.draw(secondaryCtx);
-		}
-	}
+	// debugDraw() {
+	// 	secondaryCtx.clearRect(0, 0, secondaryCtx.canvas.width, secondaryCtx.canvas.height);
+	// 	for (let wire of debugObjects.wires) {
+	// 		wire.draw(secondaryCtx);
+	// 	}
+	// 	for (let circuit of debugObjects.circuits) {
+	// 		if (circuit.sceneObject == null) {
+	// 			throw Error();
+	// 		}
+	// 		circuit.sceneObject.draw(secondaryCtx);
+	// 	}
+	// }
 
 	clearSelectedCircuits() {
 		for (let circuit of this.selectedCircuits.values()) {

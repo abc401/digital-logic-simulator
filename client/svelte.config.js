@@ -20,7 +20,9 @@ const config = {
 			'@ts': path.resolve('./src/ts'),
 			'@routes': path.resolve('./src/routes'),
 			'@lib': path.resolve('./src/lib'),
-			'@src': path.resolve('./src')
+			'@src': path.resolve('./src'),
+			'@comps': path.resolve('./src/lib/components'),
+			'@stores': path.resolve('./src/lib/stores')
 		}
 	}
 };
