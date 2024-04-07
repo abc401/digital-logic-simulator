@@ -1,6 +1,6 @@
 import { sceneManager } from '@routes/+page.svelte';
 import { writable } from 'svelte/store';
-import { circuitCreators, customCircuitCreator } from './circuitCreators';
+import { circuitInstanciators, icInstanciator, icInstanciators } from './circuitCreators';
 import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config';
 
 let { subscribe, set, update } = writable(
@@ -30,7 +30,7 @@ export let customCircuits = {
 		}
 		scene.name = circuitName;
 
-		circuitCreators.newCustomCreator(circuitName, customCircuitCreator(circuitName));
+		icInstanciators.newCustomCreator(circuitName, icInstanciator(circuitName));
 
 		update((circuits) => {
 			circuits.set(circuitName, sceneId);

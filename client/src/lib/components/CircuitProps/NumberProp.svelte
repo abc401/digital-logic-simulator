@@ -1,10 +1,7 @@
 <script lang="ts">
-	import CircuitPropsPane from '@lib/CircuitPropsPane.svelte';
 	import {
 		CircuitPropType,
 		type Circuit,
-		type PropSetter,
-		defaultPropSetters,
 		getPropType,
 		getPropSetter
 	} from '@ts/scene/objects/circuits/circuit';

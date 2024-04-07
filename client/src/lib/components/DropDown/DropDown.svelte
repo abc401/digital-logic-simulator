@@ -1,51 +1,47 @@
 <script context="module" lang="ts">
 	export class DropDownContext {
-		dropDownId: Symbol;
 		open: Writable<boolean>;
-		expandedChild: Writable<Symbol | undefined>;
-		constructor(public parentContext: DropDownContext | undefined) {
-			this.dropDownId = Symbol();
-			this.open = writable(false);
-			this.expandedChild = writable(undefined);
-
-			if (parentContext != null) {
-				parentContext.expandedChild.subscribe((value) => {
-					if (value === this.dropDownId) {
-						return;
-					}
-					this.open.set(false);
-				});
-			}
-		}
-
-		toggleStatus() {
-			this.open.update((value) => {
-				if (value) {
-					if (this.parentContext != null) {
-						this.parentContext.expandedChild.set(undefined);
-					}
-				} else {
-					if (this.parentContext != null) {
-						this.parentContext.expandedChild.set(this.dropDownId);
-					}
-				}
-				return !value;
-			});
+		constructor() {
+			this.open = writable(true);
 		}
 	}
 </script>
 
 <script lang="ts">
-	import { getContext, setContext } from 'svelte';
+	import { browser } from '$app/environment';
+	import clsx from 'clsx';
+
+	import { getContext, onDestroy, onMount, setContext } from 'svelte';
 	import { writable, type Writable } from 'svelte/store';
 
-	let parentContext = getContext<DropDownContext | undefined>('drop-down-context');
-	let context = new DropDownContext(parentContext);
-
+	let context = new DropDownContext();
 	setContext<DropDownContext>('drop-down-context', context);
+
+	let div: HTMLDivElement;
+
+	let clickListener = (ev: MouseEvent) => {
+		if (!div.contains(ev.target as HTMLElement)) {
+			context.open.set(false);
+		}
+	};
+
+	let className = '';
+	export { className as class };
+
+	onMount(() => {
+		document.addEventListener('click', clickListener);
+	});
+
+	onDestroy(() => {
+		if (browser) {
+			document.removeEventListener('click', clickListener);
+		}
+	});
 </script>
 
-<slot />
+<div class={clsx('relative', className)} {...$$restProps} bind:this={div} {...$$restProps}>
+	<slot />
+</div>
 
 <!-- {#each Object.keys(config) as key}
 		{#if config[key] instanceof Function || config[key] == null}

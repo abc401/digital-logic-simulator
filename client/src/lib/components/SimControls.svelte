@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { simEngine } from '@routes/+page.svelte';
-	import { simulation } from './stores/simulation';
+	import { simulation } from '@stores/simulation';
 </script>
 
 <div {...$$restProps}>

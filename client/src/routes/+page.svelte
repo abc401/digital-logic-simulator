@@ -2,20 +2,23 @@
 	export let canvas: HTMLCanvasElement;
 	export let ctx: CanvasRenderingContext2D;
 
-	// export let secondaryCanvas: HTMLCanvasElement;
-	// export let secondaryCtx: CanvasRenderingContext2D;
+	export let secondaryCanvas: HTMLCanvasElement;
+	export let secondaryCtx: CanvasRenderingContext2D;
 
 	export let simEngine = new SimEngine();
 	export let viewManager = new ViewManager();
-
-	export let mouseStateMachine: MouseStateMachine;
-	export let touchScreenStateMachine: TouchScreenStateMachine;
 
 	export let sceneManager = new SceneManager();
 
 	export let onColor: string;
 	export let offColor: string;
 	export let circuitColor: string;
+
+	export let mouseStateMachine: MouseStateMachine;
+	export let touchScreenStateMachine: TouchScreenStateMachine;
+	export function getSM() {
+		return [mouseStateMachine, touchScreenStateMachine];
+	}
 </script>
 
 <script lang="ts">
@@ -24,7 +27,11 @@
 	import CircuitPropsPane from '@comps/CircuitPropsPane.svelte';
 	import ICS from '@comps/ICS.svelte';
 	import SimControls from '@comps/SimControls.svelte';
-	import TopMenu from '@comps/TopMenu.svelte';
+	// import TopMenu from '@comps/TopMenu.svelte';
+	import DropDown from '@lib/components/DropDown/DropDown.svelte';
+	import DropDownToggle from '@lib/components/DropDown/DropDownToggle.svelte';
+	import DropDownMenu from '@lib/components/DropDown/DropDownMenu.svelte';
+	import DropDownItem from '@lib/components/DropDown/DropDownItem.svelte';
 
 	import { canvasState, logs } from '@lib/stores/debugging';
 	import { focusedCircuit } from '@lib/stores/focusedCircuit';
@@ -36,6 +43,10 @@
 	import { SceneManager } from '@ts/scene/scene-manager';
 	import { ViewManager } from '@ts/view-manager';
 	import { onMount } from 'svelte';
+	import { circuitInstanciators } from '@lib/stores/circuitCreators';
+	import { CreatingCircuit as CreatingCircuitMouse } from '@ts/interactivity/mouse/states/creating-circuit';
+	import { CreatingCircuit as CreatingCircuitTouchScreen } from '@ts/interactivity/touchscreen/states/creating-circuit';
+	import TopMenu from '@lib/components/TopMenu.svelte';
 
 	$: {
 		console.log('Most recently selected circuit: ', $focusedCircuit);
@@ -66,6 +77,7 @@
 
 		mouseStateMachine = new MouseStateMachine();
 		touchScreenStateMachine = new TouchScreenStateMachine();
+		console.log('TouchSM: ', touchScreenStateMachine);
 
 		const style = getComputedStyle(document.body);
 		onColor = style.getPropertyValue('--clr-on');
@@ -84,19 +96,19 @@
 	<title>Digital Logic Simulator</title>
 </svelte:head>
 
-<div class="grid h-screen w-screen grid-rows-[auto_minmax(0,1fr)] sm:bg-red-700">
+<div class="grid h-screen w-screen grid-rows-[auto_minmax(0,1fr)]">
 	<!-- <CircuitPropsPane class="fixed right-0 top-0 z-10 border border-red-600" /> -->
 	<!-- <div class="absolute bottom-0 right-0">10</div> -->
 	<!-- <ICS class="flex flex-col gap-2 border border-neutral-700" /> -->
-	<TopMenu />
+	<TopMenu class="z-10 flex flex-row gap-[1px] border-b-[1px] border-neutral-700 px-2 text-xs" />
+
 	<div class="relative">
-		<canvas
-			class="h-full w-full border border-l-0 border-neutral-700 bg-neutral-900"
-			bind:this={canvas}
-		>
+		<canvas class="h-full w-full border-neutral-700 bg-neutral-900" bind:this={canvas}>
 			Please use a newer browser
 		</canvas>
-		<div class="pointer-events-none absolute right-0 top-0 z-10 touch-none p-1 text-neutral-50">
+		<div
+			class="pointer-events-none absolute right-0 top-0 z-10 mx-3 my-2 touch-none text-neutral-50"
+		>
 			{@html $canvasState}
 		</div>
 		<SimControls

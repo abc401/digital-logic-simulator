@@ -1,6 +1,6 @@
 <script>
 	import { sceneManager } from '@routes/+page.svelte';
-	import { customCircuits } from './stores/customCircuits';
+	import { customCircuits } from '@stores/customCircuits';
 	import clsx from 'clsx';
 
 	function newCustomCircuit() {

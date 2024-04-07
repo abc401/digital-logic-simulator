@@ -12,8 +12,8 @@ import { customCircuits } from './customCircuits';
 
 // let customCircuitInstances = new Map<number, CustomCircuit[]>();
 
-export let customCircuitCreator = (circuitName: string) => () => {
-	let sceneId = customCircuits.getSceneIdFor(circuitName);
+export let icInstanciator = (icName: string) => () => {
+	let sceneId = customCircuits.getSceneIdFor(icName);
 	if (sceneId == null) {
 		throw Error();
 	}
@@ -35,88 +35,96 @@ export let customCircuitCreator = (circuitName: string) => () => {
 	return circuit;
 };
 
-let { subscribe, set, update } = writable<{ [key: string]: () => void }>({
-	Input: () => {
-		return new InputCircuit(false) as Circuit;
-	},
-
-	And: () => {
-		let circuit = new ProcessingCircuit(
-			2,
-			1,
-			(self) => {
-				let value = true;
-				for (let pin of self.consumerPins) {
-					value = value && pin.value;
-					if (!value) {
-						break;
+export let circuitInstanciators: { [key: string]: { [key: string]: () => Circuit } } = {
+	Add: {
+		Input: () => {
+			return new InputCircuit(false) as Circuit;
+		},
+		And: () => {
+			let circuit = new ProcessingCircuit(
+				2,
+				1,
+				(self) => {
+					let value = true;
+					for (let pin of self.consumerPins) {
+						value = value && pin.value;
+						if (!value) {
+							break;
+						}
 					}
+					self.producerPins[0].setValue(value);
+				},
+				'And'
+			);
+			circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
+				const num = +value;
+				if (Number.isNaN(num) || !Number.isFinite(num) || num < 1) {
+					console.log('Hello1');
+					return false;
 				}
-				self.producerPins[0].setValue(value);
-			},
-			'And'
-		);
-		circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
-			const num = +value;
-			if (Number.isNaN(num) || !Number.isFinite(num) || num < 1) {
-				console.log('Hello1');
-				return false;
-			}
-			if (!setConsumerPinNumber(circuit, num)) {
-				console.log('Hello2');
-				return false;
-			}
-			circuit.props.Inputs = num;
-			if (circuit.sceneObject != null) {
-				circuit.sceneObject.calcRects();
-			}
-			return true;
-		});
-		return circuit;
+				if (!setConsumerPinNumber(circuit, num)) {
+					console.log('Hello2');
+					return false;
+				}
+				circuit.props.Inputs = num;
+				if (circuit.sceneObject != null) {
+					circuit.sceneObject.calcRects();
+				}
+				return true;
+			});
+			return circuit;
+		},
+		'Hello How Are You I am Fine': () => {
+			return new ProcessingCircuit(
+				2,
+				1,
+				(self) => {
+					self.producerPins[0].setValue(self.consumerPins[0].value || self.consumerPins[1].value);
+				},
+				'Or'
+			);
+		},
+		Not: () => {
+			return new ProcessingCircuit(
+				1,
+				1,
+				(self) => {
+					self.producerPins[0].setValue(!self.consumerPins[0].value);
+				},
+				'Not'
+			);
+		}
 	},
-	Or: () => {
-		return new ProcessingCircuit(
-			2,
-			1,
-			(self) => {
-				self.producerPins[0].setValue(self.consumerPins[0].value || self.consumerPins[1].value);
-			},
-			'Or'
-		);
-	},
-	Not: () => {
-		return new ProcessingCircuit(
-			1,
-			1,
-			(self) => {
-				self.producerPins[0].setValue(!self.consumerPins[0].value);
-			},
-			'Not'
-		);
-	},
-	Nand: () => {
-		return new ProcessingCircuit(
-			2,
-			1,
-			(self) => {
-				self.producerPins[0].setValue(!(self.consumerPins[0].value && self.consumerPins[1].value));
-			},
-			'Nand'
-		);
-	},
-	Nor: () => {
-		return new ProcessingCircuit(
-			2,
-			1,
-			(self) => {
-				self.producerPins[0].setValue(!(self.consumerPins[0].value || self.consumerPins[1].value));
-			},
-			'Nor'
-		);
+	Edit: {
+		Nand: () => {
+			return new ProcessingCircuit(
+				2,
+				1,
+				(self) => {
+					self.producerPins[0].setValue(
+						!(self.consumerPins[0].value && self.consumerPins[1].value)
+					);
+				},
+				'Nand'
+			);
+		},
+		Nor: () => {
+			return new ProcessingCircuit(
+				2,
+				1,
+				(self) => {
+					self.producerPins[0].setValue(
+						!(self.consumerPins[0].value || self.consumerPins[1].value)
+					);
+				},
+				'Nor'
+			);
+		}
 	}
-});
+};
 
-export let circuitCreators = {
+let { subscribe, set, update } = writable<{ [key: string]: () => void }>();
+export let icInstanciators = {
 	subscribe,
 	newCustomCreator: function (name: string, creator: () => Circuit) {
 		update((creators) => {

@@ -18,6 +18,7 @@ import type { Circuit } from '@ts/scene/objects/circuits/circuit.js';
 import { logState } from '@lib/stores/debugging.js';
 import { SceneManager } from '@ts/scene/scene-manager.js';
 import { HOME_SCENE_NAME } from '@ts/config.js';
+import type { TouchScreenStateMachine } from '../../touchscreen/state-machine.js';
 
 export class CreatingCircuit implements MouseState {
 	constructor(
@@ -27,7 +28,7 @@ export class CreatingCircuit implements MouseState {
 		logState(`CreatingCircuit(${this.name})`);
 	}
 
-	update(stateMachine: MouseStateMachine, action: MouseAction) {
+	update(mouseSM: MouseStateMachine, action: MouseAction) {
 		const payload = action.payload;
 		if (payload.target != canvas) {
 			return;
@@ -41,7 +42,7 @@ export class CreatingCircuit implements MouseState {
 
 			console.log(`Created ${this.name}`);
 			console.log('scene: ', sceneManager.getCurrentScene());
-			stateMachine.state = new MouseHome();
+			mouseSM.state = new MouseHome();
 			touchScreenStateMachine.state = new TouchScreenHome();
 		}
 	}
