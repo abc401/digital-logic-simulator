@@ -13,19 +13,22 @@
 	export let onColor: string;
 	export let offColor: string;
 	export let circuitColor: string;
+	export let ornamentColor: string;
 
 	export let mouseStateMachine: MouseStateMachine;
 	export let touchScreenStateMachine: TouchScreenStateMachine;
 	export function getSM() {
 		return [mouseStateMachine, touchScreenStateMachine];
 	}
+
+	export let rootDiv: HTMLDivElement;
 </script>
 
 <script lang="ts">
 	// import button from '@lib/button.svelte';
 
 	import CircuitPropsPane from '@comps/CircuitPropsPane.svelte';
-	import ICS from '@comps/ICS.svelte';
+	import ICS, { configICBarResizing } from '@comps/ICS.svelte';
 	import SimControls from '@comps/SimControls.svelte';
 	// import TopMenu from '@comps/TopMenu.svelte';
 	import DropDown from '@lib/components/DropDown/DropDown.svelte';
@@ -52,6 +55,8 @@
 		console.log('Most recently selected circuit: ', $focusedCircuit);
 	}
 
+	let resizer: HTMLDivElement;
+
 	onMount(() => {
 		const ctx_ = canvas.getContext('2d');
 		// const secondaryCtx_ = secondaryCanvas.getContext('2d');
@@ -65,15 +70,15 @@
 		ctx = ctx_;
 		// secondaryCtx = secondaryCtx_;
 
-		let canvasBoundingRect = canvas.getBoundingClientRect();
-		canvas.width = canvasBoundingRect.width;
-		canvas.height = canvasBoundingRect.height;
-
-		window.onresize = (ev) => {
+		new ResizeObserver(() => {
 			let canvasBoundingRect = canvas.getBoundingClientRect();
 			canvas.width = canvasBoundingRect.width;
 			canvas.height = canvasBoundingRect.height;
-		};
+		}).observe(canvas);
+
+		// let canvasBoundingRect = canvas.getBoundingClientRect();
+		// canvas.width = canvasBoundingRect.width;
+		// canvas.height = canvasBoundingRect.height;
 
 		mouseStateMachine = new MouseStateMachine();
 		touchScreenStateMachine = new TouchScreenStateMachine();
@@ -83,6 +88,9 @@
 		onColor = style.getPropertyValue('--clr-on');
 		offColor = style.getPropertyValue('--clr-off');
 		circuitColor = style.getPropertyValue('--clr-circuit');
+		ornamentColor = style.getPropertyValue('--ornament-color');
+
+		configICBarResizing(resizer);
 
 		function draw() {
 			sceneManager.draw(ctx);
@@ -96,14 +104,31 @@
 	<title>Digital Logic Simulator</title>
 </svelte:head>
 
-<div class="grid h-screen w-screen grid-rows-[auto_minmax(0,1fr)]">
+<div
+	bind:this={rootDiv}
+	class="grid h-svh w-screen grid-cols-[var(--integrated-circuits-width)_4px_minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)]"
+>
 	<!-- <CircuitPropsPane class="fixed right-0 top-0 z-10 border border-red-600" /> -->
 	<!-- <div class="absolute bottom-0 right-0">10</div> -->
-	<!-- <ICS class="flex flex-col gap-2 border border-neutral-700" /> -->
-	<TopMenu class="z-10 flex flex-row gap-[1px] border-b-[1px] border-neutral-700 px-2 text-xs" />
+	<ICS
+		bind:resizer
+		class="z-10 row-span-2 grid max-h-full grid-rows-[min-content_minmax(0,1fr)_min-content] gap-2 overflow-hidden border border-t-0 border-neutral-700"
+	/>
+	<TopMenu
+		class="z-10 col-span-1 col-start-3 row-start-1 flex flex-row gap-[1px]  overflow-x-auto border-b-[1px] border-s-[1px] border-neutral-700 px-2 text-xs"
+	/>
+	<div class="relative z-50 col-start-2 row-span-2 h-full w-full">
+		<div
+			bind:this={resizer}
+			class="pointer-events-auto h-full w-full cursor-e-resize hover:bg-[var(--ornament-color)] hover:transition-colors hover:delay-100"
+		></div>
+	</div>
 
-	<div class="relative">
-		<canvas class="h-full w-full border-neutral-700 bg-neutral-900" bind:this={canvas}>
+	<div class="relative col-start-3 row-span-2 row-start-2 overflow-clip">
+		<canvas
+			class="h-full w-full border-s-[1px] border-neutral-700 bg-neutral-900"
+			bind:this={canvas}
+		>
 			Please use a newer browser
 		</canvas>
 		<div
@@ -112,7 +137,7 @@
 			{@html $canvasState}
 		</div>
 		<SimControls
-			class="absolute bottom-0 left-1/2 grid -translate-x-1/2 grid-flow-col justify-center rounded-lg border border-neutral-700 px-2"
+			class="absolute bottom-0 left-1/2 grid -translate-x-1/2 grid-flow-col justify-center rounded-lg border border-neutral-700 bg-neutral-900 px-2"
 		/>
 	</div>
 </div>

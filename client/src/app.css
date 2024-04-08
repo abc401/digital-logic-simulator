@@ -7,6 +7,10 @@
 		--clr-circuit: #2f323a;
 		--clr-off: #555151;
 		--clr-on: #cb4444;
+
+		--integrated-circuits-width: 200px;
+		--ics-min-width: 134px;
+		--ornament-color: cyan;
 	}
 	body {
 		@apply bg-neutral-800 font-bold text-neutral-50;

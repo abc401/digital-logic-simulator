@@ -8,12 +8,12 @@ import { ProcessingCircuit } from '@ts/scene/objects/circuits/processing-circuit
 import { InputCircuit } from '@ts/scene/objects/circuits/input-circuit';
 import { writable } from 'svelte/store';
 import { sceneManager } from '@routes/+page.svelte';
-import { customCircuits } from './customCircuits';
+import { integratedCircuits } from './integrated-circuits';
 
 // let customCircuitInstances = new Map<number, CustomCircuit[]>();
 
 export let icInstanciator = (icName: string) => () => {
-	let sceneId = customCircuits.getSceneIdFor(icName);
+	let sceneId = integratedCircuits.getSceneIdFor(icName);
 	if (sceneId == null) {
 		throw Error();
 	}
@@ -74,7 +74,7 @@ export let circuitInstanciators: { [key: string]: { [key: string]: () => Circuit
 			});
 			return circuit;
 		},
-		'Hello How Are You I am Fine': () => {
+		Or: () => {
 			return new ProcessingCircuit(
 				2,
 				1,
@@ -123,7 +123,7 @@ export let circuitInstanciators: { [key: string]: { [key: string]: () => Circuit
 	}
 };
 
-let { subscribe, set, update } = writable<{ [key: string]: () => void }>();
+let { subscribe, set, update } = writable<{ [key: string]: () => void }>({});
 export let icInstanciators = {
 	subscribe,
 	newCustomCreator: function (name: string, creator: () => Circuit) {

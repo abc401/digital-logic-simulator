@@ -17,7 +17,7 @@
 {#if $open}
 	<div
 		class={clsx(
-			'flex flex-col gap-[1px] overflow-clip rounded-sm border border-neutral-700 bg-neutral-700',
+			'z-10 flex flex-col gap-[1px] overflow-hidden rounded-sm border border-neutral-700 bg-neutral-700',
 			{
 				'absolute left-0 top-[calc(100%_+_0.25rem)] min-w-28 text-start':
 					position === DropDownPosition.Below

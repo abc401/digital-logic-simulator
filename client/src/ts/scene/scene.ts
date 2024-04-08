@@ -3,8 +3,8 @@ import { CustomCircuitOutputs } from './objects/circuits/custom-circuit-outputs.
 import { CustomCircuitInputs } from './objects/circuits/custom-circuit-inputs.js';
 import { Wire } from './objects/wire.js';
 import { StackList } from '@ts/data-structures/stacklist.js';
-import { circuitColor, sceneManager, viewManager } from '@routes/+page.svelte';
-import { customCircuits } from '@lib/stores/customCircuits.js';
+import { circuitColor, ornamentColor, sceneManager, viewManager } from '@routes/+page.svelte';
+import { integratedCircuits } from '@src/lib/stores/integrated-circuits.js';
 import {
 	HOME_SCENE_NAME,
 	PIN_EXTRUSION_WRL,
@@ -68,7 +68,7 @@ export class Scene {
 	reEvaluateCustomCircuits() {
 		console.log(`${this.name} customCircuitInstances: `, this.customCircuitInstances);
 		for (let [sceneName, entries] of this.customCircuitInstances) {
-			let id = customCircuits.getSceneIdFor(sceneName);
+			let id = integratedCircuits.getSceneIdFor(sceneName);
 			console.log('ID: ', id);
 			if (id == null) {
 				throw Error();
@@ -308,7 +308,7 @@ export class CircuitSceneObject {
 
 		if (this.isSelected) {
 			ctx.lineWidth = 1;
-			ctx.strokeStyle = SELECTED_COLOR;
+			ctx.strokeStyle = ornamentColor;
 
 			ctx.strokeRect(looseRectScr.x, looseRectScr.y, looseRectScr.w, looseRectScr.h);
 		}
