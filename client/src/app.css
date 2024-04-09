@@ -8,8 +8,8 @@
 		--clr-off: #555151;
 		--clr-on: #cb4444;
 
-		--integrated-circuits-width: 200px;
-		--ics-min-width: 134px;
+		--side-bar-width: 200px;
+		--side-bar-min-width: 134px;
 		--ornament-color: cyan;
 	}
 	body {
