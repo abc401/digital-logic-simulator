@@ -13,7 +13,7 @@ let { subscribe, set, update } = writable(
 		['e', 2],
 		['f', 2],
 		['g', 2],
-		['hfajkflawjfiesdnklffaeafhafd', 2],
+		['abcdefghijklmnopqrstuvwxyz', 2],
 		['i', 2],
 		['j', 2],
 		['k', 2],

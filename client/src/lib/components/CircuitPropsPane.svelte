@@ -7,6 +7,7 @@
 	import StringProp from '@comps/CircuitProps/StringProp.svelte';
 </script>
 
+<span class=" px-4 py-2 text-xs uppercase opacity-60">Props</span>
 <div {...$$restProps}>
 	{#if $focusedCircuit != null}
 		{#each Object.keys($focusedCircuit.parentCircuit.props) as name (name)}

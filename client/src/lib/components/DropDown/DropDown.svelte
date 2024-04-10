@@ -2,7 +2,7 @@
 	export class DropDownContext {
 		open: Writable<boolean>;
 		constructor() {
-			this.open = writable(true);
+			this.open = writable(false);
 		}
 	}
 </script>

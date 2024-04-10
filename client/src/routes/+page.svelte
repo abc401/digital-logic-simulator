@@ -50,7 +50,7 @@
 	import { CreatingCircuit as CreatingCircuitMouse } from '@ts/interactivity/mouse/states/creating-circuit';
 	import { CreatingCircuit as CreatingCircuitTouchScreen } from '@ts/interactivity/touchscreen/states/creating-circuit';
 	import TopMenu from '@lib/components/TopMenu.svelte';
-	import SideBar, { configResizing } from '@src/lib/components/SideBar.svelte';
+	import SideBar from '@src/lib/components/SideBar.svelte';
 
 	$: {
 		console.log('Most recently selected circuit: ', $focusedCircuit);
@@ -108,14 +108,10 @@
 	<!-- <CircuitPropsPane class="fixed right-0 top-0 z-10 border border-red-600" /> -->
 	<!-- <div class="absolute bottom-0 right-0">10</div> -->
 	<TopMenu
-		class="z-10 col-span-1 col-start-[-2] row-start-1 flex flex-row gap-[1px]  overflow-x-auto border-b-[1px] border-s-[1px] border-neutral-700 px-2 text-xs"
+		class="z-10 col-span-1 col-start-[-2] row-start-1 flex flex-row gap-[1px]   border-b-[1px] border-s-[1px] border-neutral-700 px-2 text-xs"
 	/>
 
-	<div
-		class="z-10 col-start-1 row-start-1 row-end-[-1] grid h-full grid-cols-[auto_var(--side-bar-width)_4px] overflow-hidden border border-t-0 border-neutral-700"
-	>
-		<SideBar />
-	</div>
+	<SideBar />
 
 	<div class="relative col-span-1 col-start-[-2] row-span-2 row-start-2 overflow-clip">
 		<canvas
@@ -125,7 +121,7 @@
 			Please use a newer browser
 		</canvas>
 		<div
-			class="pointer-events-none absolute right-0 top-0 z-10 mx-3 my-2 touch-none text-neutral-50"
+			class="pointer-events-none absolute right-0 top-0 z-10 mx-3 my-2 touch-none select-none text-neutral-50"
 		>
 			{@html $canvasState}
 		</div>
