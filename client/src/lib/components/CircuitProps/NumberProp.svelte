@@ -14,19 +14,42 @@
 		throw Error('circuit.propTypes[name] != CircuitPropType.NaturalNumber');
 	}
 	let propSetter = getPropSetter(circuit, name);
+
+	let value = circuit.props[name];
+	$: {
+		if (!propSetter(circuit, value)) {
+			value = circuit.props[name];
+		}
+	}
 </script>
 
-<label for={'prop-' + name}>
+<label for={'prop-' + name} class="grid grid-cols-[min-content_minmax(0,1fr)] gap-3 px-4">
 	<span>{name}</span>
-	<input
-		class="text-neutral-900"
-		on:change={(ev) => {
-			if (!propSetter(circuit, ev.currentTarget.value)) {
-				ev.currentTarget.value = circuit.props[name];
-			}
-		}}
-		type="number"
-		value={circuit.props[name]}
-		id={'prop-' + name}
-	/>
+	<div
+		class="grid min-w-20 grid-cols-[min-content_minmax(2rem,1fr)_min-content] justify-center gap-2"
+	>
+		<button
+			on:click={() => {
+				const num = +value;
+				value = `${num - 1}`;
+			}}
+			class="material-symbols-outlined | hover:bg-neutral-700 active:bg-neutral-500"
+			>expand_more</button
+		>
+		<input
+			class="rounded-full bg-neutral-700 px-3 text-center text-neutral-50 focus:bg-neutral-50 focus:text-neutral-950"
+			on:change={(ev) => {}}
+			type="text"
+			bind:value
+			id={'prop-' + name}
+		/>
+		<button
+			on:click={() => {
+				const num = +value;
+				value = `${num + 1}`;
+			}}
+			class="material-symbols-outlined | hover:bg-neutral-700 active:bg-neutral-500"
+			>expand_less</button
+		>
+	</div>
 </label>

@@ -58,7 +58,7 @@ export let circuitInstanciators: { [key: string]: { [key: string]: () => Circuit
 			);
 			circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
 				const num = +value;
-				if (Number.isNaN(num) || !Number.isFinite(num) || num < 1) {
+				if (Number.isNaN(num) || !Number.isFinite(num) || num % 1 !== 0 || num < 1) {
 					console.log('Hello1');
 					return false;
 				}

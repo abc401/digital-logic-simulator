@@ -4,20 +4,20 @@ import type { Circuit } from './circuits/circuit.js';
 import type { CustomCircuitOutputs } from './circuits/custom-circuit-outputs.js';
 import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
 import { Vec2 } from '@ts/math.js';
-import { viewManager } from '@routes/+page.svelte';
+import { circuitColor, offColor, onColor, viewManager } from '@routes/+page.svelte';
 import { CircuitSceneObject } from '../scene.js';
 
 export class ConsumerPin {
 	wire: Wire | undefined;
 	// value: boolean = false;
 
-	onWireAttached: (self: CustomCircuitOutputs) => void = () => {};
+	onWireAttached: (self: CustomCircuitOutputs) => void = () => { };
 
 	constructor(
 		readonly parentCircuit: Circuit,
 		public pinIndex: number,
 		public value = false
-	) {}
+	) { }
 
 	getLocWrl() {
 		if (this.parentCircuit.sceneObject == null) {
@@ -29,9 +29,9 @@ export class ConsumerPin {
 		return new Vec2(
 			circuitBodyRect.x,
 			circuitBodyRect.y +
-				CircuitSceneObject.bodyPaddingYWrl +
-				this.pinIndex * (CircuitSceneObject.pinRadiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) +
-				CircuitSceneObject.pinRadiusWrl
+			CircuitSceneObject.bodyPaddingYWrl +
+			this.pinIndex * (CircuitSceneObject.pinRadiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) +
+			CircuitSceneObject.pinRadiusWrl
 		);
 	}
 
@@ -57,21 +57,19 @@ export class ConsumerPin {
 		const pos = this.getLocScr();
 		const style = getComputedStyle(document.body);
 
-		const onColor = style.getPropertyValue('--clr-on');
-		const offColor = style.getPropertyValue('--clr-off');
 
 		ctx.lineWidth = 5 * viewManager.zoomLevel;
-		ctx.strokeStyle = '#32424B';
-		ctx.beginPath();
-		ctx.arc(
-			pos.x,
-			pos.y,
-			CircuitSceneObject.pinRadiusWrl * viewManager.zoomLevel,
-			(1 / 2) * Math.PI,
-			(3 / 2) * Math.PI,
-			true
-		);
-		ctx.stroke();
+		// ctx.strokeStyle = circuitColor + "50";
+		// ctx.beginPath();
+		// ctx.arc(
+		// 	pos.x,
+		// 	pos.y,
+		// 	CircuitSceneObject.pinRadiusWrl * viewManager.zoomLevel,
+		// 	(1 / 2) * Math.PI,
+		// 	(3 / 2) * Math.PI,
+		// 	true
+		// );
+		// ctx.stroke();
 		ctx.beginPath();
 
 		ctx.arc(pos.x, pos.y, CircuitSceneObject.pinRadiusWrl * viewManager.zoomLevel, 0, 2 * Math.PI);

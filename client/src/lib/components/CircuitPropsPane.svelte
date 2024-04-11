@@ -30,6 +30,6 @@
 			</datalist> -->
 		{/each}
 	{:else}
-		<div>No Circuit Selected</div>
+		<span class="px-4">No Circuit Selected</span>
 	{/if}
 </div>

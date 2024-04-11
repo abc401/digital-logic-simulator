@@ -196,8 +196,8 @@ export class CircuitSceneObject {
 			this.headRectWrl.w,
 
 			CircuitSceneObject.bodyPaddingYWrl * 2 +
-				maxPinNumber * 2 * CircuitSceneObject.pinRadiusWrl +
-				(maxPinNumber - 1) * PIN_TO_PIN_DISTANCE_WRL
+			maxPinNumber * 2 * CircuitSceneObject.pinRadiusWrl +
+			(maxPinNumber - 1) * PIN_TO_PIN_DISTANCE_WRL
 		);
 	}
 
@@ -222,9 +222,9 @@ export class CircuitSceneObject {
 
 	tightCollisionCheck(pointWrl: Vec2):
 		| {
-				kind: ConcreteObjectKind;
-				object: any;
-		  }
+			kind: ConcreteObjectKind;
+			object: any;
+		}
 		| undefined {
 		for (let pin of this.parentCircuit.consumerPins) {
 			if (pin.pointCollision(pointWrl)) {
@@ -282,7 +282,7 @@ export class CircuitSceneObject {
 		// Label
 		const labelSizeScr = CircuitSceneObject.labelTextSizeWrl * viewManager.zoomLevel;
 		ctx.font = `bold ${labelSizeScr}px "Advent Pro"`;
-		ctx.fillStyle = 'white';
+		ctx.fillStyle = '#fff';
 		ctx.textBaseline = 'bottom';
 		ctx.fillText(
 			this.label,

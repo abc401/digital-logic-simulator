@@ -7,6 +7,7 @@
 		getPropType,
 		getPropSetter
 	} from '@ts/scene/objects/circuits/circuit';
+	import clsx from 'clsx';
 
 	export let name: string;
 	export let circuit: Circuit;
@@ -16,18 +17,30 @@
 		throw Error();
 	}
 	let propSetter = getPropSetter(circuit, name);
+	let value: boolean = circuit.props[name];
+	$: {
+		console.log('Hello');
+		if (!propSetter(circuit, value)) {
+			value = circuit.props[name];
+		}
+	}
 </script>
 
-<label for={'prop-' + name}>
-	<span>{name}</span>
-	<input
-		on:change={(ev) => {
-			if (!propSetter(circuit, ev.currentTarget.checked)) {
-				ev.currentTarget.checked = circuit.props[name];
+<label
+	for={'prop-' + name}
+	class="grid grid-cols-[min-content_minmax(0,1fr)_auto] items-center gap-3 px-4"
+>
+	<span class="capitalize">{name}</span>
+	<button
+		class={clsx(
+			'relative aspect-[6/1] h-[0.5rem] rounded-full  transition-colors duration-100 after:absolute  after:top-1/2 after:aspect-square after:h-[1.5rem] after:-translate-y-1/2 after:rounded-full after:transition-[transform,_left,_background-color] after:duration-100',
+			{
+				'bg-neutral-700 after:left-0 after:bg-neutral-50': !value,
+				'bg-neutral-700 after:left-full after:-translate-x-full after:bg-neutral-50': value
 			}
+		)}
+		on:click={() => {
+			value = !value;
 		}}
-		type="checkbox"
-		checked={circuit.props[name]}
-		id={'prop-' + name}
-	/>
+	></button>
 </label>

@@ -86,7 +86,7 @@
 		const style = getComputedStyle(document.body);
 		onColor = style.getPropertyValue('--clr-on');
 		offColor = style.getPropertyValue('--clr-off');
-		circuitColor = style.getPropertyValue('--clr-circuit');
+		circuitColor = style.getPropertyValue('--clr-accent');
 		ornamentColor = style.getPropertyValue('--ornament-color');
 
 		function draw() {
@@ -107,11 +107,12 @@
 >
 	<!-- <CircuitPropsPane class="fixed right-0 top-0 z-10 border border-red-600" /> -->
 	<!-- <div class="absolute bottom-0 right-0">10</div> -->
+
+	<SideBar />
+
 	<TopMenu
 		class="z-10 col-span-1 col-start-[-2] row-start-1 flex flex-row gap-[1px]   border-b-[1px] border-s-[1px] border-neutral-700 px-2 text-xs"
 	/>
-
-	<SideBar />
 
 	<div class="relative col-span-1 col-start-[-2] row-span-2 row-start-2 overflow-clip">
 		<canvas

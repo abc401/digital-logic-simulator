@@ -11,7 +11,7 @@ export default {
 			colors: {
 				off: 'var(--clr-off)',
 				on: 'var(--clr-on)',
-				circuit: 'var(--clr-circuit)',
+				accent: 'var(--clr-accent)',
 				...defaultTheme.colors
 			}
 		}

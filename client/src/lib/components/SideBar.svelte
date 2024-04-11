@@ -59,6 +59,7 @@
 		currentWidth = contentDiv.getBoundingClientRect().width;
 		document.body.style.cursor = 'e-resize';
 		rootDiv.style.pointerEvents = 'none';
+		rootDiv.style.userSelect = 'none';
 		console.log('cursor: ', document.body.style.cursor);
 	}
 
@@ -111,6 +112,7 @@
 		isResizing = false;
 
 		rootDiv.style.pointerEvents = 'auto';
+		rootDiv.style.userSelect = 'auto';
 		document.body.style.cursor = 'auto';
 	}
 
@@ -146,6 +148,12 @@
 		bind:context={tabsContainerContext}
 	>
 		<div
+			class="col-start-1 row-start-1 row-end-[-1] flex h-full flex-col overflow-auto border border-t-0 border-neutral-700"
+		>
+			<TabToggle class="material-symbols-outlined" tabID={icsPaneID}>lists</TabToggle>
+			<TabToggle class="material-symbols-outlined" tabID={propsPaneID}>tune</TabToggle>
+		</div>
+		<div
 			bind:this={contentDiv}
 			class="col-start-2 row-start-1 row-end-[-1] grid h-full grid-cols-1 grid-rows-subgrid overflow-auto"
 		>
@@ -155,13 +163,9 @@
 			>
 				<IntegratedCircuitsPane />
 			</TabContent>
-			<TabContent tabID={propsPaneID}><CircuitPropsPane /></TabContent>
-		</div>
-		<div
-			class="col-start-1 row-start-1 row-end-[-1] flex h-full flex-col overflow-auto border border-t-0 border-neutral-700"
-		>
-			<TabToggle class="material-symbols-outlined" tabID={icsPaneID}>lists</TabToggle>
-			<TabToggle class="material-symbols-outlined" tabID={propsPaneID}>tune</TabToggle>
+			<TabContent class="flex w-full flex-col gap-2 overflow-auto" tabID={propsPaneID}
+				><CircuitPropsPane class="flex flex-col gap-3" /></TabContent
+			>
 		</div>
 	</TabsContainer>
 

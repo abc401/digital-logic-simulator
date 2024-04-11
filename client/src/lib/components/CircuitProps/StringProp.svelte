@@ -17,10 +17,10 @@
 	let propSetter = getPropSetter(circuit, name);
 </script>
 
-<label for={'prop-' + name}>
-	<span>{name}</span>
+<label for={'prop-' + name} class="grid grid-cols-[min-content_minmax(0,1fr)] gap-3 px-4">
+	<span class="capitalize">{name}</span>
 	<input
-		class="text-neutral-900"
+		class="min-w-20 rounded-full bg-neutral-700 px-5 py-1 text-xs text-neutral-50 focus:bg-neutral-50 focus:text-neutral-950"
 		on:input={(ev) => {
 			const value = ev.currentTarget.value;
 			console.log('value: ', value);
