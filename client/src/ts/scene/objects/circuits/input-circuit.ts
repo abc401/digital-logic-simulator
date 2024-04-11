@@ -4,13 +4,7 @@ import { SimEvent, UpdationStrategy } from '@ts/engine.js';
 import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
 import { simEngine } from '@routes/+page.svelte';
-import {
-	type Circuit,
-	circuitCloneHelper,
-	type Props,
-	CircuitPropType,
-	type PropTypes
-} from './circuit.js';
+import { type Circuit, circuitCloneHelper, type Props, CircuitPropType } from './circuit.js';
 import { CircuitSceneObject } from '@ts/scene/scene.js';
 
 type InputCircuitProps = Props & {
@@ -76,7 +70,7 @@ export class InputCircuit implements Circuit {
 	}
 
 	updateHandeler(self_: Circuit) {
-		let self = self_ as InputCircuit;
+		const self = self_ as InputCircuit;
 		self.producerPins[0].setValue(self.props.value);
 	}
 

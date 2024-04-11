@@ -7,8 +7,8 @@
 
 	export let simEngine = new SimEngine();
 	export let viewManager = new ViewManager();
-
 	export let sceneManager = new SceneManager();
+	export let actionsManager =  new ActionsManager()
 
 	export let onColor: string;
 	export let offColor: string;
@@ -27,14 +27,7 @@
 <script lang="ts">
 	// import button from '@lib/button.svelte';
 
-	import CircuitPropsPane from '@comps/CircuitPropsPane.svelte';
-	import ICS from '@src/lib/components/IntegratedCircuitsPane.svelte';
 	import SimControls from '@comps/SimControls.svelte';
-	// import TopMenu from '@comps/TopMenu.svelte';
-	import DropDown from '@lib/components/DropDown/DropDown.svelte';
-	import DropDownToggle from '@lib/components/DropDown/DropDownToggle.svelte';
-	import DropDownMenu from '@lib/components/DropDown/DropDownMenu.svelte';
-	import DropDownItem from '@lib/components/DropDown/DropDownItem.svelte';
 
 	import { canvasState, logs } from '@lib/stores/debugging';
 	import { focusedCircuit } from '@lib/stores/focusedCircuit';
@@ -46,11 +39,9 @@
 	import { SceneManager } from '@ts/scene/scene-manager';
 	import { ViewManager } from '@ts/view-manager';
 	import { onMount } from 'svelte';
-	import { circuitInstanciators } from '@lib/stores/circuitCreators';
-	import { CreatingCircuit as CreatingCircuitMouse } from '@ts/interactivity/mouse/states/creating-circuit';
-	import { CreatingCircuit as CreatingCircuitTouchScreen } from '@ts/interactivity/touchscreen/states/creating-circuit';
 	import TopMenu from '@lib/components/TopMenu.svelte';
 	import SideBar from '@src/lib/components/SideBar.svelte';
+	import { ActionsManager } from '@src/ts/actions-manager';
 
 	$: {
 		console.log('Most recently selected circuit: ', $focusedCircuit);

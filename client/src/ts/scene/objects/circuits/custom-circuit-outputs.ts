@@ -4,7 +4,7 @@ import { UpdationStrategy } from '@ts/engine.js';
 import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
 import { sceneManager } from '@routes/+page.svelte';
-import { type Circuit, circuitCloneHelper, type Props } from './circuit.js';
+import { type Circuit, circuitCloneHelper } from './circuit.js';
 import { CircuitSceneObject } from '@ts/scene/scene.js';
 
 export class CustomCircuitOutputs implements Circuit {
@@ -38,18 +38,18 @@ export class CustomCircuitOutputs implements Circuit {
 			this.consumerPins[i] = new ConsumerPin(this, i);
 		}
 
-		let consumerPin = this.consumerPins[0];
+		const consumerPin = this.consumerPins[0];
 		consumerPin.onWireAttached = CustomCircuitOutputs.addPin;
 	}
 
 	clone(): Circuit {
-		let cloned = circuitCloneHelper(this) as CustomCircuitOutputs;
+		const cloned = circuitCloneHelper(this) as CustomCircuitOutputs;
 		cloned.customCircuitProducerPins = undefined;
 		return cloned;
 	}
 
 	updateHandeler(self: Circuit) {
-		let circuit = self as CustomCircuitOutputs;
+		const circuit = self as CustomCircuitOutputs;
 		if (circuit.customCircuitProducerPins == null) {
 			console.log('circuit.customCircuitProducerPins == null');
 			return;
@@ -64,7 +64,7 @@ export class CustomCircuitOutputs implements Circuit {
 		scene: Scene | undefined = undefined,
 		ctx: CanvasRenderingContext2D
 	): void {
-		let parentScene = scene || sceneManager.getCurrentScene();
+		const parentScene = scene || sceneManager.getCurrentScene();
 		if (parentScene.customCircuitOutputs != null) {
 			throw Error();
 		}
@@ -76,10 +76,10 @@ export class CustomCircuitOutputs implements Circuit {
 
 	static addPin(self: CustomCircuitOutputs) {
 		const newPinIndex = self.consumerPins.length;
-		let currentLastPin = self.consumerPins[newPinIndex - 1];
+		const currentLastPin = self.consumerPins[newPinIndex - 1];
 		currentLastPin.onWireAttached = () => {};
 
-		let newPin = new ConsumerPin(self, newPinIndex);
+		const newPin = new ConsumerPin(self, newPinIndex);
 		newPin.onWireAttached = CustomCircuitOutputs.addPin;
 		self.consumerPins.push(newPin);
 		if (self.sceneObject != null) {

@@ -59,7 +59,7 @@ export class StackList<T> {
 			this.top = new Node(data);
 			this.bottom = this.top;
 		} else {
-			let newTop = new Node(data);
+			const newTop = new Node(data);
 			newTop.below = this.top;
 			this.top.above = newTop;
 			this.top = newTop;
@@ -88,7 +88,7 @@ export class StackList<T> {
 	}
 
 	remove(data: T) {
-		let node = this.dataToNodeMapping.get(data);
+		const node = this.dataToNodeMapping.get(data);
 		if (node == null) {
 			return false;
 		}

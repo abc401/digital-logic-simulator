@@ -2,22 +2,22 @@
 import { Wire } from './wire.js';
 import type { Circuit } from './circuits/circuit.js';
 import type { CustomCircuitOutputs } from './circuits/custom-circuit-outputs.js';
-import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
+import { PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
 import { Vec2 } from '@ts/math.js';
-import { circuitColor, offColor, onColor, viewManager } from '@routes/+page.svelte';
+import { offColor, onColor, viewManager } from '@routes/+page.svelte';
 import { CircuitSceneObject } from '../scene.js';
 
 export class ConsumerPin {
 	wire: Wire | undefined;
 	// value: boolean = false;
 
-	onWireAttached: (self: CustomCircuitOutputs) => void = () => { };
+	onWireAttached: (self: CustomCircuitOutputs) => void = () => {};
 
 	constructor(
 		readonly parentCircuit: Circuit,
 		public pinIndex: number,
 		public value = false
-	) { }
+	) {}
 
 	getLocWrl() {
 		if (this.parentCircuit.sceneObject == null) {
@@ -29,9 +29,9 @@ export class ConsumerPin {
 		return new Vec2(
 			circuitBodyRect.x,
 			circuitBodyRect.y +
-			CircuitSceneObject.bodyPaddingYWrl +
-			this.pinIndex * (CircuitSceneObject.pinRadiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) +
-			CircuitSceneObject.pinRadiusWrl
+				CircuitSceneObject.bodyPaddingYWrl +
+				this.pinIndex * (CircuitSceneObject.pinRadiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) +
+				CircuitSceneObject.pinRadiusWrl
 		);
 	}
 
@@ -55,8 +55,7 @@ export class ConsumerPin {
 
 	draw(ctx: CanvasRenderingContext2D) {
 		const pos = this.getLocScr();
-		const style = getComputedStyle(document.body);
-
+		// const style = getComputedStyle(document.body);
 
 		ctx.lineWidth = 5 * viewManager.zoomLevel;
 		// ctx.strokeStyle = circuitColor + "50";

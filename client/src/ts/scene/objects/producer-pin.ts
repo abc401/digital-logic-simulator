@@ -1,4 +1,4 @@
-import { Circle, Vec2 } from '../../math.js';
+import { Vec2 } from '../../math.js';
 // import { sceneManager, simEngine, viewManager } from '../../main.js';
 import { SimEvent, UpdationStrategy } from '../../engine.js';
 import { Wire } from './wire.js';
@@ -14,7 +14,7 @@ export class ProducerPin {
 	value: boolean;
 	// selected = false;
 
-	onWireAttached: (self: CustomCircuitInputs) => void = () => { };
+	onWireAttached: (self: CustomCircuitInputs) => void = () => {};
 
 	constructor(
 		readonly parentCircuit: Circuit,
@@ -59,9 +59,9 @@ export class ProducerPin {
 		return new Vec2(
 			bodyRectWrl.x + bodyRectWrl.w,
 			bodyRectWrl.y +
-			CircuitSceneObject.bodyPaddingYWrl +
-			this.pinIndex * (CircuitSceneObject.pinRadiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) +
-			CircuitSceneObject.pinRadiusWrl
+				CircuitSceneObject.bodyPaddingYWrl +
+				this.pinIndex * (CircuitSceneObject.pinRadiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) +
+				CircuitSceneObject.pinRadiusWrl
 		);
 	}
 

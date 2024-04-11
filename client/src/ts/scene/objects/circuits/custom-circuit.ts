@@ -8,7 +8,7 @@ import { Wire } from '../wire.js';
 import { sceneManager } from '@routes/+page.svelte';
 import { CustomCircuitInputs } from './custom-circuit-inputs.js';
 import { CustomCircuitOutputs } from './custom-circuit-outputs.js';
-import { type Circuit, cloneGraphAfterCircuit, circuitCloneHelper, type Props } from './circuit.js';
+import { type Circuit, cloneGraphAfterCircuit, circuitCloneHelper } from './circuit.js';
 import { CircuitSceneObject } from '@ts/scene/scene.js';
 
 export class CustomCircuit implements Circuit {
@@ -40,10 +40,10 @@ export class CustomCircuit implements Circuit {
 		this.circuits = [];
 		this.wires = [];
 
-		let circuitCloneMapping = new Map<Circuit, Circuit>();
-		let wireCloneMapping = new Map<Wire, Wire>();
+		const circuitCloneMapping = new Map<Circuit, Circuit>();
+		const wireCloneMapping = new Map<Wire, Wire>();
 
-		for (let circuit of this.scene.circuits.topToBottom()) {
+		for (const circuit of this.scene.circuits.topToBottom()) {
 			cloneGraphAfterCircuit(
 				circuit.data.parentCircuit,
 				this.circuits,
@@ -94,10 +94,10 @@ export class CustomCircuit implements Circuit {
 		this.circuits = [];
 		this.wires = [];
 
-		let circuitCloneMapping = new Map<Circuit, Circuit>();
-		let wireCloneMapping = new Map<Wire, Wire>();
+		const circuitCloneMapping = new Map<Circuit, Circuit>();
+		const wireCloneMapping = new Map<Wire, Wire>();
 
-		for (let circuit of this.scene.circuits.topToBottom()) {
+		for (const circuit of this.scene.circuits.topToBottom()) {
 			cloneGraphAfterCircuit(
 				circuit.data.parentCircuit,
 				this.circuits,
@@ -187,19 +187,19 @@ export class CustomCircuit implements Circuit {
 	}
 
 	onClicked(self_: Circuit) {
-		let self = self_ as CustomCircuit;
+		const self = self_ as CustomCircuit;
 		debugObjects.circuits = self.circuits;
 		debugObjects.wires = self.wires;
 	}
 
 	clone(): Circuit {
-		let cloned = circuitCloneHelper(this) as CustomCircuit;
+		const cloned = circuitCloneHelper(this) as CustomCircuit;
 
 		cloned.circuits = [];
 		cloned.wires = [];
 
-		let circuitCloneMapping = new Map<Circuit, Circuit>();
-		let wireCloneMapping = new Map<Wire, Wire>();
+		const circuitCloneMapping = new Map<Circuit, Circuit>();
+		const wireCloneMapping = new Map<Wire, Wire>();
 
 		cloneGraphAfterCircuit(
 			this.customInputs,
@@ -227,7 +227,7 @@ export class CustomCircuit implements Circuit {
 	}
 
 	updateHandeler(self: Circuit) {
-		let circuit = self as CustomCircuit;
+		const circuit = self as CustomCircuit;
 		console.log('CustomCircuit: ', circuit);
 		console.log('CustomCircuit.this: ', this);
 

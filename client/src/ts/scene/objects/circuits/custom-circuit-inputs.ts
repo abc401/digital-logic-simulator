@@ -5,7 +5,7 @@ import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
 import { Wire } from '../wire.js';
 import { sceneManager } from '@routes/+page.svelte';
-import { type Circuit, circuitCloneHelper, type Props, type PropTypes } from './circuit.js';
+import { type Circuit, circuitCloneHelper } from './circuit.js';
 import { CircuitSceneObject } from '@ts/scene/scene.js';
 
 export class CustomCircuitInputs implements Circuit {
@@ -37,7 +37,7 @@ export class CustomCircuitInputs implements Circuit {
 			this.producerPins[i] = new ProducerPin(this, i);
 		}
 
-		let producerPin = this.producerPins[0];
+		const producerPin = this.producerPins[0];
 		producerPin.onWireAttached = CustomCircuitInputs.addPin;
 	}
 
@@ -50,7 +50,7 @@ export class CustomCircuitInputs implements Circuit {
 		scene: Scene | undefined = undefined,
 		ctx: CanvasRenderingContext2D
 	): void {
-		let parentScene = scene || sceneManager.getCurrentScene();
+		const parentScene = scene || sceneManager.getCurrentScene();
 		if (parentScene.customCircuitInputs != null) {
 			throw Error();
 		}
@@ -64,7 +64,7 @@ export class CustomCircuitInputs implements Circuit {
 		for (let i = 0; i < this.producerPins.length - 1; i++) {
 			// this.producerPins[i].setValue(pins[i].value);
 			this.producerPins[i].value = pins[i].value;
-			for (let wire of this.producerPins[i].wires) {
+			for (const wire of this.producerPins[i].wires) {
 				Wire.update(wire);
 			}
 		}
@@ -72,9 +72,9 @@ export class CustomCircuitInputs implements Circuit {
 
 	static addPin(self: CustomCircuitInputs) {
 		const newPinIndex = self.producerPins.length;
-		let currentLastPin = self.producerPins[newPinIndex - 1];
+		const currentLastPin = self.producerPins[newPinIndex - 1];
 		currentLastPin.onWireAttached = () => {};
-		let newPin = new ProducerPin(self, newPinIndex);
+		const newPin = new ProducerPin(self, newPinIndex);
 		newPin.onWireAttached = CustomCircuitInputs.addPin;
 		self.producerPins.push(newPin);
 

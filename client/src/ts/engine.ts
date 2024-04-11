@@ -1,5 +1,5 @@
 // import { sceneManager } from "./main.js";
-import { Circle } from './math.js';
+// import { Circle } from './math.js';
 import { Queue } from './data-structures/queue.js';
 import type { Circuit } from './scene/objects/circuits/circuit.js';
 import { sceneManager } from '@routes/+page.svelte';
@@ -39,7 +39,7 @@ export class SimEngine {
 
 		this.tickNumber += 1;
 
-		let tmp = this.currentFrameEvents;
+		const tmp = this.currentFrameEvents;
 		this.currentFrameEvents = this.nextFrameEvents;
 		this.nextFrameEvents = tmp;
 
@@ -69,7 +69,7 @@ export class SimEngine {
 
 	async runSim() {
 		simulation.setPaused(false);
-		let callback = () => {
+		const callback = () => {
 			this.step();
 			if (simulation.get().paused) {
 				return;

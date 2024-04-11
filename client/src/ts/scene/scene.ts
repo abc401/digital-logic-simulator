@@ -5,16 +5,13 @@ import { Wire } from './objects/wire.js';
 import { StackList } from '@ts/data-structures/stacklist.js';
 import { circuitColor, ornamentColor, sceneManager, viewManager } from '@routes/+page.svelte';
 import { integratedCircuits } from '@src/lib/stores/integrated-circuits.js';
-import {
-	HOME_SCENE_NAME,
-	PIN_EXTRUSION_WRL,
-	PIN_TO_PIN_DISTANCE_WRL,
-	SELECTED_COLOR
-} from '@ts/config.js';
+import { HOME_SCENE_NAME, PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
 import { Rect, Vec2 } from '@ts/math.js';
 import { type Circuit, dummyCircuit } from './objects/circuits/circuit.js';
 import { ConcreteObjectKind } from './scene-manager.js';
 import { writable } from 'svelte/store';
+import type { ProducerPin } from './objects/producer-pin.js';
+import type { ConsumerPin } from './objects/consumer-pin.js';
 
 export class Scene {
 	name: string = '';
@@ -67,13 +64,13 @@ export class Scene {
 
 	reEvaluateCustomCircuits() {
 		console.log(`${this.name} customCircuitInstances: `, this.customCircuitInstances);
-		for (let [sceneName, entries] of this.customCircuitInstances) {
-			let id = integratedCircuits.getSceneIdFor(sceneName);
+		for (const [sceneName, entries] of this.customCircuitInstances) {
+			const id = integratedCircuits.getSceneIdFor(sceneName);
 			console.log('ID: ', id);
 			if (id == null) {
 				throw Error();
 			}
-			let scene = sceneManager.scenes.get(id);
+			const scene = sceneManager.scenes.get(id);
 			console.log('Scene: ', scene);
 			if (scene == null) {
 				throw Error();
@@ -83,7 +80,7 @@ export class Scene {
 			}
 			console.log('entries.lastUpdateIdx != scene.lastUpdateIdx');
 			console.log(`${this.name} reevaluated`);
-			for (let instance of entries.instances) {
+			for (const instance of entries.instances) {
 				instance.updateCircuitGraph();
 			}
 			entries.lastUpdateIdx = scene.lastUpdateIdx;
@@ -137,7 +134,7 @@ export class CircuitSceneObject {
 		parentScene: Scene | undefined = undefined,
 		ctx: CanvasRenderingContext2D
 	) {
-		let sceneObject = new CircuitSceneObject(parentCircuit, posWrl, ctx);
+		const sceneObject = new CircuitSceneObject(parentCircuit, posWrl, ctx);
 
 		if (parentScene == null) {
 			sceneObject.parentScene = sceneManager.getCurrentScene();
@@ -196,8 +193,8 @@ export class CircuitSceneObject {
 			this.headRectWrl.w,
 
 			CircuitSceneObject.bodyPaddingYWrl * 2 +
-			maxPinNumber * 2 * CircuitSceneObject.pinRadiusWrl +
-			(maxPinNumber - 1) * PIN_TO_PIN_DISTANCE_WRL
+				maxPinNumber * 2 * CircuitSceneObject.pinRadiusWrl +
+				(maxPinNumber - 1) * PIN_TO_PIN_DISTANCE_WRL
 		);
 	}
 
@@ -222,18 +219,18 @@ export class CircuitSceneObject {
 
 	tightCollisionCheck(pointWrl: Vec2):
 		| {
-			kind: ConcreteObjectKind;
-			object: any;
-		}
+				kind: ConcreteObjectKind;
+				object: Circuit | ProducerPin | ConsumerPin;
+		  }
 		| undefined {
-		for (let pin of this.parentCircuit.consumerPins) {
+		for (const pin of this.parentCircuit.consumerPins) {
 			if (pin.pointCollision(pointWrl)) {
 				console.log('Tight Collision Passed');
 				return { kind: ConcreteObjectKind.ConsumerPin, object: pin };
 			}
 		}
 
-		for (let pin of this.parentCircuit.producerPins) {
+		for (const pin of this.parentCircuit.producerPins) {
 			if (pin.pointCollision(pointWrl)) {
 				console.log('Tight Collision Passed');
 				return { kind: ConcreteObjectKind.ProducerPin, object: pin };
@@ -271,7 +268,7 @@ export class CircuitSceneObject {
 		const headRectScr = viewManager.worldToScreenRect(this.headRectWrl);
 		const bodyRectScr = viewManager.worldToScreenRect(this.bodyRectWrl);
 		const looseRectScr = viewManager.worldToScreenRect(this.looseRectWrl);
-		const tightRectScr = viewManager.worldToScreenRect(this.tightRectWrl);
+		// const tightRectScr = viewManager.worldToScreenRect(this.tightRectWrl);
 
 		// Head background
 		ctx.fillStyle = circuitColor;
@@ -315,10 +312,10 @@ export class CircuitSceneObject {
 
 		// ConsumerPins
 		// console.log(metrics);
-		for (let pin of this.parentCircuit.consumerPins) {
+		for (const pin of this.parentCircuit.consumerPins) {
 			pin.draw(ctx);
 		}
-		for (let pin of this.parentCircuit.producerPins) {
+		for (const pin of this.parentCircuit.producerPins) {
 			pin.draw(ctx);
 		}
 		// ctx.strokeRect(tightRectScr.x, tightRectScr.y, tightRectScr.w, tightRectScr.h);
@@ -346,9 +343,9 @@ export class CircuitSceneObject {
 	}
 }
 
-let { subscribe, set, update } = writable(new Scene());
+const { subscribe, set } = writable(new Scene());
 
-export let currentScene = {
+export const currentScene = {
 	subscribe,
 	set
 };

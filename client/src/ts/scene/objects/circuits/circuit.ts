@@ -20,12 +20,12 @@ export type PropTypes = { [key: string]: CircuitPropType };
 export type PropSetter = (circuit: Circuit, value: any) => boolean;
 export type PropSetters = { [key: string]: PropSetter };
 
-function identitiyPropSetter(name: string) {
-	return function (circuit: Circuit, value: any) {
-		circuit.props[name] = value;
-		return true;
-	};
-}
+// function identitiyPropSetter(name: string) {
+// 	return function (circuit: Circuit, value: any) {
+// 		circuit.props[name] = value;
+// 		return true;
+// 	};
+// }
 
 export const defaultPropTypes: PropTypes = {
 	label: CircuitPropType.String
@@ -67,7 +67,7 @@ export interface Circuit {
 }
 
 export function dummyCircuit() {
-	let circuit: Circuit = {
+	const circuit: Circuit = {
 		consumerPins: [],
 		producerPins: [],
 
@@ -173,8 +173,8 @@ export function cloneGraphAfterCircuit(
 		return tmp;
 	}
 
-	let circuit = start;
-	let cloned = circuit.clone();
+	const circuit = start;
+	const cloned = circuit.clone();
 
 	clonedCircuits.push(cloned);
 	circuitCloneMapping.set(circuit, cloned);
@@ -208,14 +208,14 @@ function cloneGraphAfterWire(
 		return tmp;
 	}
 
-	let wire = start;
-	let cloned = wire.clone();
+	const wire = start;
+	const cloned = wire.clone();
 
 	clonedWires.push(cloned);
 	wireCloneMapping.set(wire, cloned);
 
 	if (wire.consumerPin != null) {
-		let consumerCircuit = cloneGraphAfterCircuit(
+		const consumerCircuit = cloneGraphAfterCircuit(
 			wire.consumerPin.parentCircuit,
 			clonedCircuits,
 			clonedWires,
@@ -229,7 +229,7 @@ function cloneGraphAfterWire(
 		cloned.setConsumerPinNoUpdate(consumerCircuit.consumerPins[wire.consumerPin.pinIndex]);
 	}
 	if (wire.producerPin != null) {
-		let producerCircuit = cloneGraphAfterCircuit(
+		const producerCircuit = cloneGraphAfterCircuit(
 			wire.producerPin.parentCircuit,
 			clonedCircuits,
 			clonedWires,
@@ -248,7 +248,7 @@ export function setConsumerPinNumber(circuit: Circuit, nConsumerPins: number) {
 		return true;
 	}
 	let nConnectedPins = 0;
-	for (let pin of circuit.consumerPins) {
+	for (const pin of circuit.consumerPins) {
 		if (pin.wire != undefined) {
 			nConnectedPins += 1;
 		}
@@ -257,9 +257,9 @@ export function setConsumerPinNumber(circuit: Circuit, nConsumerPins: number) {
 	if (nConnectedPins > nConsumerPins) {
 		return false;
 	}
-	let newPins = new Array<ConsumerPin>(nConsumerPins);
+	const newPins = new Array<ConsumerPin>(nConsumerPins);
 	let pinIndex = 0;
-	for (let pin of circuit.consumerPins) {
+	for (const pin of circuit.consumerPins) {
 		if (pin.wire != null) {
 			newPins[pinIndex] = pin;
 			pin.pinIndex = pinIndex;

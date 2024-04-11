@@ -1,5 +1,5 @@
-import { Vec2, Circle } from '@ts/math.js';
-import type { ConcreteObjectKind, ColliderObject, SceneObject } from '../scene-manager.js';
+import { Vec2 } from '@ts/math.js';
+import type { SceneObject } from '../scene-manager.js';
 import { SimEvent, UpdationStrategy } from '@ts/engine.js';
 import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
 import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
@@ -109,7 +109,7 @@ export class Wire implements SceneObject {
 
 	clone() {
 		// console.log("Wire.clone");
-		let cloned = Object.assign({}, this) as Wire;
+		const cloned = Object.assign({}, this) as Wire;
 		cloned.consumerPin = undefined;
 		cloned.producerPin = undefined;
 		Object.setPrototypeOf(cloned, Wire.prototype);

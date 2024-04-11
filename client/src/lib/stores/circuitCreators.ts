@@ -12,13 +12,13 @@ import { integratedCircuits } from './integrated-circuits';
 
 // let customCircuitInstances = new Map<number, CustomCircuit[]>();
 
-export let icInstanciator = (icName: string) => () => {
-	let sceneId = integratedCircuits.getSceneIdFor(icName);
+export const icInstanciator = (icName: string) => () => {
+	const sceneId = integratedCircuits.getSceneIdFor(icName);
 	if (sceneId == null) {
 		throw Error();
 	}
 
-	let scene = sceneManager.scenes.get(sceneId);
+	const scene = sceneManager.scenes.get(sceneId);
 	if (scene == null) {
 		throw Error();
 	}
@@ -30,23 +30,23 @@ export let icInstanciator = (icName: string) => () => {
 		throw Error();
 	}
 
-	let circuit = new CustomCircuit(scene);
+	const circuit = new CustomCircuit(scene);
 
 	return circuit;
 };
 
-export let circuitInstanciators: { [key: string]: { [key: string]: () => Circuit } } = {
+export const circuitInstanciators: { [key: string]: { [key: string]: () => Circuit } } = {
 	Add: {
 		Input: () => {
 			return new InputCircuit(false) as Circuit;
 		},
 		And: () => {
-			let circuit = new ProcessingCircuit(
+			const circuit = new ProcessingCircuit(
 				2,
 				1,
 				(self) => {
 					let value = true;
-					for (let pin of self.consumerPins) {
+					for (const pin of self.consumerPins) {
 						value = value && pin.value;
 						if (!value) {
 							break;
@@ -123,8 +123,8 @@ export let circuitInstanciators: { [key: string]: { [key: string]: () => Circuit
 	}
 };
 
-let { subscribe, set, update } = writable<{ [key: string]: () => void }>({});
-export let icInstanciators = {
+const { subscribe, update } = writable<{ [key: string]: () => void }>({});
+export const icInstanciators = {
 	subscribe,
 	newCustomCreator: function (name: string, creator: () => Circuit) {
 		update((creators) => {
