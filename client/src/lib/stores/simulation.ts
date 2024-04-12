@@ -1,10 +1,10 @@
 import { writable } from 'svelte/store';
 
-let { subscribe, set, update } = writable({
+const { subscribe, update } = writable({
 	paused: true
 });
 
-export let simulation = {
+export const simulation = {
 	subscribe,
 
 	get: function () {

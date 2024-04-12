@@ -1,21 +1,28 @@
 // import { clipboard, sceneManager } from '@ts/main';
-import { sceneManager } from '@routes/+page.svelte';
-import { type Circuit, cloneGraphAfterCircuit } from '@ts/scene/objects/circuits/circuit';
+import { sceneManager, viewManager } from '@routes/+page.svelte';
+import {
+	type Circuit,
+	cloneGraphAfterCircuit,
+	CircuitSceneObject
+} from '@ts/scene/objects/circuits/circuit';
 import { Wire } from '@ts/scene/objects/wire';
+import type { UserAction } from '../actions-manager';
+import type { ID } from '../scene/scene';
+import type { Vec2 } from '../math';
 
-export let clipboard = {
+export const clipboard = {
 	circuits: new Array<Circuit>(),
 	wires: new Array<Wire>()
 };
 
 export function copySelectedToClipboard() {
-	let clonedCircuits = new Array<Circuit>();
-	let clonedWires = new Array<Wire>();
+	const clonedCircuits = new Array<Circuit>();
+	const clonedWires = new Array<Wire>();
 
-	let circuitCloneMapping = new Map<Circuit, Circuit>();
-	let wireCloneMapping = new Map<Wire, Wire>();
+	const circuitCloneMapping = new Map<Circuit, Circuit>();
+	const wireCloneMapping = new Map<Wire, Wire>();
 
-	for (let circuit of sceneManager.selectedCircuits) {
+	for (const circuit of sceneManager.selectedCircuits) {
 		cloneGraphAfterCircuit(
 			circuit.parentCircuit,
 			clonedCircuits,
@@ -42,12 +49,12 @@ export function copySelectedToClipboard() {
 }
 
 export function pasteFromClipboard() {
-	let clonedCircuits = new Array<Circuit>();
-	let clonedWires = new Array<Wire>();
+	const clonedCircuits = new Array<Circuit>();
+	const clonedWires = new Array<Wire>();
 
-	let circuitCloneMapping = new Map<Circuit, Circuit>();
-	let wireCloneMapping = new Map<Wire, Wire>();
-	for (let circuit of clipboard.circuits) {
+	const circuitCloneMapping = new Map<Circuit, Circuit>();
+	const wireCloneMapping = new Map<Wire, Wire>();
+	for (const circuit of clipboard.circuits) {
 		cloneGraphAfterCircuit(
 			circuit,
 			clonedCircuits,
@@ -59,16 +66,48 @@ export function pasteFromClipboard() {
 
 	sceneManager.clearSelectedCircuits();
 
-	for (let wire of clonedWires) {
+	for (const wire of clonedWires) {
 		wire.configSceneObject();
 	}
 
-	for (let circuit of clonedCircuits) {
+	for (const circuit of clonedCircuits) {
 		if (circuit.sceneObject == null) {
 			throw Error();
 		}
 
 		circuit.configSceneObject(circuit.sceneObject.tightRectWrl.xy, undefined);
-		sceneManager.selectCircuit(circuit.sceneObject);
+		sceneManager.selectCircuit(circuit.sceneObject.id as ID);
+	}
+}
+
+export function dragSelection(delta: Vec2) {
+	for (const circuit of sceneManager.selectedCircuits) {
+		circuit.setPos(circuit.tightRectWrl.xy.add(delta));
+	}
+}
+
+export class DragUserAction implements UserAction {
+	constructor(private delta: Vec2) {
+		// console.log('Drag Action Created');
+	}
+
+	do(): void {
+		dragSelection(this.delta);
+		// console.log('Drag Action Do');
+	}
+	undo(): void {
+		dragSelection(this.delta.neg());
+		// console.log('Drag Action Undo');
+	}
+}
+
+export class PanningUserAction implements UserAction {
+	constructor(private delta: Vec2) {}
+
+	do(): void {
+		viewManager.pan(this.delta);
+	}
+	undo(): void {
+		viewManager.pan(this.delta.neg());
 	}
 }

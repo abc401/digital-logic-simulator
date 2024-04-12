@@ -4,7 +4,9 @@
 // 	do() {}
 // }
 
-interface Action {
+import { actionsManager } from '@src/routes/+page.svelte';
+
+export interface UserAction {
 	undo(): void;
 	do(): void;
 }
@@ -12,7 +14,7 @@ interface Action {
 class HistoryNode {
 	next: HistoryNode | undefined;
 	constructor(
-		public action: Action,
+		public action: UserAction,
 		public prev: HistoryNode | undefined = undefined
 	) {}
 }
@@ -24,6 +26,30 @@ export class ActionsManager {
 	constructor() {
 		this.startNode = undefined;
 		this.currentNode = undefined;
+
+		document.addEventListener('keydown', (ev) => {
+			if (!ev.ctrlKey) {
+				return;
+			}
+			if (ev.key.toLowerCase() == 'z' && ev.shiftKey) {
+				this.redo();
+				console.log('Redo');
+			} else if (ev.key.toLowerCase() == 'z') {
+				this.undo();
+				console.log('Undo');
+			}
+		});
+	}
+
+	push(action: UserAction) {
+		const node = new HistoryNode(action, this.currentNode);
+		if (this.startNode == null || this.currentNode == null) {
+			this.startNode = node;
+			this.currentNode = node;
+		} else {
+			this.currentNode.next = node;
+			this.currentNode = this.currentNode.next;
+		}
 	}
 
 	undo() {
@@ -57,15 +83,8 @@ export class ActionsManager {
 		return true;
 	}
 
-	do(action: Action) {
-		const node = new HistoryNode(action, this.currentNode);
-		if (this.startNode == null || this.currentNode == null) {
-			this.startNode = node;
-			this.currentNode = node;
-		} else {
-			this.currentNode.next = node;
-			this.currentNode = this.currentNode.next;
-		}
+	do(action: UserAction) {
+		this.push(action);
 		action.do();
 	}
 }

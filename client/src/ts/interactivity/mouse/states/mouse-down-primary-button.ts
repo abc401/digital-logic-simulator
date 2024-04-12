@@ -1,23 +1,29 @@
-import { CircuitSceneObject } from '@ts/scene/scene.js';
+import { CircuitSceneObject } from '@src/ts/scene/objects/circuits/circuit.js';
 import {
 	MouseAction,
 	MouseActionKind,
 	type MouseState,
 	MouseStateMachine
 } from '../state-machine.js';
-import { Dragging } from './dragging.js';
 import { Panning } from './panning.js';
 import { Vec2 } from '@ts/math.js';
 import { Home } from './home.js';
 import { DraggingSelection } from './dragging-selection.js';
 import { canvas, sceneManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
+import type { ID } from '@src/ts/scene/scene.js';
 
 export class MouseDownPrimaryButton implements MouseState {
 	constructor(
 		private circuit: CircuitSceneObject | undefined = undefined,
 		private offsetWrl: Vec2 | undefined = undefined
 	) {
+		if (this.circuit != null) {
+			if (this.circuit.id == null) {
+				throw Error();
+			}
+		}
+
 		logState('MouseDownPrimaryButton');
 	}
 
@@ -35,29 +41,24 @@ export class MouseDownPrimaryButton implements MouseState {
 					throw Error();
 				}
 
-				const locScr = new Vec2(payload.offsetX, payload.offsetY);
-
-				if (this.circuit.isSelected) {
-					stateMachine.state = new DraggingSelection(this.circuit, this.offsetWrl, locScr);
-					return;
-				}
-
-				if (!payload.ctrlKey) {
+				if (!this.circuit.isSelected) {
 					sceneManager.clearSelectedCircuits();
 				}
-				sceneManager.selectCircuit(this.circuit);
-				stateMachine.state = new Dragging(this.circuit, this.offsetWrl, locScr);
+				sceneManager.selectCircuit(this.circuit.id as ID);
+				const locScr = new Vec2(payload.offsetX, payload.offsetY);
+
+				stateMachine.state = new DraggingSelection(this.circuit, this.offsetWrl, locScr);
+				return;
 			}
-		}
-		if (action.kind === MouseActionKind.MouseUp) {
+		} else if (action.kind === MouseActionKind.MouseUp) {
 			if (!payload.ctrlKey) {
 				sceneManager.clearSelectedCircuits();
 			}
 			if (this.circuit != null) {
 				if (this.circuit.isSelected) {
-					sceneManager.deselectCircuit(this.circuit);
+					sceneManager.deselectCircuit(this.circuit.id as ID);
 				} else {
-					sceneManager.selectCircuit(this.circuit);
+					sceneManager.selectCircuit(this.circuit.id as ID);
 				}
 			}
 			stateMachine.state = new Home();

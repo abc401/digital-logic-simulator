@@ -6,7 +6,7 @@ import type { Circuit } from './circuits/circuit.js';
 import type { CustomCircuitInputs } from './circuits/custom-circuit-inputs.js';
 import { PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
 import { offColor, onColor, simEngine, viewManager } from '@routes/+page.svelte';
-import { CircuitSceneObject } from '../scene.js';
+import { CircuitSceneObject } from './circuits/circuit.js';
 // import { CircuitSceneObject } from '../scene.js';
 
 export class ProducerPin {

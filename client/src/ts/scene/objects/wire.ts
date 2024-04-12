@@ -5,12 +5,15 @@ import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
 import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
 import { offColor, onColor, sceneManager, simEngine, viewManager } from '@routes/+page.svelte';
 import { SELECTED_COLOR } from '@ts/config.js';
+import type { ID } from '../scene.js';
 
 export class Wire implements SceneObject {
+	id: ID | undefined;
+
 	fromScr: Vec2 | undefined;
 	toScr: Vec2 | undefined;
+
 	value = false;
-	// id: number;
 	updationStrategy: UpdationStrategy = UpdationStrategy.InNextFrame;
 	isSelected: boolean = false;
 
@@ -103,7 +106,9 @@ export class Wire implements SceneObject {
 			});
 			this.producerPin = undefined;
 		}
-		sceneManager.getCurrentScene().unregisterWire(this);
+		if (this.id != null) {
+			sceneManager.getCurrentScene().unregisterWire(this.id);
+		}
 		// console.log(`wire ${this.id} has been detached`);
 	}
 

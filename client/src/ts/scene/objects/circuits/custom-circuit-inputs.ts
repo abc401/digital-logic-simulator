@@ -4,9 +4,9 @@ import { UpdationStrategy } from '@ts/engine.js';
 import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
 import { Wire } from '../wire.js';
-import { sceneManager } from '@routes/+page.svelte';
+import { ctx, sceneManager } from '@routes/+page.svelte';
 import { type Circuit, circuitCloneHelper } from './circuit.js';
-import { CircuitSceneObject } from '@ts/scene/scene.js';
+import { CircuitSceneObject } from './circuit.js';
 
 export class CustomCircuitInputs implements Circuit {
 	simFrameAllocated = false;
@@ -45,11 +45,7 @@ export class CustomCircuitInputs implements Circuit {
 		return circuitCloneHelper(this);
 	}
 
-	configSceneObject(
-		posWrl: Vec2,
-		scene: Scene | undefined = undefined,
-		ctx: CanvasRenderingContext2D
-	): void {
+	configSceneObject(posWrl: Vec2, scene: Scene | undefined = undefined): void {
 		const parentScene = scene || sceneManager.getCurrentScene();
 		if (parentScene.customCircuitInputs != null) {
 			throw Error();

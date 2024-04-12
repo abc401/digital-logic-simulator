@@ -3,9 +3,9 @@ import { Scene } from '../../scene.js';
 import { UpdationStrategy } from '@ts/engine.js';
 import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
-import { sceneManager } from '@routes/+page.svelte';
+import { ctx, sceneManager } from '@routes/+page.svelte';
 import { type Circuit, circuitCloneHelper } from './circuit.js';
-import { CircuitSceneObject } from '@ts/scene/scene.js';
+import { CircuitSceneObject } from './circuit.js';
 
 export class CustomCircuitOutputs implements Circuit {
 	updationStrategy = UpdationStrategy.Immediate;
@@ -59,11 +59,7 @@ export class CustomCircuitOutputs implements Circuit {
 		}
 	}
 
-	configSceneObject(
-		pos: Vec2,
-		scene: Scene | undefined = undefined,
-		ctx: CanvasRenderingContext2D
-	): void {
+	configSceneObject(pos: Vec2, scene: Scene | undefined = undefined): void {
 		const parentScene = scene || sceneManager.getCurrentScene();
 		if (parentScene.customCircuitOutputs != null) {
 			throw Error();

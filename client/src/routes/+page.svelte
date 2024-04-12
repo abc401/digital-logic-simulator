@@ -8,7 +8,7 @@
 	export let simEngine = new SimEngine();
 	export let viewManager = new ViewManager();
 	export let sceneManager = new SceneManager();
-	export let actionsManager =  new ActionsManager()
+	export let actionsManager: ActionsManager 
 
 	export let onColor: string;
 	export let offColor: string;
@@ -72,6 +72,7 @@
 
 		mouseStateMachine = new MouseStateMachine();
 		touchScreenStateMachine = new TouchScreenStateMachine();
+		actionsManager = new ActionsManager()
 		console.log('TouchSM: ', touchScreenStateMachine);
 
 		const style = getComputedStyle(document.body);

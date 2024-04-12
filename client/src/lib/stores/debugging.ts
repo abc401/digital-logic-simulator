@@ -1,18 +1,18 @@
 import { writable } from 'svelte/store';
 
-let { subscribe, set, update } = writable('');
+const { subscribe, update } = writable('');
 
 export function domLog(message: string) {
 	update((value) => value + `${message}<br>`);
 }
 
-export let logs = {
+export const logs = {
 	subscribe
 };
 
-let { subscribe: csSubscribe, set: csSet, update: csUpdate } = writable('');
+const { subscribe: csSubscribe, set: csSet } = writable('');
 
-export let canvasState = {
+export const canvasState = {
 	subscribe: csSubscribe
 };
 

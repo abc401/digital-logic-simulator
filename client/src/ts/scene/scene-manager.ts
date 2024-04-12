@@ -1,12 +1,12 @@
 import { type Circuit } from './objects/circuits/circuit.js';
-import { CircuitSceneObject } from './scene.js';
+import { CircuitSceneObject } from './objects/circuits/circuit.js';
 import { CustomCircuitOutputs } from './objects/circuits/custom-circuit-outputs.js';
 import { CustomCircuitInputs } from './objects/circuits/custom-circuit-inputs.js';
 import { Wire } from './objects/wire.js';
 // import { circuitCreators, domLog, secondaryCtx, viewManager } from '../main.js';
 import { Vec2 } from '@ts/math.js';
-import { ctx, viewManager } from '@routes/+page.svelte';
-import { Scene } from './scene.js';
+import { viewManager } from '@routes/+page.svelte';
+import { Scene, type ID } from './scene.js';
 import { currentScene } from './scene.js';
 import { domLog } from '@lib/stores/debugging.js';
 import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config.js';
@@ -72,7 +72,7 @@ export class SceneManager {
 		// this.setCurrentScene(sceneId);
 
 		const customInputs = new CustomCircuitInputs();
-		customInputs.configSceneObject(new Vec2(90, 220), scene, ctx);
+		customInputs.configSceneObject(new Vec2(90, 220), scene);
 		if (customInputs.sceneObject == null) {
 			throw Error();
 		}
@@ -80,7 +80,7 @@ export class SceneManager {
 		scene.customCircuitInputs = customInputs;
 
 		const customOutputs = new CustomCircuitOutputs();
-		customOutputs.configSceneObject(new Vec2(240, 220), scene, ctx);
+		customOutputs.configSceneObject(new Vec2(240, 220), scene);
 		if (customOutputs.sceneObject == null) {
 			throw Error();
 		}
@@ -189,11 +189,17 @@ export class SceneManager {
 		this.selectedWires = new Set();
 	}
 
-	selectCircuit(circuit: CircuitSceneObject) {
+	selectCircuit(id: ID) {
+		const currentScene = this.getCurrentScene();
+		const circuit = currentScene.idToCircuit.get(id);
+
+		if (circuit == null) {
+			throw Error();
+		}
+
 		if (this.selectedCircuits.has(circuit)) {
 			return;
 		}
-		const currentScene = this.getCurrentScene();
 
 		currentScene.circuits.remove(circuit);
 		currentScene.circuits.push(circuit);
@@ -254,7 +260,14 @@ export class SceneManager {
 		console.log('[SceneManager] Selected Wires: ', this.selectedWires);
 	}
 
-	deselectCircuit(circuit: CircuitSceneObject) {
+	deselectCircuit(id: ID) {
+		const currentScene = this.getCurrentScene();
+		const circuit = currentScene.idToCircuit.get(id);
+
+		if (circuit == null) {
+			throw Error();
+		}
+
 		console.log('Deselect Circuit');
 
 		if (!this.selectedCircuits.has(circuit)) {

@@ -1,9 +1,9 @@
 import { sceneManager } from '@routes/+page.svelte';
 import { writable } from 'svelte/store';
-import { circuitInstanciators, icInstanciator, icInstanciators } from './circuitCreators';
+import { icInstanciator, icInstanciators } from './circuitCreators';
 import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config';
 
-let { subscribe, set, update } = writable(
+const { subscribe, update } = writable(
 	new Map<string, number>([
 		[HOME_SCENE_NAME, HOME_SCENE_ID],
 		['a', 2],
@@ -26,7 +26,7 @@ let { subscribe, set, update } = writable(
 	])
 );
 
-export let integratedCircuits = {
+export const integratedCircuits = {
 	subscribe,
 	getSceneIdFor: function (circuitName: string) {
 		let sceneId: number | undefined = -1;
@@ -43,7 +43,7 @@ export let integratedCircuits = {
 	newIC: function (circuitName: string) {
 		const sceneId = sceneManager.newCustomScene();
 
-		let scene = sceneManager.scenes.get(sceneId);
+		const scene = sceneManager.scenes.get(sceneId);
 		if (scene == null) {
 			throw Error();
 		}

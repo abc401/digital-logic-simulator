@@ -6,7 +6,7 @@ import {
 	MouseButton
 } from '../state-machine.js';
 import { ConcreteObjectKind } from '@ts/scene/scene-manager.js';
-import type { Circuit } from '@ts/scene/objects/circuits/circuit.js';
+import type { Circuit, CircuitSceneObject } from '@ts/scene/objects/circuits/circuit.js';
 import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
 import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
 import { Wire } from '@ts/scene/objects/wire.js';
@@ -15,6 +15,7 @@ import { CreatingWire } from './creating-wire.js';
 import { MouseDownPrimaryButton } from './mouse-down-primary-button.js';
 import { canvas, sceneManager, viewManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
+import type { ID } from '@src/ts/scene/scene.js';
 
 export class Home implements MouseState {
 	constructor() {
@@ -33,10 +34,13 @@ export class Home implements MouseState {
 				return;
 			}
 
-			let focusObject = sceneManager.getObjectAt(locScr);
+			const focusObject = sceneManager.getObjectAt(locScr);
 
 			if (focusObject == null) {
 				console.log('Focus Object == null');
+				// if (!payload.ctrlKey) {
+				// 	sceneManager.clearSelectedCircuits();
+				// }
 
 				stateMachine.state = new MouseDownPrimaryButton();
 				return;
@@ -47,9 +51,15 @@ export class Home implements MouseState {
 			if (focusObject.kind === ConcreteObjectKind.Circuit) {
 				const circuit = focusObject.object as Circuit;
 
-				if (circuit.sceneObject == null) {
+				if (circuit.sceneObject == null || circuit.sceneObject.id == null) {
 					throw Error();
 				}
+
+				// if (circuit.sceneObject.isSelected) {
+				// 	sceneManager.deselectCircuit(circuit.sceneObject.id);
+				// } else {
+				// 	sceneManager.selectCircuit(circuit.sceneObject.id);
+				// }
 
 				stateMachine.state = new MouseDownPrimaryButton(
 					circuit.sceneObject,

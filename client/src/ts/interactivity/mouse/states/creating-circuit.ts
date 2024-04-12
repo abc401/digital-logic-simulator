@@ -38,7 +38,7 @@ export class CreatingCircuit implements MouseState {
 		if (action.kind === MouseActionKind.MouseUp) {
 			let circuit = this.creator();
 			const currentScene = sceneManager.getCurrentScene();
-			circuit.configSceneObject(viewManager.screenToWorld(locScr), currentScene, ctx);
+			circuit.configSceneObject(viewManager.screenToWorld(locScr), currentScene);
 
 			console.log(`Created ${this.name}`);
 			console.log('scene: ', sceneManager.getCurrentScene());

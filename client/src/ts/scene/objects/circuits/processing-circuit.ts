@@ -13,7 +13,8 @@ import {
 	CircuitPropType,
 	defaultPropTypes
 } from './circuit.js';
-import { CircuitSceneObject } from '@ts/scene/scene.js';
+import { CircuitSceneObject } from './circuit.js';
+import { ctx } from '@src/routes/+page.svelte';
 
 export class ProcessingCircuit implements Circuit {
 	simFrameAllocated = false;
@@ -73,11 +74,7 @@ export class ProcessingCircuit implements Circuit {
 		this.propSetters[name] = setter;
 	}
 
-	configSceneObject(
-		pos: Vec2,
-		scene: Scene | undefined = undefined,
-		ctx: CanvasRenderingContext2D
-	): void {
+	configSceneObject(pos: Vec2, scene: Scene | undefined = undefined): void {
 		this.sceneObject = CircuitSceneObject.new(this, pos, scene, ctx);
 	}
 

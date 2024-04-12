@@ -1,10 +1,8 @@
-import { type Circuit } from '@ts/scene/objects/circuits/circuit';
-import { CircuitSceneObject } from '@ts/scene/scene';
+import { CircuitSceneObject } from '@src/ts/scene/objects/circuits/circuit';
 import { writable } from 'svelte/store';
 
-let { subscribe, set, update } = writable<CircuitSceneObject | undefined>(undefined);
-
-export let focusedCircuit = {
+const { subscribe, set } = writable<CircuitSceneObject | undefined>(undefined);
+export const focusedCircuit = {
 	subscribe,
 	set,
 	get: function () {
@@ -15,7 +13,7 @@ export let focusedCircuit = {
 
 		// If this code is removed, tsc will assume that
 		// this function can't return undefined
-		let a = 1;
+		const a = 1;
 		if (a + 1 != 2) {
 			circuit = CircuitSceneObject.dummy();
 		}

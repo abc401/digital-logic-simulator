@@ -5,11 +5,11 @@ import { UpdationStrategy } from '@ts/engine.js';
 import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
 import { Wire } from '../wire.js';
-import { sceneManager } from '@routes/+page.svelte';
+import { ctx, sceneManager } from '@routes/+page.svelte';
 import { CustomCircuitInputs } from './custom-circuit-inputs.js';
 import { CustomCircuitOutputs } from './custom-circuit-outputs.js';
 import { type Circuit, cloneGraphAfterCircuit, circuitCloneHelper } from './circuit.js';
-import { CircuitSceneObject } from '@ts/scene/scene.js';
+import { CircuitSceneObject } from './circuit.js';
 
 export class CustomCircuit implements Circuit {
 	updationStrategy = UpdationStrategy.Immediate;
@@ -157,11 +157,7 @@ export class CustomCircuit implements Circuit {
 		console.log('CustomCircuit.constructor: ', this);
 	}
 
-	configSceneObject(
-		pos: Vec2,
-		targetScene: Scene | undefined = undefined,
-		ctx: CanvasRenderingContext2D
-	): void {
+	configSceneObject(pos: Vec2, targetScene: Scene | undefined = undefined): void {
 		if (targetScene == null) {
 			targetScene = sceneManager.getCurrentScene();
 		}
