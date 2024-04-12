@@ -6,7 +6,7 @@ import {
 	CircuitSceneObject
 } from '@ts/scene/objects/circuits/circuit';
 import { Wire } from '@ts/scene/objects/wire';
-import type { UserAction } from '../actions-manager';
+import type { UserAction } from './actions-manager';
 import type { ID } from '../scene/scene';
 import type { Vec2 } from '../math';
 
@@ -87,6 +87,7 @@ export function dragSelection(delta: Vec2) {
 }
 
 export class DragUserAction implements UserAction {
+	name = 'Drag';
 	constructor(private delta: Vec2) {
 		// console.log('Drag Action Created');
 	}
@@ -101,13 +102,30 @@ export class DragUserAction implements UserAction {
 	}
 }
 
-export class PanningUserAction implements UserAction {
+export class PanUserAction implements UserAction {
 	constructor(private delta: Vec2) {}
+	name = 'Pan';
 
 	do(): void {
 		viewManager.pan(this.delta);
 	}
 	undo(): void {
 		viewManager.pan(this.delta.neg());
+	}
+}
+
+export class ZoomUserAction implements UserAction {
+	constructor(
+		readonly zoomOriginScr: Vec2,
+		readonly zoomLevelDelta: number
+	) {}
+
+	name = 'Zoom';
+
+	do(): void {
+		viewManager.zoom(this.zoomOriginScr, viewManager.zoomLevel + this.zoomLevelDelta);
+	}
+	undo(): void {
+		viewManager.zoom(this.zoomOriginScr, viewManager.zoomLevel - this.zoomLevelDelta);
 	}
 }

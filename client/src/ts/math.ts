@@ -11,6 +11,9 @@ export class Vec2 {
 	clone() {
 		return new Vec2(this.x, this.y);
 	}
+	eq(other: Vec2) {
+		return this.x === other.x && this.y === other.y;
+	}
 	add(other: Vec2) {
 		return new Vec2(this.x + other.x, this.y + other.y);
 	}

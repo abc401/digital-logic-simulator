@@ -41,7 +41,7 @@
 	import { onMount } from 'svelte';
 	import TopMenu from '@lib/components/TopMenu.svelte';
 	import SideBar from '@src/lib/components/SideBar.svelte';
-	import { ActionsManager } from '@src/ts/actions-manager';
+	import { ActionsManager } from '@src/ts/interactivity/actions-manager';
 
 	$: {
 		console.log('Most recently selected circuit: ', $focusedCircuit);

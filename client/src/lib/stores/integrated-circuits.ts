@@ -5,24 +5,24 @@ import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config';
 
 const { subscribe, update } = writable(
 	new Map<string, number>([
-		[HOME_SCENE_NAME, HOME_SCENE_ID],
-		['a', 2],
-		['b', 2],
-		['c', 2],
-		['d', 2],
-		['e', 2],
-		['f', 2],
-		['g', 2],
-		['abcdefghijklmnopqrstuvwxyz', 2],
-		['i', 2],
-		['j', 2],
-		['k', 2],
-		['l', 2],
-		['n', 2],
-		['o', 2],
-		['p', 2],
-		['q', 2],
-		['s', 2]
+		[HOME_SCENE_NAME, HOME_SCENE_ID]
+		// ['a', 2],
+		// ['b', 2],
+		// ['c', 2],
+		// ['d', 2],
+		// ['e', 2],
+		// ['f', 2],
+		// ['g', 2],
+		// ['abcdefghijklmnopqrstuvwxyz', 2],
+		// ['i', 2],
+		// ['j', 2],
+		// ['k', 2],
+		// ['l', 2],
+		// ['n', 2],
+		// ['o', 2],
+		// ['p', 2],
+		// ['q', 2],
+		// ['s', 2]
 	])
 );
 

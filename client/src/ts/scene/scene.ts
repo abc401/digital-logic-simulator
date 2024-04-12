@@ -8,7 +8,7 @@ import { integratedCircuits } from '@src/lib/stores/integrated-circuits.js';
 import { HOME_SCENE_NAME } from '@ts/config.js';
 import { writable } from 'svelte/store';
 import { CircuitSceneObject, type Circuit } from './objects/circuits/circuit.js';
-import type { UserAction } from '../actions-manager.js';
+import type { UserAction } from '../interactivity/actions-manager.js';
 
 // export class AddCircuit implements Action {
 // 	circuitID: ID;

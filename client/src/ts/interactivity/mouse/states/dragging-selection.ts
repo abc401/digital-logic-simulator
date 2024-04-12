@@ -10,7 +10,7 @@ import { Home } from './home.js';
 import { Vec2 } from '@ts/math.js';
 import { actionsManager, canvas, sceneManager, viewManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
-import { DragUserAction, dragSelection } from '../../common.js';
+import { DragUserAction, dragSelection } from '../../actions.js';
 
 export class DraggingSelection implements MouseState {
 	totalDelta: Vec2 = new Vec2(0, 0);

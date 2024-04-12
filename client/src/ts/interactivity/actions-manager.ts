@@ -4,9 +4,8 @@
 // 	do() {}
 // }
 
-import { actionsManager } from '@src/routes/+page.svelte';
-
 export interface UserAction {
+	name: string;
 	undo(): void;
 	do(): void;
 }
