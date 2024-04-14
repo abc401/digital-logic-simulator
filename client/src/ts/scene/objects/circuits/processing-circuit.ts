@@ -74,9 +74,7 @@ export class ProcessingCircuit implements Circuit {
 		this.propSetters[name] = setter;
 	}
 
-	configSceneObject(pos: Vec2, scene: Scene | undefined = undefined): void {
-		this.sceneObject = CircuitSceneObject.new(this, pos, scene, ctx);
-	}
+	onSceneObjectConfigured(): void {}
 
 	clone(): Circuit {
 		return circuitCloneHelper(this);

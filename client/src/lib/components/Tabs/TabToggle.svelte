@@ -21,8 +21,9 @@
 </script>
 
 <button
-	class={clsx(className, 'm-1 p-2 hover:bg-neutral-700 active:bg-neutral-500', {
-		'bg-neutral-700': isSelected
+	class={clsx(className, 'm-1 p-2 ', {
+		'hover:bg-neutral-700/50 active:bg-neutral-500/50': !isSelected,
+		'bg-accent': isSelected
 	})}
 	{...$$restProps}
 	on:click={() => {

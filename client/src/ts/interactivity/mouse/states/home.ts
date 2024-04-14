@@ -13,9 +13,10 @@ import { Wire } from '@ts/scene/objects/wire.js';
 import { Vec2 } from '@ts/math.js';
 import { CreatingWire } from './creating-wire.js';
 import { MouseDownPrimaryButton } from './mouse-down-primary-button.js';
-import { canvas, sceneManager, viewManager } from '@routes/+page.svelte';
+import { actionsManager, canvas, sceneManager, viewManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
-import type { ID } from '@src/ts/scene/scene.js';
+import { currentScene, type ID } from '@src/ts/scene/scene.js';
+import { DeleteWireUserAction } from '../../actions.js';
 
 export class Home implements MouseState {
 	constructor() {
@@ -71,7 +72,8 @@ export class Home implements MouseState {
 
 			if (focusObject.kind === ConcreteObjectKind.ProducerPin) {
 				const pin = focusObject.object as ProducerPin;
-				const wire = new Wire(pin, undefined);
+				const wire = Wire.newUnregistered(pin, undefined);
+				// new Wire(pin, undefined);
 				wire.toScr = locScr;
 				stateMachine.state = new CreatingWire(wire);
 				return;
@@ -81,10 +83,12 @@ export class Home implements MouseState {
 				const pin = focusObject.object as ConsumerPin;
 
 				if (pin.wire != null) {
-					pin.wire.detach();
+					actionsManager.do(new DeleteWireUserAction(pin.wire, currentScene.get().id as ID));
+					// pin.wire.detach();
 				}
 
-				const wire = new Wire(undefined, pin);
+				const wire = Wire.newUnregistered(undefined, pin);
+				// new Wire(undefined, pin);
 				wire.fromScr = locScr;
 
 				stateMachine.state = new CreatingWire(wire);

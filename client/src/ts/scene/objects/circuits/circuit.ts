@@ -76,7 +76,8 @@ export interface Circuit {
 	sceneObject: CircuitSceneObject | undefined;
 
 	clone(): Circuit;
-	configSceneObject(posWrl: Vec2, scene: Scene | undefined): void;
+	// configSceneObject(posWrl: Rect, scene: Scene | undefined): void;
+	onSceneObjectConfigured(): void;
 }
 
 export function dummyCircuit() {
@@ -88,7 +89,7 @@ export function dummyCircuit() {
 		propTypes: {},
 		propSetters: {},
 
-		updateHandeler: () => {},
+		updateHandeler() {},
 
 		updationStrategy: UpdationStrategy.InNextFrame,
 		inputWireUpdationStrategy: UpdationStrategy.InNextFrame,
@@ -96,7 +97,7 @@ export function dummyCircuit() {
 		simFrameAllocated: true,
 
 		sceneObject: undefined,
-		configSceneObject: () => {},
+		onSceneObjectConfigured() {},
 		clone: dummyCircuit
 	};
 	return circuit;
@@ -381,6 +382,8 @@ export class CircuitSceneObject {
 			sceneObject.parentScene = parentScene;
 		}
 		sceneObject.parentScene.registerCircuitWithID(id, sceneObject);
+		parentCircuit.sceneObject = sceneObject;
+		parentCircuit.onSceneObjectConfigured();
 		return sceneObject;
 	}
 
@@ -398,6 +401,8 @@ export class CircuitSceneObject {
 			sceneObject.parentScene = parentScene;
 		}
 		sceneObject.parentScene.registerCircuit(sceneObject);
+		parentCircuit.sceneObject = sceneObject;
+		parentCircuit.onSceneObjectConfigured();
 		return sceneObject;
 	}
 

@@ -5,7 +5,7 @@ import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
 import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
 import { offColor, onColor, sceneManager, simEngine, viewManager } from '@routes/+page.svelte';
 import { SELECTED_COLOR } from '@ts/config.js';
-import type { ID } from '../scene.js';
+import type { ID, Scene } from '../scene.js';
 
 export class Wire implements SceneObject {
 	id: ID | undefined;
@@ -17,18 +17,23 @@ export class Wire implements SceneObject {
 	updationStrategy: UpdationStrategy = UpdationStrategy.InNextFrame;
 	isSelected: boolean = false;
 
-	constructor(
-		public producerPin: ProducerPin | undefined,
-		public consumerPin: ConsumerPin | undefined
-	) {
+	public producerPin: ProducerPin | undefined;
+	public consumerPin: ConsumerPin | undefined;
+
+	private constructor() {
 		console.log('[Wire Constructor]');
+	}
+
+	static newRegistered(producerPin: ProducerPin | undefined, consumerPin: ConsumerPin | undefined) {
+		console.log('[Wire Constructor]');
+		const wire = new Wire();
 
 		// this.id =
-		sceneManager.getCurrentScene().registerWire(this);
+		sceneManager.getCurrentScene().registerWire(wire);
 
 		if (producerPin != null) {
 			// producerPin.attachWire(this);
-			this.setProducerPin(producerPin);
+			wire.setProducerPin(producerPin);
 			// if (!producerPin.parentCircuit.allocateSimFrame) {
 			//   this.allocateSimFrame = false;
 			// }
@@ -36,18 +41,48 @@ export class Wire implements SceneObject {
 
 		if (consumerPin != null) {
 			// consumerPin.attachWire(this);
-			this.setConsumerPin(consumerPin);
+			wire.setConsumerPin(consumerPin);
 			// if (!consumerPin.parentCircuit.allocateSimFrame) {
 			//   this.allocateSimFrame = false;
 			// }
 		}
 
-		if (producerPin == null || consumerPin == null) {
-			console.log('[Wire Constructor] producerPin == null || consumerPin == null');
-			return;
+		if (producerPin != null && consumerPin != null) {
+			Wire.update(wire);
 		}
 
-		Wire.update(this);
+		return wire;
+	}
+
+	static newUnregistered(
+		producerPin: ProducerPin | undefined,
+		consumerPin: ConsumerPin | undefined
+	) {
+		const wire = new Wire();
+
+		// this.id =
+
+		if (producerPin != null) {
+			// producerPin.attachWire(this);
+			wire.setProducerPin(producerPin);
+			// if (!producerPin.parentCircuit.allocateSimFrame) {
+			//   this.allocateSimFrame = false;
+			// }
+		}
+
+		if (consumerPin != null) {
+			// consumerPin.attachWire(this);
+			wire.setConsumerPin(consumerPin);
+			// if (!consumerPin.parentCircuit.allocateSimFrame) {
+			//   this.allocateSimFrame = false;
+			// }
+		}
+
+		if (producerPin != null && consumerPin != null) {
+			Wire.update(wire);
+		}
+
+		return wire;
 	}
 
 	static update(self: Wire) {
@@ -97,7 +132,9 @@ export class Wire implements SceneObject {
 			simEngine.nextFrameEvents.enqueue(
 				new SimEvent(this.consumerPin.parentCircuit, this.consumerPin.parentCircuit.updateHandeler)
 			);
-			this.consumerPin.wire = undefined;
+			if (this.consumerPin.wire === this) {
+				this.consumerPin.wire = undefined;
+			}
 			this.consumerPin = undefined;
 		}
 		if (this.producerPin != null) {
@@ -160,12 +197,20 @@ export class Wire implements SceneObject {
 		}
 	}
 
-	configSceneObject() {
-		// console.log("Wire.configSceneObject");
-		// this.id =
-		sceneManager.getCurrentScene().registerWire(this);
-		this.isSelected = false;
+	register(targetScene: Scene) {
+		targetScene.registerWire(this);
+		this.updateIsSelected();
 	}
+	registerWithID(id: ID, targetScene: Scene) {
+		targetScene.registerWireWithId(id, this);
+		this.updateIsSelected();
+	}
+	// configSceneObject() {
+	// 	// console.log("Wire.configSceneObject");
+	// 	// this.id =
+	// 	sceneManager.getCurrentScene().registerWire(this);
+	// 	this.isSelected = false;
+	// }
 
 	setProducerPin(pin: ProducerPin) {
 		// console.log("Wire.setProducerPin");

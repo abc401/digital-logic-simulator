@@ -1,6 +1,6 @@
 import {
+	actionsManager,
 	canvas,
-	ctx,
 	sceneManager,
 	touchScreenStateMachine,
 	viewManager
@@ -14,11 +14,10 @@ import {
 import { Home as MouseHome } from './home.js';
 import { Home as TouchScreenHome } from '@ts/interactivity/touchscreen/states/home.js';
 import { Vec2 } from '@ts/math.js';
-import type { Circuit } from '@ts/scene/objects/circuits/circuit.js';
+import { type Circuit } from '@ts/scene/objects/circuits/circuit.js';
 import { logState } from '@lib/stores/debugging.js';
-import { SceneManager } from '@ts/scene/scene-manager.js';
-import { HOME_SCENE_NAME } from '@ts/config.js';
-import type { TouchScreenStateMachine } from '../../touchscreen/state-machine.js';
+import { currentScene } from '@src/ts/scene/scene.js';
+import { CreateCircuitUserAction } from '../../actions.js';
 
 export class CreatingCircuit implements MouseState {
 	constructor(
@@ -36,9 +35,20 @@ export class CreatingCircuit implements MouseState {
 		const locScr = new Vec2(payload.offsetX, payload.offsetY);
 
 		if (action.kind === MouseActionKind.MouseUp) {
-			let circuit = this.creator();
+			// const circuit = this.creator();
 			const currentScene = sceneManager.getCurrentScene();
-			circuit.configSceneObject(viewManager.screenToWorld(locScr), currentScene);
+			if (currentScene.id == null) {
+				throw Error();
+			}
+
+			// CircuitSceneObject.new(circuit, viewManager.screenToWorld(locScr), currentScene, ctx);
+			actionsManager.do(
+				new CreateCircuitUserAction(
+					currentScene.id,
+					this.creator,
+					viewManager.screenToWorld(locScr)
+				)
+			);
 
 			console.log(`Created ${this.name}`);
 			console.log('scene: ', sceneManager.getCurrentScene());

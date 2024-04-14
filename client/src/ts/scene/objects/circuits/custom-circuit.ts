@@ -157,17 +157,15 @@ export class CustomCircuit implements Circuit {
 		console.log('CustomCircuit.constructor: ', this);
 	}
 
-	configSceneObject(pos: Vec2, targetScene: Scene | undefined = undefined): void {
-		if (targetScene == null) {
-			targetScene = sceneManager.getCurrentScene();
+	onSceneObjectConfigured(): void {
+		if (this.sceneObject == null) {
+			throw Error();
 		}
-
 		if (this.scene.id == null) {
 			throw Error();
 		}
 
-		this.sceneObject = CircuitSceneObject.new(this, pos, targetScene, ctx);
-		let entry = targetScene.customCircuitInstances.get(this.scene.id);
+		let entry = this.sceneObject.parentScene.customCircuitInstances.get(this.scene.id);
 		if (entry == null) {
 			entry = {
 				instances: new Set(),
@@ -176,14 +174,14 @@ export class CustomCircuit implements Circuit {
 		}
 		entry.instances.add(this);
 
-		targetScene.customCircuitInstances.set(this.scene.id, entry);
+		this.sceneObject.parentScene.customCircuitInstances.set(this.scene.id, entry);
 
 		console.log(
-			`CustomCircuitInstances for ${targetScene.name}: `,
-			targetScene.customCircuitInstances
+			`CustomCircuitInstances for ${this.sceneObject.parentScene.name}: `,
+			this.sceneObject.parentScene.customCircuitInstances
 		);
 
-		this.sceneObject.onClicked = this.onClicked;
+		// this.sceneObject.onClicked = this.onClicked;
 	}
 
 	onClicked(self_: Circuit) {

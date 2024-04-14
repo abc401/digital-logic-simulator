@@ -193,6 +193,9 @@ export class SceneManager {
 			// (circuit as CircuitSceneObject).draw(ctx);
 			circuit.data.draw(ctx);
 		}
+		if (currentScene.wireBeingCreated != null) {
+			currentScene.wireBeingCreated.draw(ctx);
+		}
 
 		// this.debugDraw();
 	}

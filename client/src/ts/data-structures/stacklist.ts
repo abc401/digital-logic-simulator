@@ -70,7 +70,8 @@ export class StackList<T> {
 	removeNode(node: Node<T>) {
 		if (this.top === node) {
 			this.top = node.below;
-		} else if (this.bottom === node) {
+		}
+		if (this.bottom === node) {
 			this.bottom = node.above;
 		}
 

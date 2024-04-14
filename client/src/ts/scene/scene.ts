@@ -26,10 +26,11 @@ import type { SceneObject } from './scene-manager.js';
 export type ID = number;
 
 export class Scene {
-	id: number | undefined;
+	id: ID | undefined;
 	name: string = '';
 	customCircuitInputs: CustomCircuitInputs | undefined;
 	customCircuitOutputs: CustomCircuitOutputs | undefined;
+	wireBeingCreated: Wire | undefined;
 
 	circuits: StackList<CircuitSceneObject> = new StackList();
 	wires: StackList<Wire> = new StackList();
@@ -113,6 +114,8 @@ export class Scene {
 		if (this.name != HOME_SCENE_NAME) {
 			this.tmpCircuits.add(circuit);
 		}
+		console.log('Scene: ', this);
+		console.trace();
 	}
 
 	registerCircuit(circuit: CircuitSceneObject) {
@@ -159,6 +162,7 @@ export class Scene {
 		this.idToWire.delete(id);
 		this.wires.remove(wire);
 		this.tmpWires.delete(wire);
+		wire.id = undefined;
 	}
 
 	reEvaluateICs() {

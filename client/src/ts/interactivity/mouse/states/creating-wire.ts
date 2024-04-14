@@ -10,12 +10,16 @@ import {
 import { Home } from './home.js';
 import { ConcreteObjectKind } from '@ts/scene/scene-manager.js';
 import { Vec2 } from '@ts/math.js';
-import { canvas, sceneManager } from '@routes/+page.svelte';
+import { actionsManager, canvas, sceneManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
+import { currentScene, type ID } from '@src/ts/scene/scene.js';
+import { CreateWireUserAction } from '../../actions.js';
 
 export class CreatingWire implements MouseState {
 	constructor(private wire: Wire) {
 		logState('CreatingWire');
+		currentScene.get().wireBeingCreated = wire;
+
 		// console.log("Wire: ", wire);
 		// console.log("consumerPin: ", wire.getConsumerPin()?.wire);
 	}
@@ -52,8 +56,14 @@ export class CreatingWire implements MouseState {
 			} else {
 				this.wire.detach();
 			}
+			const currentScene_ = currentScene.get();
+			currentScene_.wireBeingCreated = undefined;
+			actionsManager.do(new CreateWireUserAction(currentScene_.id as ID, this.wire));
+			// this.wire.register(currentScene_);
+			this.wire.detach();
 
 			console.log('Wire: ', this.wire);
+
 			stateMachine.state = new Home();
 		}
 	}

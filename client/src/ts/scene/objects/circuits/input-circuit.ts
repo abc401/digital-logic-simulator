@@ -78,7 +78,5 @@ export class InputCircuit implements Circuit {
 		return circuitCloneHelper(this);
 	}
 
-	configSceneObject(pos: Vec2, scene: Scene | undefined = undefined): void {
-		this.sceneObject = CircuitSceneObject.new(this, pos, scene, ctx);
-	}
+	onSceneObjectConfigured(): void {}
 }

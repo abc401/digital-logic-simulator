@@ -59,17 +59,8 @@ export class CustomCircuitOutputs implements Circuit {
 		}
 	}
 
-	configSceneObject(pos: Vec2, scene: Scene | undefined = undefined): void {
-		// const parentScene = scene || sceneManager.getCurrentScene();
-		// if (parentScene.customCircuitOutputs != null) {
-		// 	throw Error();
-		// }
-
-		// this.sceneObject = CircuitSceneObject.new(this, pos, scene, ctx);
-		// this.sceneObject.deletable = false;
-
-		// parentScene.customCircuitOutputs = this;
-		throw Error();
+	onSceneObjectConfigured(): void {
+		// throw Error();
 	}
 
 	static addPin(self: CustomCircuitOutputs) {
