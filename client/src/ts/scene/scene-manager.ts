@@ -5,7 +5,7 @@ import { CustomCircuitInputs } from './objects/circuits/custom-circuit-inputs.js
 import { Wire } from './objects/wire.js';
 // import { circuitCreators, domLog, secondaryCtx, viewManager } from '../main.js';
 import { Vec2 } from '@ts/math.js';
-import { viewManager } from '@routes/+page.svelte';
+import { actionsManager, sceneManager, viewManager } from '@routes/+page.svelte';
 import { Scene, type ID } from './scene.js';
 import { currentScene } from './scene.js';
 import { domLog } from '@lib/stores/debugging.js';
@@ -13,6 +13,7 @@ import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config.js';
 import { focusedCircuit } from '@lib/stores/focusedCircuit.js';
 import type { ProducerPin } from './objects/producer-pin.js';
 import type { ConsumerPin } from './objects/consumer-pin.js';
+import type { UserAction } from '../interactivity/actions-manager.js';
 
 export interface SceneObject {
 	// id: number;
@@ -37,6 +38,40 @@ export interface ColliderObject {
 		| undefined;
 }
 
+export class SwitchSceneUserAction implements UserAction {
+	name = '';
+	private fromSceneID: ID;
+	constructor(private toSceneID: ID) {
+		const currentScene_ = currentScene.get();
+		if (currentScene_.id == null) {
+			throw Error();
+		}
+		this.fromSceneID = currentScene_.id;
+	}
+
+	do(): void {
+		const toScene = sceneManager.scenes.get(this.toSceneID);
+		if (toScene == null) {
+			domLog('[SceneManager.setCurrentScene] Provided sceneId is invalid.');
+			throw Error();
+		}
+
+		console.log('SwitchSceneUserAction.do');
+		currentScene.set(toScene);
+	}
+
+	undo(): void {
+		const fromScene = sceneManager.scenes.get(this.fromSceneID);
+		if (fromScene == null) {
+			domLog('[SceneManager.setCurrentScene] Provided sceneId is invalid.');
+			throw Error();
+		}
+
+		console.log('SwitchSceneUserAction.undo');
+		currentScene.set(fromScene);
+	}
+}
+
 export const debugObjects = {
 	circuits: new Array<Circuit>(),
 	wires: new Array<Wire>()
@@ -56,72 +91,71 @@ export class SceneManager {
 		// this.newScene();
 		const defaultScene = new Scene();
 		defaultScene.name = HOME_SCENE_NAME;
-		this.scenes.set(HOME_SCENE_ID, defaultScene);
+		this.registerSceneWithID(HOME_SCENE_ID, defaultScene);
 
-		this.setCurrentScene(HOME_SCENE_ID);
+		// this.setCurrentScene(HOME_SCENE_ID);
+		currentScene.setWithoutCommitting(defaultScene);
 	}
 
-	newCustomScene() {
-		console.log('SceneManager: ', this);
-		const scene = new Scene();
-
-		const sceneId = this.nextSceneId;
+	getNextSceneID() {
+		const nextID = this.nextSceneId;
 		this.nextSceneId += 1;
-		this.scenes.set(sceneId, scene);
-
-		// this.setCurrentScene(sceneId);
-
-		const customInputs = new CustomCircuitInputs();
-		customInputs.configSceneObject(new Vec2(90, 220), scene);
-		if (customInputs.sceneObject == null) {
-			throw Error();
-		}
-		scene.circuits.push(customInputs.sceneObject);
-		scene.customCircuitInputs = customInputs;
-
-		const customOutputs = new CustomCircuitOutputs();
-		customOutputs.configSceneObject(new Vec2(240, 220), scene);
-		if (customOutputs.sceneObject == null) {
-			throw Error();
-		}
-
-		scene.customCircuitOutputs = customOutputs;
-
-		return sceneId;
+		return nextID;
 	}
+
+	registerSceneWithID(id: ID, scene: Scene) {
+		this.scenes.set(id, scene);
+		scene.id = id;
+	}
+
+	unregisterScene(id: ID) {
+		const scene = this.scenes.get(id);
+		if (scene == null) {
+			throw Error();
+		}
+		if (this.getCurrentScene().name === scene.name) {
+			throw Error();
+		}
+		this.scenes.delete(id);
+		scene.id = undefined;
+	}
+
+	// newCustomScene() {
+	// 	console.log('SceneManager: ', this);
+	// 	const scene = new Scene();
+
+	// 	const sceneId = this.nextSceneId;
+	// 	this.nextSceneId += 1;
+	// 	this.scenes.set(sceneId, scene);
+
+	// 	// this.setCurrentScene(sceneId);
+
+	// 	const customInputs = new CustomCircuitInputs();
+	// 	customInputs.configSceneObject(new Vec2(90, 220), scene);
+	// 	if (customInputs.sceneObject == null) {
+	// 		throw Error();
+	// 	}
+	// 	scene.circuits.push(customInputs.sceneObject);
+	// 	scene.customCircuitInputs = customInputs;
+
+	// 	const customOutputs = new CustomCircuitOutputs();
+	// 	customOutputs.configSceneObject(new Vec2(240, 220), scene);
+	// 	if (customOutputs.sceneObject == null) {
+	// 		throw Error();
+	// 	}
+
+	// 	scene.customCircuitOutputs = customOutputs;
+
+	// 	return sceneId;
+	// }
 
 	setCurrentScene(sceneId: number) {
-		console.log('SceneManager: ', this);
-		const scene = this.scenes.get(sceneId);
-		if (scene == null) {
-			domLog('[SceneManager.setCurrentScene] Provided sceneId is invalid.');
-			throw Error();
-		}
-
-		const currentScene_ = this.getCurrentScene();
-		if (scene === currentScene_) {
-			return;
-		}
-
-		currentScene_.commitTmpObjects();
-
-		scene.reEvaluateCustomCircuits();
-
-		currentScene.set(scene);
-
-		// this.currentScene = scene;
-
+		actionsManager.do(new SwitchSceneUserAction(sceneId));
 		this.clearSelectedCircuits();
 	}
 
 	getCurrentScene() {
-		let currentScene_ = new Scene();
-
-		const unsubscribe = currentScene.subscribe((scene) => {
-			currentScene_ = scene;
-		});
-		unsubscribe();
-		return currentScene_;
+		return currentScene.get();
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {

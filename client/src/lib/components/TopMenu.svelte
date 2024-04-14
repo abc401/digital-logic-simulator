@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { circuitInstanciators } from '@stores/circuitCreators';
+	import { circuitInstanciators, icInstantiators } from '@stores/circuitCreators';
 	import { CreatingCircuit as CreatingCircuitMouse } from '@ts/interactivity/mouse/states/creating-circuit';
 	import { CreatingCircuit as CreatingCircuitTouchScreen } from '@ts/interactivity/touchscreen/states/creating-circuit';
 	import DropDown from './DropDown/DropDown.svelte';
@@ -7,6 +7,20 @@
 	import DropDownMenu, { DropDownPosition } from './DropDown/DropDownMenu.svelte';
 	import DropDownItem from './DropDown/DropDownItem.svelte';
 	import { getSM } from '@src/routes/+page.svelte';
+	import { integratedCircuits } from '../stores/integrated-circuits';
+	import type { ID } from '@src/ts/scene/scene';
+	import type { Circuit } from '@src/ts/scene/objects/circuits/circuit';
+
+	function createCircuit(circuitName: string, instantiator: () => Circuit) {
+		let [mouseSM, touchScreenSM] = getSM();
+		console.log('Mouse State Machine:', mouseSM);
+		if (mouseSM != null) {
+			mouseSM.state = new CreatingCircuitMouse(circuitName, instantiator);
+		}
+		if (touchScreenSM != null) {
+			touchScreenSM.state = new CreatingCircuitTouchScreen(circuitName, instantiator);
+		}
+	}
 </script>
 
 <div {...$$restProps}>
@@ -17,38 +31,27 @@
 		<DropDown>
 			<DropDownToggle class="my-1 px-3 py-1.5 ">{category}</DropDownToggle>
 			<DropDownMenu position={DropDownPosition.Below}>
-				<!-- <DropDown>
-					<DropDownToggle
-						class="w-full bg-neutral-800 p-2 [text-align:inherit] hover:bg-neutral-700 active:bg-neutral-500"
-						>Hello</DropDownToggle
-					>
-					<DropDownMenu>
-						<DropDownItem>Hello Again</DropDownItem>
-					</DropDownMenu>
-				</DropDown> -->
 				{#each Object.keys(circuitInstanciators[category]) as circuitName (circuitName)}
 					<DropDownItem
 						action={() => {
-							let [mouseSM, touchScreenSM] = getSM();
-							console.log('Mouse State Machine:', mouseSM);
-							if (mouseSM != null) {
-								mouseSM.state = new CreatingCircuitMouse(
-									circuitName,
-									circuitInstanciators[category][circuitName]
-								);
-							}
-							if (touchScreenSM != null) {
-								touchScreenSM.state = new CreatingCircuitTouchScreen(
-									circuitName,
-									circuitInstanciators[category][circuitName]
-								);
-							}
+							createCircuit(circuitName, circuitInstanciators[category][circuitName]);
 						}}>{circuitName}</DropDownItem
 					>
 				{/each}
 			</DropDownMenu>
 		</DropDown>
 	{/each}
-	<!-- </DropDownMenu>
-	</DropDown> -->
+	<DropDown>
+		<DropDownToggle class="my-1 px-3 py-1.5 ">ICs</DropDownToggle>
+		<DropDownMenu position={DropDownPosition.Beside}>
+			{#each Object.entries($icInstantiators) as [id, instantiator] (id)}
+				<DropDownItem
+					action={() => {
+						createCircuit(integratedCircuits.getName(+id), instantiator);
+						instantiator;
+					}}>{integratedCircuits.getName(+id)}</DropDownItem
+				>
+			{/each}
+		</DropDownMenu>
+	</DropDown>
 </div>

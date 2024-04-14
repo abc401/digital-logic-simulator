@@ -3,12 +3,13 @@ import { CustomCircuitOutputs } from './objects/circuits/custom-circuit-outputs.
 import { CustomCircuitInputs } from './objects/circuits/custom-circuit-inputs.js';
 import { Wire } from './objects/wire.js';
 import { StackList } from '@ts/data-structures/stacklist.js';
-import { sceneManager } from '@routes/+page.svelte';
-import { integratedCircuits } from '@src/lib/stores/integrated-circuits.js';
+import { ctx, sceneManager } from '@routes/+page.svelte';
+// import { integratedCircuits } from '@src/lib/stores/integrated-circuits.js';
 import { HOME_SCENE_NAME } from '@ts/config.js';
 import { writable } from 'svelte/store';
-import { CircuitSceneObject, type Circuit } from './objects/circuits/circuit.js';
-import type { UserAction } from '../interactivity/actions-manager.js';
+import { CircuitSceneObject } from './objects/circuits/circuit.js';
+import { Vec2 } from '../math.js';
+import type { SceneObject } from './scene-manager.js';
 
 // export class AddCircuit implements Action {
 // 	circuitID: ID;
@@ -25,6 +26,7 @@ import type { UserAction } from '../interactivity/actions-manager.js';
 export type ID = number;
 
 export class Scene {
+	id: number | undefined;
 	name: string = '';
 	customCircuitInputs: CustomCircuitInputs | undefined;
 	customCircuitOutputs: CustomCircuitOutputs | undefined;
@@ -41,10 +43,45 @@ export class Scene {
 
 	lastUpdateIdx = 0;
 
-	customCircuitInstances = new Map<
-		string,
-		{ lastUpdateIdx: number; instances: Set<CustomCircuit> }
-	>();
+	customCircuitInstances = new Map<ID, { lastUpdateIdx: number; instances: Set<CustomCircuit> }>();
+
+	constructor() {
+		// console.trace('Scene Constructor');
+	}
+
+	static newWithIO() {
+		const scene = new Scene();
+		console.trace();
+
+		const customInputs = new CustomCircuitInputs();
+		const inputsSceneObject = CircuitSceneObject.newWithID(
+			scene.getNextID(),
+			customInputs,
+			new Vec2(90, 220),
+			scene,
+			ctx
+		);
+		inputsSceneObject.deletable = false;
+		customInputs.sceneObject = inputsSceneObject;
+
+		scene.circuits.push(customInputs.sceneObject);
+		scene.customCircuitInputs = customInputs;
+
+		const customOutputs = new CustomCircuitOutputs();
+		const outputsSceneObject = CircuitSceneObject.newWithID(
+			scene.getNextID(),
+			customOutputs,
+			new Vec2(240, 220),
+			scene,
+			ctx
+		);
+		outputsSceneObject.deletable = false;
+		customOutputs.sceneObject = outputsSceneObject;
+
+		scene.circuits.push(customInputs.sceneObject);
+		scene.customCircuitOutputs = customOutputs;
+		return scene;
+	}
 
 	commitTmpObjects() {
 		if (this.tmpCircuits.size > 0 || this.tmpWires.size > 0) {
@@ -124,10 +161,9 @@ export class Scene {
 		this.tmpWires.delete(wire);
 	}
 
-	reEvaluateCustomCircuits() {
+	reEvaluateICs() {
 		console.log(`${this.name} customCircuitInstances: `, this.customCircuitInstances);
-		for (const [sceneName, entries] of this.customCircuitInstances) {
-			const id = integratedCircuits.getSceneIdFor(sceneName);
+		for (const [id, entries] of this.customCircuitInstances) {
 			console.log('ID: ', id);
 			if (id == null) {
 				throw Error();
@@ -154,5 +190,26 @@ const { subscribe, set } = writable(new Scene());
 
 export const currentScene = {
 	subscribe,
-	set
+	get: function () {
+		let scene: Scene = {} as Scene;
+		const unsub = subscribe((value) => {
+			scene = value;
+		});
+		unsub();
+		return scene;
+	},
+	setWithoutCommitting(scene: Scene) {
+		set(scene);
+	},
+	set: function (scene: Scene) {
+		const currentScene_ = this.get();
+		if (scene === currentScene_) {
+			return;
+		}
+
+		currentScene_.commitTmpObjects();
+
+		scene.reEvaluateICs();
+		set(scene);
+	}
 };

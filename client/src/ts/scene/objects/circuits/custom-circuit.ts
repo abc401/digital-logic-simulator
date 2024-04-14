@@ -162,8 +162,12 @@ export class CustomCircuit implements Circuit {
 			targetScene = sceneManager.getCurrentScene();
 		}
 
+		if (this.scene.id == null) {
+			throw Error();
+		}
+
 		this.sceneObject = CircuitSceneObject.new(this, pos, targetScene, ctx);
-		let entry = targetScene.customCircuitInstances.get(this.scene.name);
+		let entry = targetScene.customCircuitInstances.get(this.scene.id);
 		if (entry == null) {
 			entry = {
 				instances: new Set(),
@@ -172,7 +176,7 @@ export class CustomCircuit implements Circuit {
 		}
 		entry.instances.add(this);
 
-		targetScene.customCircuitInstances.set(this.scene.name, entry);
+		targetScene.customCircuitInstances.set(this.scene.id, entry);
 
 		console.log(
 			`CustomCircuitInstances for ${targetScene.name}: `,

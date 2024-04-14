@@ -9,15 +9,11 @@ import { InputCircuit } from '@ts/scene/objects/circuits/input-circuit';
 import { writable } from 'svelte/store';
 import { sceneManager } from '@routes/+page.svelte';
 import { integratedCircuits } from './integrated-circuits';
+import type { ID } from '@src/ts/scene/scene';
 
 // let customCircuitInstances = new Map<number, CustomCircuit[]>();
 
-export const icInstanciator = (icName: string) => () => {
-	const sceneId = integratedCircuits.getSceneIdFor(icName);
-	if (sceneId == null) {
-		throw Error();
-	}
-
+export const icInstanciator = (sceneId: ID) => () => {
 	const scene = sceneManager.scenes.get(sceneId);
 	if (scene == null) {
 		throw Error();
@@ -75,14 +71,38 @@ export const circuitInstanciators: { [key: string]: { [key: string]: () => Circu
 			return circuit;
 		},
 		Or: () => {
-			return new ProcessingCircuit(
+			const circuit = new ProcessingCircuit(
 				2,
 				1,
 				(self) => {
-					self.producerPins[0].setValue(self.consumerPins[0].value || self.consumerPins[1].value);
+					let value = false;
+					for (const pin of self.consumerPins) {
+						value = value || pin.value;
+						if (value) {
+							break;
+						}
+					}
+					self.producerPins[0].setValue(value);
 				},
 				'Or'
 			);
+			circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
+				const num = +value;
+				if (Number.isNaN(num) || !Number.isFinite(num) || num % 1 !== 0 || num < 1) {
+					console.log('Hello1');
+					return false;
+				}
+				if (!setConsumerPinNumber(circuit, num)) {
+					console.log('Hello2');
+					return false;
+				}
+				circuit.props.Inputs = num;
+				if (circuit.sceneObject != null) {
+					circuit.sceneObject.calcRects();
+				}
+				return true;
+			});
+			return circuit;
 		},
 		Not: () => {
 			return new ProcessingCircuit(
@@ -93,43 +113,91 @@ export const circuitInstanciators: { [key: string]: { [key: string]: () => Circu
 				},
 				'Not'
 			);
-		}
-	},
-	Edit: {
+		},
 		Nand: () => {
-			return new ProcessingCircuit(
+			const circuit = new ProcessingCircuit(
 				2,
 				1,
 				(self) => {
-					self.producerPins[0].setValue(
-						!(self.consumerPins[0].value && self.consumerPins[1].value)
-					);
+					let value = true;
+					for (const pin of self.consumerPins) {
+						value = value && pin.value;
+						if (!value) {
+							break;
+						}
+					}
+					self.producerPins[0].setValue(!value);
 				},
 				'Nand'
 			);
+			circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
+				const num = +value;
+				if (Number.isNaN(num) || !Number.isFinite(num) || num % 1 !== 0 || num < 1) {
+					console.log('Hello1');
+					return false;
+				}
+				if (!setConsumerPinNumber(circuit, num)) {
+					console.log('Hello2');
+					return false;
+				}
+				circuit.props.Inputs = num;
+				if (circuit.sceneObject != null) {
+					circuit.sceneObject.calcRects();
+				}
+				return true;
+			});
+			return circuit;
 		},
 		Nor: () => {
-			return new ProcessingCircuit(
+			const circuit = new ProcessingCircuit(
 				2,
 				1,
 				(self) => {
-					self.producerPins[0].setValue(
-						!(self.consumerPins[0].value || self.consumerPins[1].value)
-					);
+					let value = false;
+					for (const pin of self.consumerPins) {
+						value = value || pin.value;
+						if (value) {
+							break;
+						}
+					}
+					self.producerPins[0].setValue(!value);
 				},
 				'Nor'
 			);
+			circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
+				const num = +value;
+				if (Number.isNaN(num) || !Number.isFinite(num) || num % 1 !== 0 || num < 1) {
+					console.log('Hello1');
+					return false;
+				}
+				if (!setConsumerPinNumber(circuit, num)) {
+					console.log('Hello2');
+					return false;
+				}
+				circuit.props.Inputs = num;
+				if (circuit.sceneObject != null) {
+					circuit.sceneObject.calcRects();
+				}
+				return true;
+			});
+			return circuit;
 		}
 	}
 };
 
-const { subscribe, update } = writable<{ [key: string]: () => void }>({});
-export const icInstanciators = {
+const { subscribe, update } = writable<{ [key: ID]: () => Circuit }>({});
+export const icInstantiators = {
 	subscribe,
-	newCustomCreator: function (name: string, creator: () => Circuit) {
-		update((creators) => {
-			creators[name] = creator;
-			return creators;
+	removeInstantiator: function (id: ID) {
+		update((instantiators) => {
+			delete instantiators[id];
+			return instantiators;
+		});
+	},
+	newInstantiator: function (id: ID, creator: () => Circuit) {
+		update((instantiators) => {
+			instantiators[id] = creator;
+			return instantiators;
 		});
 	}
 };

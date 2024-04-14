@@ -46,14 +46,16 @@ export class CustomCircuitInputs implements Circuit {
 	}
 
 	configSceneObject(posWrl: Vec2, scene: Scene | undefined = undefined): void {
-		const parentScene = scene || sceneManager.getCurrentScene();
-		if (parentScene.customCircuitInputs != null) {
-			throw Error();
-		}
+		// const parentScene = scene || sceneManager.getCurrentScene();
+		// if (parentScene.customCircuitInputs != null) {
+		// 	throw Error();
+		// }
 
-		this.sceneObject = CircuitSceneObject.new(this, posWrl, scene, ctx);
-		// sceneManager.currentScene.customCircuitInputs = this.sceneObject.id;
-		parentScene.customCircuitInputs = this;
+		// this.sceneObject = CircuitSceneObject.new(this, posWrl, scene, ctx);
+		// this.sceneObject.deletable = false;
+		// // sceneManager.currentScene.customCircuitInputs = this.sceneObject.id;
+		// parentScene.customCircuitInputs = this;
+		throw Error();
 	}
 
 	setValues(pins: ConsumerPin[]) {

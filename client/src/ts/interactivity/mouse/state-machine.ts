@@ -56,19 +56,18 @@ export interface MouseState {
 export class MouseStateMachine {
 	state: MouseState;
 
-	lastZoomAction: ZoomUserAction | undefined;
+	// lastZoomAction: ZoomUserAction | undefined;
 
-	zoomLevelDelta: number = 0;
-	zoomOriginScr: Vec2 | undefined = undefined;
+	// zoomLevelDelta: number = 0;
+	// zoomOriginScr: Vec2 | undefined = undefined;
 
-	nonZoomActionPerformed = false;
+	// nonZoomActionPerformed = false;
 
 	constructor() {
 		console.log('[MouseStateMachine]');
 		this.state = new Home();
 
 		document.addEventListener('keydown', (ev) => {
-			this.nonZoomActionPerformed = true;
 			if ((ev.key === 'c' || ev.key === 'C') && ev.ctrlKey) {
 				copySelectedToClipboard();
 			} else if ((ev.key === 'v' || ev.key === 'V') && ev.ctrlKey) {
@@ -77,24 +76,20 @@ export class MouseStateMachine {
 		});
 
 		document.addEventListener('mousedown', (ev) => {
-			this.nonZoomActionPerformed = true;
 			this.state.update(this, new MouseAction(MouseActionKind.MouseDown, ev));
 		});
 
 		document.addEventListener('mouseup', (ev) => {
-			this.nonZoomActionPerformed = true;
 			this.state.update(this, new MouseAction(MouseActionKind.MouseUp, ev));
 		});
 
 		document.addEventListener('mousemove', (ev) => {
-			// this.nonZoomActionPerformed = true;
 			this.state.update(this, new MouseAction(MouseActionKind.MouseMove, ev));
 		});
 
 		document.addEventListener(
 			'wheel',
 			(ev) => {
-				// console.log('[Wheel]: ', ev);
 				if (ev.target != canvas) {
 					return;
 				}
@@ -130,7 +125,6 @@ export class MouseStateMachine {
 				viewManager.zoom(zoomOriginScr, viewManager.zoomLevel + zoomDelta);
 
 				ev.preventDefault();
-				this.nonZoomActionPerformed = false;
 			},
 			{ passive: false }
 		);

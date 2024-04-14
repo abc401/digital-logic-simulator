@@ -8,7 +8,7 @@
 	export let simEngine = new SimEngine();
 	export let viewManager = new ViewManager();
 	export let sceneManager = new SceneManager();
-	export let actionsManager: ActionsManager 
+	export let actionsManager: ActionsManager;
 
 	export let onColor: string;
 	export let offColor: string;
@@ -42,9 +42,13 @@
 	import TopMenu from '@lib/components/TopMenu.svelte';
 	import SideBar from '@src/lib/components/SideBar.svelte';
 	import { ActionsManager } from '@src/ts/interactivity/actions-manager';
+	import { currentScene } from '@src/ts/scene/scene';
 
 	$: {
 		console.log('Most recently selected circuit: ', $focusedCircuit);
+	}
+	$: {
+		console.log('currentScene: ', $currentScene);
 	}
 
 	onMount(() => {
@@ -72,7 +76,7 @@
 
 		mouseStateMachine = new MouseStateMachine();
 		touchScreenStateMachine = new TouchScreenStateMachine();
-		actionsManager = new ActionsManager()
+		actionsManager = new ActionsManager();
 		console.log('TouchSM: ', touchScreenStateMachine);
 
 		const style = getComputedStyle(document.body);

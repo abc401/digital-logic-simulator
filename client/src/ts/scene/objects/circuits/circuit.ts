@@ -17,6 +17,7 @@ import { Scene } from '@ts/scene/scene.js';
 import type { ID } from '../../scene.js';
 import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from '@src/ts/config.js';
 import { ConcreteObjectKind } from '../../scene-manager.js';
+import type { UserAction } from '@src/ts/interactivity/actions-manager.js';
 // import type { Circuit } from './circuit.js';
 
 export type CircuitUpdateHandeler = (self: Circuit) => void;
@@ -312,6 +313,18 @@ export function getPropSetter(circuit: Circuit, name: string) {
 	return propSetter;
 }
 
+export class CreateCircuitUserAction implements UserAction {
+	name = '';
+
+	readonly sceneObjectID: ID;
+	constructor(private parentCircuit: Circuit) {
+		this.sceneObjectID = sceneManager.getCurrentScene().getNextID();
+	}
+
+	do(): void {}
+	undo(): void {}
+}
+
 export class CircuitSceneObject {
 	id: ID | undefined;
 	parentScene: Scene;
@@ -330,6 +343,7 @@ export class CircuitSceneObject {
 
 	isSelected = false;
 	label: string;
+	deletable: boolean = true;
 
 	onClicked: ((self: Circuit) => void) | undefined = undefined;
 
@@ -350,6 +364,24 @@ export class CircuitSceneObject {
 		this.tightRectWrl = this.calcTightRect();
 		this.looseRectWrl = this.calcLooseRect();
 		this.parentScene = new Scene();
+	}
+
+	static newWithID(
+		id: ID,
+		parentCircuit: Circuit,
+		posWrl: Vec2,
+		parentScene: Scene | undefined = undefined,
+		ctx: CanvasRenderingContext2D
+	) {
+		const sceneObject = new CircuitSceneObject(parentCircuit, posWrl, ctx);
+
+		if (parentScene == null) {
+			sceneObject.parentScene = sceneManager.getCurrentScene();
+		} else {
+			sceneObject.parentScene = parentScene;
+		}
+		sceneObject.parentScene.registerCircuitWithID(id, sceneObject);
+		return sceneObject;
 	}
 
 	static new(
