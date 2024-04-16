@@ -9,19 +9,6 @@ import { HOME_SCENE_NAME } from '@ts/config.js';
 import { writable } from 'svelte/store';
 import { CircuitSceneObject } from './objects/circuits/circuit.js';
 import { Vec2 } from '../math.js';
-import type { SceneObject } from './scene-manager.js';
-
-// export class AddCircuit implements Action {
-// 	circuitID: ID;
-// 	constructor(private targetScene: Scene, private circuit: Circuit) {
-// 		this.circuitID = targetScene.getNextID();
-// 	}
-// 	do(): void {
-// 		CircuitSceneObject.new(this.circuit)
-// 		this.targetScene.registerCircuitWithID(this.circuitID)
-// 	}
-// 	undo(): void {}
-// }
 
 export type ID = number;
 

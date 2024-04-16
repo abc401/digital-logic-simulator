@@ -11,6 +11,7 @@ import { CircuitSceneObject } from './circuit.js';
 export class CustomCircuitInputs implements Circuit {
 	simFrameAllocated = false;
 
+	circuitType = 'CustomCircuitInputs';
 	props = { label: 'CustomCircuitInputs' };
 	propTypes = {};
 	propSetters = {};

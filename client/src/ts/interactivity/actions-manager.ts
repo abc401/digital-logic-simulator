@@ -27,6 +27,10 @@ export class ActionsManager {
 		this.currentNode = undefined;
 
 		document.addEventListener('keydown', (ev) => {
+			console.log('target: ', ev.target);
+			if (ev.target !== document.body) {
+				return;
+			}
 			if (!ev.ctrlKey) {
 				return;
 			}

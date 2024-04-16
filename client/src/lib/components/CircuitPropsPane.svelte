@@ -1,6 +1,6 @@
 <script lang="ts">
 	// import type { Circuit } from '@ts/scene/objects/circuits/circuit';
-	import { focusedCircuit } from '@stores/focusedCircuit';
+	import { circuitProps, focusedCircuit } from '@stores/focusedCircuit';
 	import { CircuitPropType, getPropType } from '@ts/scene/objects/circuits/circuit';
 	import BoolProp from '@comps/CircuitProps/BoolProp.svelte';
 	import NumberProp from '@comps/CircuitProps/NumberProp.svelte';
@@ -9,8 +9,8 @@
 
 <span class=" px-4 py-2 text-xs uppercase opacity-60">Props</span>
 <div {...$$restProps}>
-	{#if $focusedCircuit != null}
-		{#each Object.keys($focusedCircuit.parentCircuit.props) as name (name)}
+	{#if $circuitProps != null && $focusedCircuit != null}
+		{#each Object.keys($circuitProps) as name (name)}
 			{#if getPropType($focusedCircuit.parentCircuit, name) === CircuitPropType.Bool}
 				<BoolProp {name} circuit={$focusedCircuit.parentCircuit} />
 			{:else if getPropType($focusedCircuit.parentCircuit, name) === CircuitPropType.NaturalNumber}

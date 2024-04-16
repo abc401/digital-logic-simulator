@@ -9,9 +9,10 @@ import { Panning } from './panning.js';
 import { Vec2 } from '@ts/math.js';
 import { Home } from './home.js';
 import { DraggingSelection } from './dragging-selection.js';
-import { canvas, sceneManager } from '@routes/+page.svelte';
+import { actionsManager, canvas, sceneManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 import type { ID } from '@src/ts/scene/scene.js';
+import { DeselectCircuitUserAction, SelectCircuitUserAction } from '../../actions.js';
 
 export class MouseDownPrimaryButton implements MouseState {
 	constructor(
@@ -44,7 +45,8 @@ export class MouseDownPrimaryButton implements MouseState {
 				if (!this.circuit.isSelected) {
 					sceneManager.clearSelectedCircuits();
 				}
-				sceneManager.selectCircuit(this.circuit.id as ID);
+				// sceneManager.selectCircuit(this.circuit.id as ID);
+				actionsManager.do(new SelectCircuitUserAction(this.circuit.id as ID));
 				const locScr = new Vec2(payload.offsetX, payload.offsetY);
 
 				stateMachine.state = new DraggingSelection(this.circuit, this.offsetWrl, locScr);
@@ -56,9 +58,9 @@ export class MouseDownPrimaryButton implements MouseState {
 			}
 			if (this.circuit != null) {
 				if (this.circuit.isSelected) {
-					sceneManager.deselectCircuit(this.circuit.id as ID);
+					actionsManager.do(new DeselectCircuitUserAction(this.circuit.id as ID));
 				} else {
-					sceneManager.selectCircuit(this.circuit.id as ID);
+					actionsManager.do(new SelectCircuitUserAction(this.circuit.id as ID));
 				}
 			}
 			stateMachine.state = new Home();

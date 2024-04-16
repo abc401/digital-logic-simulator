@@ -16,8 +16,9 @@ export class InputCircuit implements Circuit {
 	inputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 	outputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 
+	circuitType = 'Input';
 	props: InputCircuitProps = {
-		label: 'InputCircuit',
+		label: 'Input',
 		value: false
 	};
 

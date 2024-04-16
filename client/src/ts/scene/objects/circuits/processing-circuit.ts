@@ -39,7 +39,7 @@ export class ProcessingCircuit implements Circuit {
 		nConsumerPins: number,
 		nProducerPins: number,
 		updateHandeler: CircuitUpdateHandeler,
-		label: string
+		public circuitType: string
 	) {
 		this.sceneObject = undefined;
 
@@ -53,7 +53,7 @@ export class ProcessingCircuit implements Circuit {
 			this.consumerPins[i] = new ConsumerPin(this, i);
 		}
 
-		this.props.label = label;
+		this.props.label = circuitType;
 
 		this.updateHandeler = updateHandeler;
 

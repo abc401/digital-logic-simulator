@@ -5,15 +5,14 @@ import { CustomCircuitInputs } from './objects/circuits/custom-circuit-inputs.js
 import { Wire } from './objects/wire.js';
 // import { circuitCreators, domLog, secondaryCtx, viewManager } from '../main.js';
 import { Vec2 } from '@ts/math.js';
-import { actionsManager, sceneManager, viewManager } from '@routes/+page.svelte';
+import { actionsManager, viewManager } from '@routes/+page.svelte';
 import { Scene, type ID } from './scene.js';
 import { currentScene } from './scene.js';
-import { domLog } from '@lib/stores/debugging.js';
 import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config.js';
 import { focusedCircuit } from '@lib/stores/focusedCircuit.js';
 import type { ProducerPin } from './objects/producer-pin.js';
 import type { ConsumerPin } from './objects/consumer-pin.js';
-import type { UserAction } from '../interactivity/actions-manager.js';
+import { SwitchSceneUserAction } from '../interactivity/actions.js';
 
 export interface SceneObject {
 	// id: number;
@@ -36,40 +35,6 @@ export interface ColliderObject {
 				object: Circuit | ProducerPin | ConsumerPin;
 		  }
 		| undefined;
-}
-
-export class SwitchSceneUserAction implements UserAction {
-	name = '';
-	private fromSceneID: ID;
-	constructor(private toSceneID: ID) {
-		const currentScene_ = currentScene.get();
-		if (currentScene_.id == null) {
-			throw Error();
-		}
-		this.fromSceneID = currentScene_.id;
-	}
-
-	do(): void {
-		const toScene = sceneManager.scenes.get(this.toSceneID);
-		if (toScene == null) {
-			domLog('[SceneManager.setCurrentScene] Provided sceneId is invalid.');
-			throw Error();
-		}
-
-		console.log('SwitchSceneUserAction.do');
-		currentScene.set(toScene);
-	}
-
-	undo(): void {
-		const fromScene = sceneManager.scenes.get(this.fromSceneID);
-		if (fromScene == null) {
-			domLog('[SceneManager.setCurrentScene] Provided sceneId is invalid.');
-			throw Error();
-		}
-
-		console.log('SwitchSceneUserAction.undo');
-		currentScene.set(fromScene);
-	}
 }
 
 export const debugObjects = {

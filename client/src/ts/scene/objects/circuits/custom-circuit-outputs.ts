@@ -12,6 +12,7 @@ export class CustomCircuitOutputs implements Circuit {
 	inputWireUpdationStrategy = UpdationStrategy.Immediate;
 	outputWireUpdationStrategy = UpdationStrategy.Immediate;
 
+	circuitType = 'CustomCircuitOutputs';
 	props = { label: 'CustomCircuitOutputs' };
 	propTypes = {};
 	propSetters = {};

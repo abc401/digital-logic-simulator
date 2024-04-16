@@ -5,6 +5,7 @@ import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
 import { Wire } from '../wire.js';
 import {
+	actionsManager,
 	circuitColor,
 	ornamentColor,
 	sceneManager,
@@ -18,6 +19,7 @@ import type { ID } from '../../scene.js';
 import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from '@src/ts/config.js';
 import { ConcreteObjectKind } from '../../scene-manager.js';
 import type { UserAction } from '@src/ts/interactivity/actions-manager.js';
+import { SetCircuitPropUserAction } from '@src/ts/interactivity/actions.js';
 // import type { Circuit } from './circuit.js';
 
 export type CircuitUpdateHandeler = (self: Circuit) => void;
@@ -48,20 +50,28 @@ export const defaultPropSetters: PropSetters = {
 		if (typeof value != 'string') {
 			throw Error();
 		}
-		circuit.props.label = value.trim();
-		if (circuit.sceneObject != null) {
-			circuit.sceneObject.setLabel(circuit.props.label);
+		if (circuit.sceneObject == null) {
+			throw Error();
 		}
+
+		if (value.trim() === '') {
+			circuit.props.label = circuit.circuitType;
+			circuit.sceneObject.refreshLabel();
+			return false;
+		}
+
+		circuit.props.label = value.trim();
+		circuit.sceneObject.refreshLabel();
 		return true;
 	}
 };
 
 export interface Circuit {
+	circuitType: string;
+
 	props: Props;
 	propTypes: PropTypes;
 	propSetters: PropSetters;
-
-	// setProp(name: number, value: any, a: number): boolean;
 
 	consumerPins: ConsumerPin[];
 	producerPins: ProducerPin[];
@@ -85,6 +95,7 @@ export function dummyCircuit() {
 		consumerPins: [],
 		producerPins: [],
 
+		circuitType: 'Dummy',
 		props: { label: 'Dummy' },
 		propTypes: {},
 		propSetters: {},
@@ -314,6 +325,34 @@ export function getPropSetter(circuit: Circuit, name: string) {
 	return propSetter;
 }
 
+export function setProp(circuit: Circuit, name: string, value: any) {
+	if (
+		circuit.sceneObject == null ||
+		circuit.sceneObject.id == null ||
+		circuit.sceneObject.parentScene.id == null
+	) {
+		throw Error();
+	}
+
+	const propSetter = getPropSetter(circuit, name);
+	const previousValue = circuit.props[name];
+	if (!propSetter(circuit, value)) {
+		return false;
+	}
+	const newValue = circuit.props[name];
+	if (previousValue != newValue) {
+		actionsManager.push(
+			new SetCircuitPropUserAction(
+				circuit.sceneObject.parentScene.id,
+				circuit.sceneObject.id,
+				name,
+				value,
+				previousValue
+			)
+		);
+	}
+}
+
 export class CreateCircuitUserAction implements UserAction {
 	name = '';
 
@@ -425,7 +464,13 @@ export class CircuitSceneObject {
 		}
 
 		this.ctx.font = `bold ${CircuitSceneObject.labelTextSizeWrl}px "Advent Pro"`;
-		const metrics = this.ctx.measureText(this.label);
+		let actualLabel: string;
+		if (this.label === this.parentCircuit.circuitType) {
+			actualLabel = this.label;
+		} else {
+			actualLabel = `${this.label}(${this.parentCircuit.circuitType})`;
+		}
+		const metrics = this.ctx.measureText(actualLabel);
 
 		const labelHeight =
 			Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
@@ -518,8 +563,9 @@ export class CircuitSceneObject {
 		this.calcRects();
 	}
 
-	setLabel(label: string) {
-		this.label = label;
+	refreshLabel() {
+		this.label = this.parentCircuit.props.label;
+		// this.label = label;
 		this.calcRects();
 	}
 
@@ -539,8 +585,15 @@ export class CircuitSceneObject {
 		ctx.font = `bold ${labelSizeScr}px "Advent Pro"`;
 		ctx.fillStyle = '#fff';
 		ctx.textBaseline = 'bottom';
+		let actualLabel: string;
+		if (this.label === this.parentCircuit.circuitType) {
+			actualLabel = this.label;
+		} else {
+			actualLabel = `${this.label}(${this.parentCircuit.circuitType})`;
+		}
+
 		ctx.fillText(
-			this.label,
+			actualLabel,
 			headRectScr.x + CircuitSceneObject.paddingXWrl * viewManager.zoomLevel,
 			headRectScr.y + headRectScr.h - CircuitSceneObject.headPaddingYWrl * viewManager.zoomLevel
 		);

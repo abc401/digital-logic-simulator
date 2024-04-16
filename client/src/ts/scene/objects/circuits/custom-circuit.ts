@@ -16,6 +16,7 @@ export class CustomCircuit implements Circuit {
 	inputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 	outputWireUpdationStrategy = UpdationStrategy.InNextFrame;
 
+	circuitType: string;
 	props = { label: '' };
 	propTypes = {};
 	propSetters = {};
@@ -85,6 +86,8 @@ export class CustomCircuit implements Circuit {
 		}
 
 		this.customOutputs.customCircuitProducerPins = this.producerPins;
+
+		this.circuitType = scene.name;
 		this.props.label = scene.name;
 
 		console.log('CustomCircuit.constructor: ', this);

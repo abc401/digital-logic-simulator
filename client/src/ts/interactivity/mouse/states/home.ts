@@ -56,12 +56,6 @@ export class Home implements MouseState {
 					throw Error();
 				}
 
-				// if (circuit.sceneObject.isSelected) {
-				// 	sceneManager.deselectCircuit(circuit.sceneObject.id);
-				// } else {
-				// 	sceneManager.selectCircuit(circuit.sceneObject.id);
-				// }
-
 				stateMachine.state = new MouseDownPrimaryButton(
 					circuit.sceneObject,
 					circuit.sceneObject.tightRectWrl.xy.sub(viewManager.screenToWorld(locScr))
