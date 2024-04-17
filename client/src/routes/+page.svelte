@@ -123,7 +123,7 @@
 			{@html $canvasState}
 		</div>
 		<SimControls
-			class="absolute bottom-0 left-1/2 grid -translate-x-1/2 grid-flow-col justify-center rounded-lg border border-neutral-700 bg-neutral-900 px-2"
+			class="absolute bottom-0 left-1/2 m-3 grid -translate-x-1/2 grid-flow-col justify-center rounded-lg border border-neutral-700 bg-neutral-900 px-2"
 		/>
 	</div>
 </div>

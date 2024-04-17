@@ -6,10 +6,11 @@
 	import DropDownToggle from './DropDown/DropDownToggle.svelte';
 	import DropDownMenu, { DropDownPosition } from './DropDown/DropDownMenu.svelte';
 	import DropDownItem from './DropDown/DropDownItem.svelte';
-	import { getSM } from '@src/routes/+page.svelte';
+	import { getSM, simEngine } from '@src/routes/+page.svelte';
 	import { integratedCircuits } from '../stores/integrated-circuits';
 	import type { ID } from '@src/ts/scene/scene';
 	import type { Circuit } from '@src/ts/scene/objects/circuits/circuit';
+	import { simulation } from '../stores/simulation';
 
 	function createCircuit(circuitName: string, instantiator: () => Circuit) {
 		let [mouseSM, touchScreenSM] = getSM();
@@ -42,16 +43,39 @@
 		</DropDown>
 	{/each}
 	<DropDown>
-		<DropDownToggle class="my-1 px-3 py-1.5 ">ICs</DropDownToggle>
-		<DropDownMenu position={DropDownPosition.Beside}>
-			{#each Object.entries($icInstantiators) as [id, instantiator] (id)}
-				<DropDownItem
-					action={() => {
-						createCircuit(integratedCircuits.getName(+id), instantiator);
-						instantiator;
-					}}>{integratedCircuits.getName(+id)}</DropDownItem
-				>
-			{/each}
+		<DropDownToggle class="my-1 px-3 py-1.5 ">Simulation</DropDownToggle>
+		<DropDownMenu>
+			<DropDownItem
+				action={() => {
+					simulation.setPaused(true);
+				}}>Pause</DropDownItem
+			>
+			<DropDownItem
+				action={() => {
+					simEngine.runSim();
+				}}>Play</DropDownItem
+			>
+			<DropDownItem
+				action={() => {
+					simEngine.step();
+				}}>Step</DropDownItem
+			>
 		</DropDownMenu>
 	</DropDown>
+
+	{#if Object.entries($icInstantiators).length > 0}
+		<DropDown>
+			<DropDownToggle class="my-1 px-3 py-1.5 ">ICs</DropDownToggle>
+			<DropDownMenu position={DropDownPosition.Below}>
+				{#each Object.entries($icInstantiators) as [id, instantiator] (id)}
+					<DropDownItem
+						action={() => {
+							createCircuit(integratedCircuits.getName(+id), instantiator);
+							instantiator;
+						}}>{integratedCircuits.getName(+id)}</DropDownItem
+					>
+				{/each}
+			</DropDownMenu>
+		</DropDown>
+	{/if}
 </div>

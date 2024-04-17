@@ -67,7 +67,7 @@ export class SimEngine {
 		simulation.setPaused(true);
 	}
 
-	async runSim() {
+	runSim() {
 		simulation.setPaused(false);
 		const callback = () => {
 			this.step();
