@@ -87,6 +87,11 @@ export class CustomCircuit implements Circuit {
 
 		this.customOutputs.customCircuitProducerPins = this.producerPins;
 
+		if (scene.id == null) {
+			throw Error();
+		}
+		// const name =
+
 		this.circuitType = scene.name;
 		this.props.label = scene.name;
 
@@ -158,6 +163,16 @@ export class CustomCircuit implements Circuit {
 		}
 		this.updateHandeler(this);
 		console.log('CustomCircuit.constructor: ', this);
+	}
+
+	refreshLabel() {
+		if (this.props.label === this.circuitType) {
+			this.props.label = this.scene.name;
+		}
+		this.circuitType = this.scene.name;
+		if (this.sceneObject != null) {
+			this.sceneObject.refreshLabel();
+		}
 	}
 
 	onSceneObjectConfigured(): void {

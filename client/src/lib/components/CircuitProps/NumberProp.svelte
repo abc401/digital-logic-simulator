@@ -46,7 +46,6 @@
 					const num = +input.value;
 					setProp(circuit, name, `${num - 1}`);
 					input.value = $circuitProps[name];
-					ev.currentTarget.blur();
 				}}
 				class="material-symbols-outlined | hover:bg-neutral-700 active:bg-neutral-500"
 				>expand_more</button
@@ -76,7 +75,7 @@
 					const num = +input.value;
 					setProp(circuit, name, `${num + 1}`);
 					input.value = $circuitProps[name];
-					ev.currentTarget.blur();
+					// ev.currentTarget.blur();
 				}}
 				class="material-symbols-outlined | hover:bg-neutral-700 active:bg-neutral-500"
 				>expand_less</button

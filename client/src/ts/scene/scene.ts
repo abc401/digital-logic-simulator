@@ -11,6 +11,7 @@ import { CircuitSceneObject } from './objects/circuits/circuit.js';
 import { Vec2 } from '../math.js';
 
 export type ID = number;
+export type SceneID = number;
 
 export class Scene {
 	id: ID | undefined;
@@ -31,7 +32,10 @@ export class Scene {
 
 	lastUpdateIdx = 0;
 
-	customCircuitInstances = new Map<ID, { lastUpdateIdx: number; instances: Set<CustomCircuit> }>();
+	customCircuitInstances = new Map<
+		SceneID,
+		{ lastUpdateIdx: number; instances: Set<CustomCircuit> }
+	>();
 
 	constructor() {
 		// console.trace('Scene Constructor');
@@ -126,6 +130,10 @@ export class Scene {
 	 *  ensure that the passed in id is not already taken
 	 */
 	registerWireWithId(id: ID, wire: Wire) {
+		if (this.idToWire.get(id) != null) {
+			throw Error();
+		}
+
 		this.idToWire.set(id, wire);
 		wire.id = id;
 
@@ -173,6 +181,14 @@ export class Scene {
 				instance.updateCircuitGraph();
 			}
 			entries.lastUpdateIdx = scene.lastUpdateIdx;
+		}
+	}
+
+	refreshICLabels() {
+		for (const [, { instances }] of this.customCircuitInstances) {
+			for (const ic of instances) {
+				ic.refreshLabel();
+			}
 		}
 	}
 }

@@ -12,7 +12,11 @@ import { DraggingSelection } from './dragging-selection.js';
 import { actionsManager, canvas, sceneManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 import type { ID } from '@src/ts/scene/scene.js';
-import { DeselectCircuitUserAction, SelectCircuitUserAction } from '../../actions.js';
+import {
+	DeselectAllUserAction,
+	DeselectCircuitUserAction,
+	SelectCircuitUserAction
+} from '../../actions.js';
 
 export class MouseDownPrimaryButton implements MouseState {
 	constructor(
@@ -43,7 +47,8 @@ export class MouseDownPrimaryButton implements MouseState {
 				}
 
 				if (!this.circuit.isSelected) {
-					sceneManager.clearSelectedCircuits();
+					actionsManager.do(new DeselectAllUserAction());
+					// sceneManager.deselectAll();
 				}
 				// sceneManager.selectCircuit(this.circuit.id as ID);
 				actionsManager.do(new SelectCircuitUserAction(this.circuit.id as ID));
@@ -54,7 +59,8 @@ export class MouseDownPrimaryButton implements MouseState {
 			}
 		} else if (action.kind === MouseActionKind.MouseUp) {
 			if (!payload.ctrlKey) {
-				sceneManager.clearSelectedCircuits();
+				actionsManager.do(new DeselectAllUserAction());
+				// sceneManager.deselectAll();
 			}
 			if (this.circuit != null) {
 				if (this.circuit.isSelected) {

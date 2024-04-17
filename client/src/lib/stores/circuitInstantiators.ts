@@ -8,7 +8,6 @@ import { ProcessingCircuit } from '@ts/scene/objects/circuits/processing-circuit
 import { InputCircuit } from '@ts/scene/objects/circuits/input-circuit';
 import { writable } from 'svelte/store';
 import { sceneManager } from '@routes/+page.svelte';
-import { integratedCircuits } from './integrated-circuits';
 import type { ID } from '@src/ts/scene/scene';
 
 // let customCircuitInstances = new Map<number, CustomCircuit[]>();
@@ -194,9 +193,9 @@ export const icInstantiators = {
 			return instantiators;
 		});
 	},
-	newInstantiator: function (id: ID, creator: () => Circuit) {
+	newInstantiator: function (id: ID, instantiator: () => Circuit) {
 		update((instantiators) => {
-			instantiators[id] = creator;
+			instantiators[id] = instantiator;
 			return instantiators;
 		});
 	}

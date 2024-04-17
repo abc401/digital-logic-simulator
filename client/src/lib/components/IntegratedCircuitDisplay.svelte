@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { actionsManager, sceneManager } from '@src/routes/+page.svelte';
-	import { RenameICUserAction, icNames, integratedCircuits } from '../stores/integrated-circuits';
-	import { currentScene, type ID } from '@src/ts/scene/scene';
-	import { CustomCircuitInputs } from '@src/ts/scene/objects/circuits/custom-circuit-inputs';
+	import { icNames } from '@stores/integrated-circuits';
+	import { RenameICUserAction } from '@ts/interactivity/actions';
+	import { currentScene, type ID } from '@ts/scene/scene';
 	import clsx from 'clsx';
 
 	export let sceneId: ID;

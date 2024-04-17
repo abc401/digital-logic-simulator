@@ -68,10 +68,35 @@ export class MouseStateMachine {
 		this.state = new Home();
 
 		document.addEventListener('keydown', (ev) => {
-			if ((ev.key === 'c' || ev.key === 'C') && ev.ctrlKey) {
+			const activeElement = document.activeElement;
+			if (activeElement != null) {
+				const tagName = activeElement.tagName;
+				if (
+					(tagName.toLowerCase() === 'input' &&
+						(activeElement as HTMLInputElement).type === 'text') ||
+					tagName.toLowerCase() === 'textarea'
+				) {
+					return;
+				}
+			}
+
+			// console.log('target: ', ev.target);
+			if (!ev.ctrlKey) {
+				return;
+			}
+
+			if (ev.key === 'c' || ev.key === 'C') {
 				copySelectedToClipboard();
-			} else if ((ev.key === 'v' || ev.key === 'V') && ev.ctrlKey) {
+			} else if (ev.key === 'v' || ev.key === 'V') {
 				pasteFromClipboard();
+			}
+
+			if (ev.key.toLowerCase() == 'z' && ev.shiftKey) {
+				actionsManager.redo();
+				console.log('Redo');
+			} else if (ev.key.toLowerCase() == 'z') {
+				actionsManager.undo();
+				console.log('Undo');
 			}
 		});
 

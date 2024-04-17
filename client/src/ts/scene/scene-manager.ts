@@ -53,6 +53,7 @@ export class SceneManager {
 
 	constructor() {
 		// this.currentScene = new Scene();
+
 		// this.newScene();
 		const defaultScene = new Scene();
 		defaultScene.name = HOME_SCENE_NAME;
@@ -116,7 +117,7 @@ export class SceneManager {
 
 	setCurrentScene(sceneId: number) {
 		actionsManager.do(new SwitchSceneUserAction(sceneId));
-		this.clearSelectedCircuits();
+		// this.deselectAll();
 	}
 
 	getCurrentScene() {
@@ -178,7 +179,7 @@ export class SceneManager {
 	// 	}
 	// }
 
-	clearSelectedCircuits() {
+	deselectAll() {
 		for (const circuit of this.selectedCircuits.values()) {
 			circuit.isSelected = false;
 		}
@@ -189,6 +190,13 @@ export class SceneManager {
 			wire.isSelected = false;
 		}
 		this.selectedWires = new Set();
+	}
+
+	deselectAllCircuits() {
+		for (const circuit of this.selectedCircuits.values()) {
+			circuit.isSelected = false;
+		}
+		this.selectedCircuits = new Set();
 	}
 
 	selectCircuit(id: ID) {
@@ -236,8 +244,9 @@ export class SceneManager {
 				}
 
 				if (this.selectedCircuits.has(wire.consumerPin.parentCircuit.sceneObject)) {
-					this.selectedWires.add(wire);
-					wire.isSelected = true;
+					this.selectWireUnchecked(wire);
+					// this.selectedWires.add(wire);
+					// wire.isSelected = true;
 				}
 			}
 		}
@@ -255,11 +264,25 @@ export class SceneManager {
 			}
 
 			if (this.selectedCircuits.has(pin.wire.producerPin.parentCircuit.sceneObject)) {
-				this.selectedWires.add(pin.wire);
-				pin.wire.isSelected = true;
+				this.selectWireUnchecked(pin.wire);
+				// this.selectedWires.add(pin.wire);
+				// pin.wire.isSelected = true;
 			}
 		}
 		console.log('[SceneManager] Selected Wires: ', this.selectedWires);
+	}
+	selectCircuitUnchecked(id: ID) {
+		const currentScene = this.getCurrentScene();
+		const circuit = currentScene.idToCircuit.get(id);
+
+		if (circuit == null) {
+			throw Error();
+		}
+
+		this.selectedCircuits.add(circuit);
+		circuit.isSelected = true;
+
+		console.log('[SceneManager] Selected Circuits: ', this.selectedCircuits);
 	}
 
 	deselectCircuit(id: ID) {
@@ -305,7 +328,12 @@ export class SceneManager {
 		console.log('[SceneManager] Selected Wires: ', this.selectedWires);
 	}
 
-	selectWire(wire: Wire) {
+	selectWireUnchecked(wire: Wire) {
+		if (wire.id == null) {
+			throw Error();
+		}
+
+		console.log('Selected wire: ', wire);
 		this.selectedWires.add(wire);
 		wire.isSelected = true;
 	}

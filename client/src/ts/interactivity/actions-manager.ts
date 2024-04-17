@@ -25,23 +25,6 @@ export class ActionsManager {
 	constructor() {
 		this.startNode = undefined;
 		this.currentNode = undefined;
-
-		document.addEventListener('keydown', (ev) => {
-			console.log('target: ', ev.target);
-			if (ev.target !== document.body) {
-				return;
-			}
-			if (!ev.ctrlKey) {
-				return;
-			}
-			if (ev.key.toLowerCase() == 'z' && ev.shiftKey) {
-				this.redo();
-				console.log('Redo');
-			} else if (ev.key.toLowerCase() == 'z') {
-				this.undo();
-				console.log('Undo');
-			}
-		});
 	}
 
 	push(action: UserAction) {
@@ -53,6 +36,7 @@ export class ActionsManager {
 			this.currentNode.next = node;
 			this.currentNode = this.currentNode.next;
 		}
+		console.log('Push: ', this.currentNode.action.name);
 	}
 
 	undo() {
@@ -60,6 +44,7 @@ export class ActionsManager {
 			return false;
 		}
 		this.currentNode.action.undo();
+		console.log('Undo: ', this.currentNode.action.name);
 		if (this.currentNode.prev != null) {
 			this.currentNode = this.currentNode.prev;
 		} else {
@@ -83,12 +68,14 @@ export class ActionsManager {
 		}
 
 		this.currentNode.action.do();
+		console.log('Do: ', this.currentNode.action.name);
 		return true;
 	}
 
 	do(action: UserAction) {
 		this.push(action);
 		action.do();
+		console.log('Do: ', action.name);
 	}
 }
 // class ActionsManager {}

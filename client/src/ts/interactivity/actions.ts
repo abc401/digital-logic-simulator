@@ -8,10 +8,13 @@ import {
 } from '@ts/scene/objects/circuits/circuit';
 import { Wire } from '@ts/scene/objects/wire';
 import type { UserAction } from './actions-manager';
-import { currentScene, type ID } from '../scene/scene';
+import { Scene, currentScene, type ID } from '../scene/scene';
 import type { Vec2 } from '../math';
-import { circuitProps } from '@src/lib/stores/focusedCircuit';
+import { circuitProps, focusedCircuit } from '@src/lib/stores/focusedCircuit';
 import { domLog } from '@src/lib/stores/debugging';
+import { icNames } from '@src/lib/stores/integrated-circuits';
+import { icInstantiators, icInstanciator } from '@src/lib/stores/circuitInstantiators';
+import { integratedCircuits } from '@src/lib/stores/integrated-circuits';
 
 export const clipboard = {
 	circuits: new Array<Circuit>(),
@@ -67,7 +70,7 @@ export function pasteFromClipboard() {
 		);
 	}
 
-	sceneManager.clearSelectedCircuits();
+	sceneManager.deselectAll();
 
 	const currentScene_ = currentScene.get();
 
@@ -138,7 +141,7 @@ export class ZoomUserAction implements UserAction {
 }
 
 export class CreateCircuitUserAction implements UserAction {
-	name = '';
+	name = 'CreateCircuitUserAction';
 	private readonly circuitID: ID;
 	constructor(
 		private targetSceneID: ID,
@@ -181,7 +184,7 @@ export class CreateCircuitUserAction implements UserAction {
 }
 
 export class DeleteWireUserAction implements UserAction {
-	name = '';
+	name = 'DeleteWireUserAction';
 
 	wireID: ID;
 
@@ -255,7 +258,7 @@ export class DeleteWireUserAction implements UserAction {
 }
 
 export class CreateWireUserAction implements UserAction {
-	name = '';
+	name = 'CreateWireUserAction';
 	wireID: ID;
 
 	producerCircuitID: ID;
@@ -308,6 +311,7 @@ export class CreateWireUserAction implements UserAction {
 		);
 
 		wire.registerWithID(this.wireID, targetScene);
+		console.log('[CreatingWireUserAction.do] wire: ', wire);
 	}
 	undo(): void {
 		const targetScene = sceneManager.scenes.get(this.sceneID);
@@ -324,7 +328,7 @@ export class CreateWireUserAction implements UserAction {
 }
 
 export class SetCircuitPropUserAction implements UserAction {
-	name = '';
+	name = 'SetCircuitPropUserAction';
 
 	constructor(
 		private sceneID: ID,
@@ -375,7 +379,7 @@ export class SetCircuitPropUserAction implements UserAction {
 }
 
 export class SelectCircuitUserAction implements UserAction {
-	name = '';
+	name = 'SelectCircuitUserAction';
 	private sceneID: ID;
 	constructor(private circuitID: ID) {
 		const sceneID = currentScene.get().id;
@@ -407,7 +411,7 @@ export class SelectCircuitUserAction implements UserAction {
 }
 
 export class DeselectCircuitUserAction implements UserAction {
-	name = '';
+	name = 'DeselectCircuitUserAction';
 	private sceneID: ID;
 	constructor(private circuitID: ID) {
 		const sceneID = currentScene.get().id;
@@ -438,14 +442,31 @@ export class DeselectCircuitUserAction implements UserAction {
 	}
 }
 export class SwitchSceneUserAction implements UserAction {
-	name = '';
+	name = 'SwitchSceneUserAction';
 	private fromSceneID: ID;
+
+	private selectedCircuits = new Array<ID>();
+	private selectedWires = new Array<ID>();
+
 	constructor(private toSceneID: ID) {
 		const currentScene_ = currentScene.get();
 		if (currentScene_.id == null) {
 			throw Error();
 		}
 		this.fromSceneID = currentScene_.id;
+		for (const circuit of sceneManager.selectedCircuits) {
+			if (circuit.id == null) {
+				throw Error();
+			}
+			this.selectedCircuits.push(circuit.id as ID);
+		}
+		for (const wire of sceneManager.selectedWires) {
+			if (wire.id == null) {
+				console.error('Wire without id: ', wire);
+				throw Error();
+			}
+			this.selectedWires.push(wire.id as ID);
+		}
 	}
 
 	do(): void {
@@ -456,7 +477,16 @@ export class SwitchSceneUserAction implements UserAction {
 		}
 
 		console.log('SwitchSceneUserAction.do');
+		toScene.refreshICLabels();
+		// for (const [, { instances }] of toScene.customCircuitInstances) {
+		// 	for (const ic of instances) {
+		// 		ic.refreshLabel();
+		// 	}
+		// }
 		currentScene.set(toScene);
+		sceneManager.deselectAll();
+		// sceneManager.selectedCircuits = new Set();
+		// sceneManager.selectedWires = new Set();
 	}
 
 	undo(): void {
@@ -467,6 +497,176 @@ export class SwitchSceneUserAction implements UserAction {
 		}
 
 		console.log('SwitchSceneUserAction.undo');
+		fromScene.refreshICLabels();
+
+		// for (const [, { instances }] of fromScene.customCircuitInstances) {
+		// 	for (const ic of instances) {
+		// 		ic.refreshLabel();
+		// 	}
+		// }
 		currentScene.set(fromScene);
+
+		// sceneManager.selectedCircuits = new Set();
+		sceneManager.deselectAllCircuits();
+		const scene = sceneManager.scenes.get(this.fromSceneID);
+		if (scene == null) {
+			throw Error();
+		}
+		for (const circuitID of this.selectedCircuits) {
+			sceneManager.selectCircuitUnchecked(circuitID);
+		}
+
+		if (this.selectedCircuits.length != 1) {
+			focusedCircuit.set(undefined);
+		} else {
+			const circuitID = this.selectedCircuits[0];
+			const circuit = scene.idToCircuit.get(circuitID);
+			if (circuit == null) {
+				throw Error();
+			}
+
+			focusedCircuit.set(circuit);
+		}
+
+		sceneManager.selectedWires = new Set();
+		for (const wireID of this.selectedWires) {
+			const wire = scene.idToWire.get(wireID);
+			if (wire == null) {
+				throw Error();
+			}
+			sceneManager.selectWireUnchecked(wire);
+			// sceneManager.selectedWires.add(wire);
+		}
+	}
+}
+export class CreateICUserAction implements UserAction {
+	name = 'CreateICUserAction';
+
+	static nextICNumber = 0;
+
+	currentICNumber: number;
+
+	private scene: Scene | undefined;
+	private sceneID: number;
+	constructor() {
+		this.sceneID = sceneManager.getNextSceneID();
+		this.currentICNumber = CreateICUserAction.nextICNumber;
+		CreateICUserAction.nextICNumber += 1;
+	}
+
+	do(): void {
+		this.scene = Scene.newWithIO();
+
+		if (this.currentICNumber === 0) {
+			this.scene.name = 'New Circuit';
+		} else {
+			this.scene.name = `New Circuit (${this.currentICNumber})`;
+		}
+
+		sceneManager.registerSceneWithID(this.sceneID, this.scene);
+		icNames.add(this.scene.name.toLowerCase());
+
+		icInstantiators.newInstantiator(this.sceneID, icInstanciator(this.sceneID));
+
+		// integratedCircuits.newIC()
+		integratedCircuits.update((circuits) => {
+			if (this.scene == null) {
+				throw Error();
+			}
+
+			circuits.set(this.sceneID, this.scene.name);
+			return circuits;
+		});
+	}
+	undo(): void {
+		sceneManager.unregisterScene(this.sceneID);
+		integratedCircuits.update((circuits) => {
+			if (this.scene == null) {
+				throw Error();
+			}
+			icNames.delete(this.scene.name.toLowerCase());
+
+			circuits.delete(this.sceneID);
+			return circuits;
+		});
+
+		icInstantiators.removeInstantiator(this.sceneID);
+	}
+}
+export class RenameICUserAction implements UserAction {
+	name = 'RenameICUserAction';
+
+	from: string;
+	constructor(
+		private id: ID,
+		private to: string
+	) {
+		const scene = sceneManager.scenes.get(id);
+		if (scene == null) {
+			throw Error();
+		}
+		this.from = scene.name;
+	}
+
+	do(): void {
+		integratedCircuits.rename(this.id, this.to);
+		currentScene.get().refreshICLabels();
+	}
+	undo(): void {
+		integratedCircuits.rename(this.id, this.from);
+		currentScene.get().refreshICLabels();
+	}
+}
+
+export class DeselectAllUserAction implements UserAction {
+	name = 'DeselectAllUserAction';
+
+	private currentSceneID: ID;
+	private selectedWireIDs = new Array<ID>();
+	private selectedCircuitIDs = new Array<ID>();
+
+	constructor() {
+		const currentSceneID = currentScene.get().id;
+		if (currentSceneID == null) {
+			throw Error();
+		}
+		this.currentSceneID = currentSceneID;
+
+		for (const circuit of sceneManager.selectedCircuits) {
+			if (circuit.id == null) {
+				throw Error();
+			}
+			this.selectedCircuitIDs.push(circuit.id);
+		}
+		for (const wire of sceneManager.selectedWires) {
+			if (wire.id == null) {
+				throw Error();
+			}
+			this.selectedWireIDs.push(wire.id);
+		}
+	}
+	do(): void {
+		if (currentScene.get().id != this.currentSceneID) {
+			throw Error();
+		}
+		sceneManager.deselectAll();
+	}
+	undo(): void {
+		const currentScene_ = currentScene.get();
+		if (currentScene_.id != this.currentSceneID) {
+			throw Error();
+		}
+
+		for (const circuit of this.selectedCircuitIDs) {
+			sceneManager.selectCircuitUnchecked(circuit);
+		}
+		for (const wireID of this.selectedWireIDs) {
+			const wire = currentScene_.idToWire.get(wireID);
+			if (wire == null) {
+				throw Error();
+			}
+
+			sceneManager.selectWireUnchecked(wire);
+		}
 	}
 }

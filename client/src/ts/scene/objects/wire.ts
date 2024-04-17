@@ -178,6 +178,9 @@ export class Wire implements SceneObject {
 
 	updateIsSelected() {
 		// console.log("Wire.updateIsSelected");
+		if (this.id == null) {
+			return;
+		}
 		if (this.consumerPin == null || this.producerPin == null) {
 			return;
 		}
@@ -192,8 +195,15 @@ export class Wire implements SceneObject {
 			this.consumerPin.parentCircuit.sceneObject.isSelected &&
 			this.producerPin.parentCircuit.sceneObject.isSelected
 		) {
-			sceneManager.selectWire(this);
-			this.isSelected = true;
+			const isSelected = this.isSelected;
+			sceneManager.selectWireUnchecked(this);
+			if (this.isSelected != isSelected) {
+				console.log('Wire selected Status Changed: ', this);
+				if (this.id == null) {
+					throw Error();
+				}
+			}
+			// this.isSelected = true;
 		}
 	}
 

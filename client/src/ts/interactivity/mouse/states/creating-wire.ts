@@ -43,6 +43,8 @@ export class CreatingWire implements MouseState {
 			const focusObject = sceneManager.getObjectAt(locScr);
 			if (focusObject == null) {
 				this.wire.detach();
+				stateMachine.state = new Home();
+				return;
 			} else if (
 				focusObject.kind === ConcreteObjectKind.ConsumerPin &&
 				this.wire.consumerPin == null
@@ -55,14 +57,15 @@ export class CreatingWire implements MouseState {
 				this.wire.setProducerPin(focusObject.object as ProducerPin);
 			} else {
 				this.wire.detach();
+				stateMachine.state = new Home();
+				return;
 			}
 			const currentScene_ = currentScene.get();
 			currentScene_.wireBeingCreated = undefined;
 			actionsManager.do(new CreateWireUserAction(currentScene_.id as ID, this.wire));
 			// this.wire.register(currentScene_);
-			this.wire.detach();
-
 			console.log('Wire: ', this.wire);
+			this.wire.detach();
 
 			stateMachine.state = new Home();
 		}

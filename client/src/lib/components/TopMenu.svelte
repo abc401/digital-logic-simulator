@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { circuitInstanciators, icInstantiators } from '@stores/circuitCreators';
+	import { circuitInstanciators, icInstantiators } from '@src/lib/stores/circuitInstantiators';
 	import { CreatingCircuit as CreatingCircuitMouse } from '@ts/interactivity/mouse/states/creating-circuit';
 	import { CreatingCircuit as CreatingCircuitTouchScreen } from '@ts/interactivity/touchscreen/states/creating-circuit';
 	import DropDown from './DropDown/DropDown.svelte';

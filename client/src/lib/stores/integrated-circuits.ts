@@ -1,86 +1,8 @@
 import { actionsManager, sceneManager } from '@routes/+page.svelte';
 import { writable } from 'svelte/store';
-import { icInstanciator, icInstantiators } from './circuitCreators';
 import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config';
-import { Scene, type ID } from '@src/ts/scene/scene';
-import type { UserAction } from '@src/ts/interactivity/actions-manager';
-
-export class CreateICUserAction implements UserAction {
-	name = '';
-
-	static nextICNumber = 0;
-
-	currentICNumber: number;
-
-	private scene: Scene | undefined;
-	private sceneID: number;
-	constructor() {
-		this.sceneID = sceneManager.getNextSceneID();
-		this.currentICNumber = CreateICUserAction.nextICNumber;
-		CreateICUserAction.nextICNumber += 1;
-	}
-
-	do(): void {
-		this.scene = Scene.newWithIO();
-
-		if (this.currentICNumber === 0) {
-			this.scene.name = 'New Circuit';
-		} else {
-			this.scene.name = `New Circuit (${this.currentICNumber})`;
-		}
-
-		sceneManager.registerSceneWithID(this.sceneID, this.scene);
-		icNames.add(this.scene.name.toLowerCase());
-
-		icInstantiators.newInstantiator(this.sceneID, icInstanciator(this.sceneID));
-
-		update((circuits) => {
-			if (this.scene == null) {
-				throw Error();
-			}
-
-			circuits.set(this.sceneID, this.scene.name);
-			return circuits;
-		});
-	}
-	undo(): void {
-		sceneManager.unregisterScene(this.sceneID);
-		update((circuits) => {
-			if (this.scene == null) {
-				throw Error();
-			}
-			icNames.delete(this.scene.name.toLowerCase());
-
-			circuits.delete(this.sceneID);
-			return circuits;
-		});
-
-		icInstantiators.removeInstantiator(this.sceneID);
-	}
-}
-
-export class RenameICUserAction implements UserAction {
-	name = '';
-
-	from: string;
-	constructor(
-		private id: ID,
-		private to: string
-	) {
-		const scene = sceneManager.scenes.get(id);
-		if (scene == null) {
-			throw Error();
-		}
-		this.from = scene.name;
-	}
-
-	do(): void {
-		integratedCircuits.rename(this.id, this.to);
-	}
-	undo(): void {
-		integratedCircuits.rename(this.id, this.from);
-	}
-}
+import { type ID } from '@src/ts/scene/scene';
+import { CreateICUserAction } from '@src/ts/interactivity/actions';
 
 export const icNames = new Set<string>();
 
@@ -108,16 +30,14 @@ const { subscribe, update } = writable(
 );
 export const integratedCircuits = {
 	subscribe,
+	update,
 	rename(id: ID, to: string) {
-		let from = '';
-		const unsub = subscribe((value) => {
-			const scene = sceneManager.scenes.get(id);
-			if (scene == null) {
-				throw Error();
-			}
-			from = scene.name;
-		});
-		unsub();
+		const scene = sceneManager.scenes.get(id);
+		if (scene == null) {
+			throw Error();
+		}
+		const from = scene.name;
+		scene.name = to;
 
 		update((integratedCircuits) => {
 			integratedCircuits.set(id, to);
