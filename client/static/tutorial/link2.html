@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
     <title>Mux/DeMux</title>
   </head>
   <body>
@@ -16,10 +17,9 @@
       lines. The number of input selection lines determines the number of input
       channels the multiplexer can handle. The basic concept of a multiplexer
       can be understood by considering a simple 2-to-1 multiplexer, which has
-      two input channels (A and B), one output (Y), and one control line (S)
+      two input channels (A and B), one output (Y), and one control line (S).
+      The truth table for a 2-to-1 multiplexer is as follows:
     </p>
-    . The truth table for a 2-to-1 multiplexer is as follows:
-    <p></p>
     <table>
       <tr>
         <th>S</th>
@@ -151,84 +151,93 @@
     </p>
     <h3>Quiz Section</h3>
     <h4>Q 1 - In a 2-to-1 multiplexer, how many input channels are there?</h4>
-    <input type="radio" name="a"> 1
-    <br>
-    <input type="radio" name="a"> 2
-    <br>
-    <input type="radio" name="a"> 3
-    <br>
-    <input type="radio" name="a"> 4
+    <input type="radio" name="a" /> 1
+    <br />
+    <input type="radio" name="a" /> 2
+    <br />
+    <input type="radio" name="a" /> 3
+    <br />
+    <input type="radio" name="a" /> 4
     <h4>Q 2 - What is the purpose of a multiplexer?</h4>
-    <input type="radio" name="a"> To combine multiple signals into one
-    <br>
-    <input type="radio" name="a"> To select one of many input signals and route it to a single output
-    <br>
-    <input type="radio" name="a"> To perform arithmetic and logic operations
-    <br>
-    <input type="radio" name="a"> To reverse the operation of a demultiplexer
+    <input type="radio" name="a" /> To combine multiple signals into one
+    <br />
+    <input type="radio" name="a" /> To select one of many input signals and
+    route it to a single output
+    <br />
+    <input type="radio" name="a" /> To perform arithmetic and logic operations
+    <br />
+    <input type="radio" name="a" /> To reverse the operation of a demultiplexer
     <h4>Q 3 - How many control lines does a 2-to-1 multiplexer have?</h4>
-    <input type="radio" name="a"> 1
-    <br>
-    <input type="radio" name="a"> 2
-    <br>
-    <input type="radio" name="a"> 3
-    <br>
-    <input type="radio" name="a"> 4
-    <h4>Q 4 - What is the output of a 2-to-1 multiplexer if the select line is 1 and input A is 0?</h4>
-    <input type="radio" name="a"> 1
-    <br>
-    <input type="radio" name="a"> 2
-    <br>
-    <input type="radio" name="a"> none
-    <br>
-    <input type="radio" name="a"> all of these
+    <input type="radio" name="a" /> 1
+    <br />
+    <input type="radio" name="a" /> 2
+    <br />
+    <input type="radio" name="a" /> 3
+    <br />
+    <input type="radio" name="a" /> 4
+    <h4>
+      Q 4 - What is the output of a 2-to-1 multiplexer if the select line is 1
+      and input A is 0?
+    </h4>
+    <input type="radio" name="a" /> 1
+    <br />
+    <input type="radio" name="a" /> 2
+    <br />
+    <input type="radio" name="a" /> none
+    <br />
+    <input type="radio" name="a" /> all of these
     <h4>Q 5 - Where are multiplexers commonly used?</h4>
-    <input type="radio" name="a"> In digital communication systems
-    <br>
-    <input type="radio" name="a">  In microwave ovens
-    <br>
-    <input type="radio" name="a"> In automobiles
-    <br>
-    <input type="radio" name="a"> In household appliances
+    <input type="radio" name="a" /> In digital communication systems
+    <br />
+    <input type="radio" name="a" /> In microwave ovens
+    <br />
+    <input type="radio" name="a" /> In automobiles
+    <br />
+    <input type="radio" name="a" /> In household appliances
     <h4>Q 6 - How many outputs does a demultiplexer typically have?</h4>
-    <input type="radio" name="a"> 1
-    <br>
-    <input type="radio" name="a"> 2
-    <br>
-    <input type="radio" name="a"> 3
-    <br>
-    <input type="radio" name="a"> 4
+    <input type="radio" name="a" /> 1
+    <br />
+    <input type="radio" name="a" /> 2
+    <br />
+    <input type="radio" name="a" /> 3
+    <br />
+    <input type="radio" name="a" /> 4
     <h4>Q 7 - What is the purpose of a demultiplexer?</h4>
-    <input type="radio" name="a"> To combine multiple signals into one
-    <br>
-    <input type="radio" name="a"> To select one of many input signals and route it to a single output
-    <br>
-    <input type="radio" name="a"> To select one of many outputs based on the control inputs
-    <br>
-    <input type="radio" name="a"> To reverse the operation of a multiplexer
-    <h4>Q 8 - What is the output of a demultiplexer if the select line is 0 and the input is 1?</h4>
-    <input type="radio" name="a"> 1
-    <br>
-    <input type="radio" name="a"> 0
-    <br>
-    <input type="radio" name="a"> none
-    <br>
-    <input type="radio" name="a"> 3
+    <input type="radio" name="a" /> To combine multiple signals into one
+    <br />
+    <input type="radio" name="a" /> To select one of many input signals and
+    route it to a single output
+    <br />
+    <input type="radio" name="a" /> To select one of many outputs based on the
+    control inputs
+    <br />
+    <input type="radio" name="a" /> To reverse the operation of a multiplexer
+    <h4>
+      Q 8 - What is the output of a demultiplexer if the select line is 0 and
+      the input is 1?
+    </h4>
+    <input type="radio" name="a" /> 1
+    <br />
+    <input type="radio" name="a" /> 0
+    <br />
+    <input type="radio" name="a" /> none
+    <br />
+    <input type="radio" name="a" /> 3
     <h4>Q 9 - Where are demultiplexers commonly used?</h4>
-    <input type="radio" name="a"> In microwave ovens
-    <br>
-    <input type="radio" name="a"> In digital communication systems
-    <br>
-    <input type="radio" name="a"> In automobiles
-    <br>
-    <input type="radio" name="a"> In household appliances
+    <input type="radio" name="a" /> In microwave ovens
+    <br />
+    <input type="radio" name="a" /> In digital communication systems
+    <br />
+    <input type="radio" name="a" /> In automobiles
+    <br />
+    <input type="radio" name="a" /> In household appliances
     <h4>Q 10 - What is the opposite function of a demultiplexer?</h4>
-    <input type="radio" name="a">  Adder
-    <br>
-    <input type="radio" name="a">  Multiplexer
-    <br>
-    <input type="radio" name="a">  Decoder
-    <br>
-    <input type="radio" name="a">  Decoder
+    <input type="radio" name="a" /> Adder
+    <br />
+    <input type="radio" name="a" /> Multiplexer
+    <br />
+    <input type="radio" name="a" /> Decoder
+    <br />
+    <input type="radio" name="a" /> Decoder
   </body>
 </html>
