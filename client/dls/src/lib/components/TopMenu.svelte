@@ -8,7 +8,7 @@
 	import DropDownItem from './DropDown/DropDownItem.svelte';
 	import { getSM, simEngine } from '@src/routes/+page.svelte';
 	import { integratedCircuits } from '../stores/integrated-circuits';
-	import type { ID } from '@src/ts/scene/scene';
+	import { currentScene, type ID } from '@src/ts/scene/scene';
 	import type { Circuit } from '@src/ts/scene/objects/circuits/circuit';
 	import { simulation } from '../stores/simulation';
 
@@ -22,6 +22,7 @@
 			touchScreenSM.state = new CreatingCircuitTouchScreen(circuitName, instantiator);
 		}
 	}
+	$: currentScene_ = $currentScene;
 </script>
 
 <div {...$$restProps}>
@@ -68,12 +69,14 @@
 			<DropDownToggle class="my-1 px-3 py-1.5 ">ICs</DropDownToggle>
 			<DropDownMenu position={DropDownPosition.Below}>
 				{#each Object.entries($icInstantiators) as [id, instantiator] (id)}
-					<DropDownItem
-						action={() => {
-							createCircuit(integratedCircuits.getName(+id), instantiator);
-							instantiator;
-						}}>{integratedCircuits.getName(+id)}</DropDownItem
-					>
+					{#if +id !== currentScene_.id}
+						<DropDownItem
+							action={() => {
+								createCircuit(integratedCircuits.getName(+id), instantiator);
+								instantiator;
+							}}>{integratedCircuits.getName(+id)}</DropDownItem
+						>
+					{/if}
 				{/each}
 			</DropDownMenu>
 		</DropDown>
