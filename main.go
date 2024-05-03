@@ -9,6 +9,7 @@ import (
 
 func main() {
 	router := gin.Default()
+	api.InitState()
 	router.StaticFS("/static", http.Dir("client/static/"))
 	router.StaticFS("/dls", http.Dir("client/dls/build/"))
 	router.GET("/", func(ctx *gin.Context) {
