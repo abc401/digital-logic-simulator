@@ -6,10 +6,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/abc401/digital-logic-simulator/db"
 	"github.com/abc401/digital-logic-simulator/models"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 )
 
 var Scenes []models.Scene
@@ -17,9 +16,12 @@ var CurrentScene models.IDType
 
 func ConfigHandelers(router gin.IRouter) {
 
-	circuitRouter := router.Group("/circuit")
+	tutorialsRouter := router.Group("/tutorials")
+	tutorialsRouter.GET("/", GetAllTutorials)
 
-	circuitRouter.POST("/create", AddCircuit)
+	// circuitRouter := router.Group("/circuit")
+
+	// circuitRouter.POST("/create", AddCircuit)
 }
 
 func InitState() {
@@ -33,6 +35,42 @@ func InitState() {
 		},
 	}
 	CurrentScene = models.DEFAULT_SCENE_ID
+}
+
+func GetAllTutorials(ctx *gin.Context) {
+	type Res struct {
+		LinkTitle    string
+		DisplayTitle string
+		Previous     *string
+		Next         *string
+	}
+
+	con := db.GetDBCon()
+	tutorials := []models.Article{}
+	con.Select("link_title", "display_title", "previous", "next").Find(&tutorials)
+	res := []Res{}
+	for i := 0; i < len(tutorials); i++ {
+		tutorial := tutorials[i]
+
+		currRes := Res{
+			LinkTitle:    tutorial.LinkTitle,
+			DisplayTitle: tutorial.DisplayTitle,
+		}
+		if tutorial.Next.Valid {
+			currRes.Next = &tutorial.Next.String
+		} else {
+			currRes.Next = nil
+		}
+		if tutorial.Previous.Valid {
+
+			currRes.Previous = &tutorial.Previous.String
+		} else {
+			currRes.Previous = nil
+		}
+
+		res = append(res, currRes)
+	}
+	ctx.JSON(http.StatusOK, res)
 }
 
 func AddCircuit(ctx *gin.Context) {
@@ -61,32 +99,21 @@ func AddCircuit(ctx *gin.Context) {
 		return
 	}
 
-	isCircuitTypeValid := false
-	for i := 0; i < len(models.ValidCircuitTypes); i++ {
-		if strings.ToLower(params.CircuitType) == models.ValidCircuitTypes[i] {
-			isCircuitTypeValid = true
-			break
-		}
-	}
-	if !isCircuitTypeValid {
+	defaultValue, err := models.DefaultCircuits[strings.ToLower(params.CircuitType)]
+	if err {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": fmt.Sprintf("Invalid Circuit type: %s", params.CircuitType),
 		})
-
 	}
 
-	caser := cases.Title(language.AmericanEnglish)
-	currentScene.Circuits[params.ID] = models.Circuit{
-		ID:   params.ID,
-		Type: params.CircuitType,
-		Pos: models.Vec2{
-			X: params.PosXWrl,
-			Y: params.PosYWrl,
-		},
-		Props: models.CircuitProps{
-			"label": caser.String(params.CircuitType),
-		},
+	defaultValue.ID = params.ID
+	defaultValue.Pos = models.Vec2{
+
+		X: params.PosXWrl,
+		Y: params.PosYWrl,
 	}
 	fmt.Printf("\n\nProject State: %+v\n\n\n", currentScene)
+}
 
+func AddWire(ctx *gin.Context) {
 }

@@ -7,7 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
+func main1() {
+
 	router := gin.Default()
 	api.InitState()
 	router.StaticFS("/static", http.Dir("client/static/"))
@@ -18,4 +19,16 @@ func main() {
 	var apiRouter = router.Group("/api")
 	api.ConfigHandelers(apiRouter)
 	router.Run()
+}
+
+func main() {
+	main1()
+	// db.AutoMigrate()
+	// db.AddTutorials(Tutorials)
+	// db.AddTutorial(
+	// 	&models.Article{
+	// 		Title:   "",
+	// 		Content: ``,
+	// 	},
+	// )
 }
