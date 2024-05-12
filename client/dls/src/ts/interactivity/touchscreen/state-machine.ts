@@ -21,9 +21,14 @@ export function getAppropriateState(touches: TouchList) {
 	return new Illegal();
 }
 
+export function getLocScr(touch: Touch) {
+	const boundingRect = canvas.getBoundingClientRect();
+	return new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y);
+}
+
 export function discriminateTouches(touches: TouchList) {
-	let insideOfCanvas = new Array<Touch>();
-	let outsideOfCanvas = new Array<Touch>();
+	const insideOfCanvas = new Array<Touch>();
+	const outsideOfCanvas = new Array<Touch>();
 
 	for (let i = 0; i < touches.length; i++) {
 		if (touches[i].target === canvas) {
@@ -69,46 +74,74 @@ export class TouchScreenStateMachine {
 		this.state = new Home();
 		this.touchLocHistoryScr = new Map();
 
-		document.addEventListener('touchstart', (ev) => {
-			this.state.update(this, new TouchAction(TouchActionKind.TouchStart, ev));
+		document.addEventListener(
+			'touchstart',
+			(ev) => {
+				if (ev.target === canvas) {
+					ev.preventDefault();
+				}
+				this.state.update(this, new TouchAction(TouchActionKind.TouchStart, ev));
 
-			const boundingRect = canvas.getBoundingClientRect();
-			for (let i = 0; i < ev.changedTouches.length; i++) {
-				const touch = ev.changedTouches[i];
-				this.touchLocHistoryScr.set(
-					touch.identifier,
-					new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y)
-				);
-			}
-		});
+				const boundingRect = canvas.getBoundingClientRect();
+				for (let i = 0; i < ev.changedTouches.length; i++) {
+					const touch = ev.changedTouches[i];
+					this.touchLocHistoryScr.set(
+						touch.identifier,
+						new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y)
+					);
+				}
+			},
+			{ passive: false }
+		);
 
-		document.addEventListener('touchmove', (ev) => {
-			this.state.update(this, new TouchAction(TouchActionKind.TouchMove, ev));
+		document.addEventListener(
+			'touchmove',
+			(ev) => {
+				if (ev.target === canvas) {
+					ev.preventDefault();
+				}
+				this.state.update(this, new TouchAction(TouchActionKind.TouchMove, ev));
 
-			const boundingRect = canvas.getBoundingClientRect();
-			for (let i = 0; i < ev.changedTouches.length; i++) {
-				const touch = ev.changedTouches[i];
-				this.touchLocHistoryScr.set(
-					touch.identifier,
-					new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y)
-				);
-			}
-		});
+				const boundingRect = canvas.getBoundingClientRect();
+				for (let i = 0; i < ev.changedTouches.length; i++) {
+					const touch = ev.changedTouches[i];
+					this.touchLocHistoryScr.set(
+						touch.identifier,
+						new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y)
+					);
+				}
+			},
+			{ passive: false }
+		);
 
-		document.addEventListener('touchcancel', (ev) => {
-			this.state.update(this, new TouchAction(TouchActionKind.TouchEnd, ev));
+		document.addEventListener(
+			'touchcancel',
+			(ev) => {
+				if (ev.target === canvas) {
+					ev.preventDefault();
+				}
+				this.state.update(this, new TouchAction(TouchActionKind.TouchEnd, ev));
 
-			for (let i = 0; i < ev.changedTouches.length; i++) {
-				this.touchLocHistoryScr.delete(ev.changedTouches[i].identifier);
-			}
-		});
+				for (let i = 0; i < ev.changedTouches.length; i++) {
+					this.touchLocHistoryScr.delete(ev.changedTouches[i].identifier);
+				}
+			},
+			{ passive: false }
+		);
 
-		document.addEventListener('touchend', (ev) => {
-			this.state.update(this, new TouchAction(TouchActionKind.TouchEnd, ev));
+		document.addEventListener(
+			'touchend',
+			(ev) => {
+				if (ev.target === canvas) {
+					ev.preventDefault();
+				}
+				this.state.update(this, new TouchAction(TouchActionKind.TouchEnd, ev));
 
-			for (let i = 0; i < ev.changedTouches.length; i++) {
-				this.touchLocHistoryScr.delete(ev.changedTouches[i].identifier);
-			}
-		});
+				for (let i = 0; i < ev.changedTouches.length; i++) {
+					this.touchLocHistoryScr.delete(ev.changedTouches[i].identifier);
+				}
+			},
+			{ passive: false }
+		);
 	}
 }

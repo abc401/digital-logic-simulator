@@ -1,23 +1,22 @@
+import { logState } from '@src/lib/stores/debugging';
+import { canvas, sceneManager, viewManager } from '@src/routes/+page.svelte';
+import { Vec2 } from '@src/ts/math';
+import type { Circuit } from '@src/ts/scene/objects/circuits/circuit';
+import type { ConsumerPin } from '@src/ts/scene/objects/consumer-pin';
+import type { ProducerPin } from '@src/ts/scene/objects/producer-pin';
+import { Wire } from '@src/ts/scene/objects/wire';
+import { ConcreteObjectKind } from '@src/ts/scene/scene-manager';
 import {
-	TouchAction,
-	TouchActionKind,
 	type TouchScreenState,
 	TouchScreenStateMachine,
-	discriminateTouches
-} from '../state-machine.js';
-import { Vec2 } from '@ts/math.js';
-import type { Circuit } from '@ts/scene/objects/circuits/circuit.js';
-import { Panning } from './panning.js';
-import { Zooming } from './zooming.js';
-import { ConcreteObjectKind } from '@ts/scene/scene-manager.js';
-import { Illegal } from './Illegal.js';
-import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
-import { Wire } from '@ts/scene/objects/wire.js';
-import { CreatingWire } from './creating-wire.js';
-import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
-import { CircuitSelected } from './circuit-selected.js';
-import { canvas, sceneManager, viewManager } from '@routes/+page.svelte';
-import { logState } from '@lib/stores/debugging.js';
+	TouchAction,
+	discriminateTouches,
+	TouchActionKind
+} from '../state-machine';
+import { Illegal } from './Illegal';
+import { CreatingWire } from './creating-wire';
+import { SingleTouch } from './single-touch';
+import { Zooming } from './zooming';
 
 export class Home implements TouchScreenState {
 	constructor() {
@@ -32,7 +31,7 @@ export class Home implements TouchScreenState {
 			return;
 		}
 
-		let boundingRect = canvas.getBoundingClientRect();
+		const boundingRect = canvas.getBoundingClientRect();
 
 		if (action.kind !== TouchActionKind.TouchStart) {
 			return;
@@ -44,9 +43,13 @@ export class Home implements TouchScreenState {
 
 			const focusObject = sceneManager.getObjectAt(locScr);
 			if (focusObject == null) {
-				stateMachine.state = new Panning(touch.identifier);
+				stateMachine.state = new SingleTouch(touch.identifier);
 				return;
 			}
+			// if (focusObject == null) {
+			// 	stateMachine.state = new Panning(touch.identifier);
+			// 	return;
+			// }
 
 			if (focusObject.kind === ConcreteObjectKind.Circuit) {
 				const circuit = focusObject.object as Circuit;
@@ -54,11 +57,21 @@ export class Home implements TouchScreenState {
 					throw Error();
 				}
 
-				stateMachine.state = new CircuitSelected(
-					circuit,
+				if (circuit.sceneObject == null || circuit.sceneObject.id == null) {
+					throw Error();
+				}
+
+				stateMachine.state = new SingleTouch(
 					touch.identifier,
+					circuit.sceneObject,
 					circuit.sceneObject.tightRectWrl.xy.sub(viewManager.screenToWorld(locScr))
 				);
+
+				// stateMachine.state = new CircuitSelected(
+				// 	circuit,
+				// 	touch.identifier,
+				// 	circuit.sceneObject.tightRectWrl.xy.sub(viewManager.screenToWorld(locScr))
+				// );
 			}
 			if (focusObject.kind === ConcreteObjectKind.ConsumerPin) {
 				const pin = focusObject.object as ConsumerPin;
@@ -67,7 +80,7 @@ export class Home implements TouchScreenState {
 					pin.wire.detach();
 				}
 
-				const wire = new Wire(undefined, pin);
+				const wire = Wire.newUnregistered(undefined, pin);
 				wire.fromScr = locScr;
 
 				stateMachine.state = new CreatingWire(wire);
@@ -75,7 +88,7 @@ export class Home implements TouchScreenState {
 			}
 			if (focusObject.kind === ConcreteObjectKind.ProducerPin) {
 				const pin = focusObject.object as ProducerPin;
-				let wire = new Wire(pin, undefined);
+				const wire = Wire.newUnregistered(pin, undefined);
 				wire.toScr = locScr;
 				stateMachine.state = new CreatingWire(wire);
 				return;

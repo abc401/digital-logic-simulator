@@ -13,9 +13,12 @@ import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
 import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
 import { Home } from './home.js';
 import { canvas, sceneManager } from '@routes/+page.svelte';
+import { logState } from '@src/lib/stores/debugging.js';
 
 export class CreatingWire implements TouchScreenState {
-	constructor(private wire: Wire) {}
+	constructor(private wire: Wire) {
+		logState('CreatingWire');
+	}
 	update(stateMachine: TouchScreenStateMachine, action: TouchAction): void {
 		const payload = action.payload;
 		const [insideOfCanvas, outsideOfCanvas] = discriminateTouches(payload.changedTouches);

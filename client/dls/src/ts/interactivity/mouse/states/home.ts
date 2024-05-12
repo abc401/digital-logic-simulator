@@ -22,6 +22,7 @@ export class Home implements MouseState {
 	constructor() {
 		logState('Home');
 	}
+
 	update(stateMachine: MouseStateMachine, action: MouseAction) {
 		const payload = action.payload;
 

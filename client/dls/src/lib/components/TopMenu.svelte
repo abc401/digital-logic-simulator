@@ -6,7 +6,7 @@
 	import DropDownToggle from './DropDown/DropDownToggle.svelte';
 	import DropDownMenu, { DropDownPosition } from './DropDown/DropDownMenu.svelte';
 	import DropDownItem from './DropDown/DropDownItem.svelte';
-	import { getSM, simEngine } from '@src/routes/+page.svelte';
+	import { actionsManager, getSM, simEngine } from '@src/routes/+page.svelte';
 	import { integratedCircuits } from '../stores/integrated-circuits';
 	import type { ID } from '@src/ts/scene/scene';
 	import type { Circuit } from '@src/ts/scene/objects/circuits/circuit';
@@ -59,6 +59,22 @@
 				action={() => {
 					simEngine.step();
 				}}>Step</DropDownItem
+			>
+		</DropDownMenu>
+	</DropDown>
+	<DropDown>
+		<DropDownToggle class="my-1 px-3 py-1.5 ">Edit</DropDownToggle>
+		<DropDownMenu>
+			<DropDownItem
+				action={() => {
+					actionsManager.undo();
+					// simulation.setPaused(true);
+				}}>Undo</DropDownItem
+			>
+			<DropDownItem
+				action={() => {
+					actionsManager.redo();
+				}}>Redo</DropDownItem
 			>
 		</DropDownMenu>
 	</DropDown>

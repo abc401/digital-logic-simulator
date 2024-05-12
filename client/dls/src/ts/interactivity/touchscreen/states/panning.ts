@@ -3,22 +3,25 @@ import {
 	TouchActionKind,
 	type TouchScreenState,
 	TouchScreenStateMachine,
-	discriminateTouches
+	discriminateTouches,
+	getLocScr
 } from '../state-machine.js';
 import { Vec2 } from '@ts/math.js';
 import { Home } from './home.js';
 import { Zooming } from './zooming.js';
 import { Illegal } from './Illegal.js';
-import { canvas, viewManager } from '@routes/+page.svelte';
+import { actionsManager, canvas, viewManager } from '@routes/+page.svelte';
 import { domLog, logState } from '@lib/stores/debugging.js';
+import { PanUserAction } from '../../actions.js';
 
 export class Panning implements TouchScreenState {
+	totalDelta: Vec2 = new Vec2(0, 0);
+
 	constructor(readonly touchId: number) {
 		logState('TSPanning');
 	}
 	update(stateMachine: TouchScreenStateMachine, action: TouchAction): void {
 		const payload = action.payload;
-		const boundingRect = canvas.getBoundingClientRect();
 		const [insideOfCanvas, outsideOfCanvas] = discriminateTouches(payload.changedTouches);
 
 		if (outsideOfCanvas.length > 0) {
@@ -33,19 +36,24 @@ export class Panning implements TouchScreenState {
 			} else {
 				stateMachine.state = new Illegal();
 			}
+			actionsManager.push(new PanUserAction(this.totalDelta));
 		} else if (action.kind === TouchActionKind.TouchMove) {
-			let touch = payload.changedTouches[0];
-			let locScr = new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y);
+			const touch = payload.changedTouches[0];
+			const locScr = getLocScr(touch);
+			// const locScr = new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y);
 
-			let previousLocScr = stateMachine.touchLocHistoryScr.get(this.touchId);
+			const previousLocScr = stateMachine.touchLocHistoryScr.get(this.touchId);
 			if (previousLocScr == null) {
 				domLog(`[TSPanning(Err)][TouchMove] No history for touch location`);
 				throw Error();
 			}
+			const delta = locScr.sub(previousLocScr);
+			this.totalDelta = this.totalDelta.add(delta);
 
-			viewManager.pan(locScr.sub(previousLocScr));
+			viewManager.pan(delta);
 		} else if (action.kind === TouchActionKind.TouchEnd) {
 			stateMachine.state = new Home();
+			actionsManager.push(new PanUserAction(this.totalDelta));
 		}
 	}
 }

@@ -76,6 +76,7 @@ export class ActionsManager {
 		this.push(action);
 		action.do();
 		console.log('Do: ', action.name);
+		console.trace();
 	}
 }
 // class ActionsManager {}

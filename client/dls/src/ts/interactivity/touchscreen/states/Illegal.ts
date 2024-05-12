@@ -1,11 +1,11 @@
-import { logState } from '@lib/stores/debugging.js';
+import { logState } from '@lib/stores/debugging';
 import {
 	TouchAction,
 	type TouchScreenState,
 	TouchScreenStateMachine,
 	discriminateTouches,
 	getAppropriateState
-} from '../state-machine.js';
+} from '../state-machine';
 
 export class Illegal implements TouchScreenState {
 	constructor() {

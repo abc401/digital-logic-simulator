@@ -3,15 +3,23 @@ import {
 	TouchActionKind,
 	type TouchScreenState,
 	TouchScreenStateMachine,
-	discriminateTouches
+	discriminateTouches,
+	getLocScr
 } from '../state-machine.js';
-import type { Circuit } from '@ts/scene/objects/circuits/circuit.js';
+import { type Circuit } from '@ts/scene/objects/circuits/circuit.js';
 import { Illegal } from './Illegal.js';
 import { Vec2 } from '@ts/math.js';
-import { Home as TouchScreenHome } from './home.js';
+import { Home as TouchScreenHome } from './home';
 import { Home as MouseHome } from '@ts/interactivity/mouse/states/home.js';
-import { canvas, mouseStateMachine, viewManager } from '@routes/+page.svelte';
+import {
+	actionsManager,
+	canvas,
+	mouseStateMachine,
+	sceneManager,
+	viewManager
+} from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
+import { CreateCircuitUserAction } from '../../actions.js';
 
 export class CreatingCircuit implements TouchScreenState {
 	constructor(
@@ -22,7 +30,6 @@ export class CreatingCircuit implements TouchScreenState {
 	}
 	update(stateMachine: TouchScreenStateMachine, action: TouchAction): void {
 		const payload = action.payload;
-		const boundingRect = canvas.getBoundingClientRect();
 		const [insideOfCanvas, outsideOfCanvas] = discriminateTouches(payload.changedTouches);
 
 		if (outsideOfCanvas.length > 0) {
@@ -30,18 +37,22 @@ export class CreatingCircuit implements TouchScreenState {
 			return;
 		}
 		if (action.kind === TouchActionKind.TouchEnd) {
-			const touch = payload.changedTouches[0];
-			const locScr = new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y);
+			const touch = insideOfCanvas[0];
+			const locScr = getLocScr(touch);
 
-			const circuit = this.creator();
-			if (circuit.sceneObject == null) {
+			const currentScene = sceneManager.getCurrentScene();
+			if (currentScene.id == null) {
 				throw Error();
 			}
-			circuit.sceneObject.tightRectWrl.xy = viewManager.screenToWorld(locScr);
-			// domLog(`Created ${this.name}`);
-			// domLog(
-			//   `circuit.value: ${circuit.value}, circuit.pin.value: ${circuit.producerPins[0].value}`
-			// );
+
+			actionsManager.do(
+				new CreateCircuitUserAction(
+					currentScene.id,
+					this.creator,
+					viewManager.screenToWorld(locScr)
+				)
+			);
+
 			mouseStateMachine.state = new MouseHome();
 			stateMachine.state = new TouchScreenHome();
 		}

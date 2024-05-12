@@ -13,12 +13,17 @@
 		--ornament-color: cyan;
 	}
 
+	html,
+	body {
+		@apply overscroll-none;
+	}
+
 	body {
 		@apply bg-neutral-800 font-bold text-neutral-50;
 	}
 
 	input {
-		@apply focus:outline-none
+		@apply focus:outline-none;
 	}
 
 	/* button {

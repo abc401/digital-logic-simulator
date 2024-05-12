@@ -353,18 +353,6 @@ export function setProp(circuit: Circuit, name: string, value: any) {
 	}
 }
 
-export class CreateCircuitUserAction implements UserAction {
-	name = '';
-
-	readonly sceneObjectID: ID;
-	constructor(private parentCircuit: Circuit) {
-		this.sceneObjectID = sceneManager.getCurrentScene().getNextID();
-	}
-
-	do(): void {}
-	undo(): void {}
-}
-
 export class CircuitSceneObject {
 	id: ID | undefined;
 	parentScene: Scene;
