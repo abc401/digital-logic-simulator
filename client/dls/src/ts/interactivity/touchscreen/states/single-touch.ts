@@ -2,6 +2,7 @@ import type { CircuitSceneObject } from '@src/ts/scene/objects/circuits/circuit'
 import {
 	TouchActionKind,
 	discriminateTouches,
+	getLocScr,
 	type TouchAction,
 	type TouchScreenState,
 	type TouchScreenStateMachine
@@ -12,14 +13,14 @@ import { actionsManager, canvas } from '@src/routes/+page.svelte';
 import { Illegal } from './Illegal';
 import { Zooming } from './zooming';
 import type { ID } from '@src/ts/scene/scene';
-import { DeselectAllUserAction, SelectCircuitUserAction } from '../../actions';
+import {
+	DeselectAllUserAction,
+	DeselectCircuitUserAction,
+	SelectCircuitUserAction
+} from '../../actions';
 import { Home } from './home';
 import { Panning } from './panning';
-// import { Panning } from './panning';
-// import { Home } from './home';
-// import { DeselectAllUserAction, SelectCircuitUserAction } from '../../actions';
-// import type { ID } from '@src/ts/scene/scene';
-// import { Dragging } from './dragging';
+import { DraggingSelection } from './dragging-selection';
 
 export class SingleTouch implements TouchScreenState {
 	constructor(
@@ -37,7 +38,6 @@ export class SingleTouch implements TouchScreenState {
 	}
 
 	update(stateMachine: TouchScreenStateMachine, action: TouchAction): void {
-		const boundingRect = canvas.getBoundingClientRect();
 		const payload = action.payload;
 		const [insideOfCanvas, outsideOfCanvas] = discriminateTouches(payload.changedTouches);
 		if (outsideOfCanvas.length > 0) {
@@ -53,6 +53,7 @@ export class SingleTouch implements TouchScreenState {
 
 			stateMachine.state = new Zooming(this.touchID, secondTouch.identifier);
 		} else if (action.kind === TouchActionKind.TouchMove) {
+			console.log('touchmove');
 			if (this.circuit == null) {
 				stateMachine.state = new Panning(this.touchID);
 			} else {
@@ -64,34 +65,26 @@ export class SingleTouch implements TouchScreenState {
 				}
 				actionsManager.do(new SelectCircuitUserAction(this.circuit.id as ID));
 				const touch = insideOfCanvas[0];
-				const locScr = new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y);
-				// stateMachine.state = new Dragging(this.circuit, this.touchID, this.offsetWrl);
+				const locScr = getLocScr(touch);
+				stateMachine.state = new DraggingSelection(
+					this.touchID,
+					this.circuit,
+					this.offsetWrl,
+					locScr
+				);
 			}
 		} else if (action.kind === TouchActionKind.TouchEnd) {
+			if (this.circuit != null) {
+				if (this.circuit.isSelected) {
+					actionsManager.do(new DeselectCircuitUserAction(this.circuit.id as ID));
+				} else {
+					actionsManager.do(new SelectCircuitUserAction(this.circuit.id as ID));
+				}
+			} else {
+				actionsManager.do(new DeselectAllUserAction());
+			}
 			stateMachine.state = new Home();
 			return;
 		}
-
-		// if (action.kind === MouseActionKind.MouseMove) {
-		// 	if (this.circuit == null) {
-		// 		stateMachine.state = new Panning();
-		// 		return;
-		// 	} else {
-		// 		if (this.offsetWrl == null) {
-		// 			throw Error();
-		// 		}
-
-		// 		if (!this.circuit.isSelected) {
-		// 			actionsManager.do(new DeselectAllUserAction());
-		// 			// sceneManager.deselectAll();
-		// 		}
-		// 		// sceneManager.selectCircuit(this.circuit.id as ID);
-		// 		actionsManager.do(new SelectCircuitUserAction(this.circuit.id as ID));
-		// 		const locScr = new Vec2(payload.offsetX, payload.offsetY);
-
-		// 		stateMachine.state = new DraggingSelection(this.circuit, this.offsetWrl, locScr);
-		// 		return;
-		// 	}
-		// }
 	}
 }

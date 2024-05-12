@@ -45,13 +45,7 @@ export class CreatingCircuit implements TouchScreenState {
 				throw Error();
 			}
 
-			actionsManager.do(
-				new CreateCircuitUserAction(
-					currentScene.id,
-					this.creator,
-					viewManager.screenToWorld(locScr)
-				)
-			);
+			actionsManager.do(new CreateCircuitUserAction(currentScene.id, this.creator, locScr));
 
 			mouseStateMachine.state = new MouseHome();
 			stateMachine.state = new TouchScreenHome();
