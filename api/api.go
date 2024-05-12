@@ -14,8 +14,19 @@ import (
 var Scenes []models.Scene
 var CurrentScene models.IDType
 
+var AllowedOrigins = []string{
+	"http://localhost5173",
+}
+
+func CorsMiddleWare(ctx *gin.Context) {
+	ctx.Header("Access-Control-Allow-Origin", "*")
+	ctx.Next()
+
+}
+
 func ConfigHandelers(router gin.IRouter) {
 
+	router.Use(CorsMiddleWare)
 	tutorialsRouter := router.Group("/tutorials")
 	tutorialsRouter.GET("/", GetAllTutorials)
 
@@ -39,10 +50,10 @@ func InitState() {
 
 func GetAllTutorials(ctx *gin.Context) {
 	type Res struct {
-		LinkTitle    string
-		DisplayTitle string
-		Previous     *string
-		Next         *string
+		LinkTitle    string  `json:"link_title"`
+		DisplayTitle string  `json:"display_title"`
+		Previous     *string `json:"previous"`
+		Next         *string `json:"next"`
 	}
 
 	con := db.GetDBCon()
@@ -70,6 +81,7 @@ func GetAllTutorials(ctx *gin.Context) {
 
 		res = append(res, currRes)
 	}
+	ctx.Header("Access-Control-Allow-Origin", "http://localhost:5173")
 	ctx.JSON(http.StatusOK, res)
 }
 
