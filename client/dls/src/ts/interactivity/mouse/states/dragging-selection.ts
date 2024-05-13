@@ -8,7 +8,7 @@ import {
 } from '../state-machine.js';
 import { Home } from './home.js';
 import { Vec2 } from '@ts/math.js';
-import { actionsManager, canvas, sceneManager, viewManager } from '@routes/+page.svelte';
+import { actionsManager, canvas, view } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 import { DragUserAction, dragSelection } from '../../actions.js';
 
@@ -55,9 +55,7 @@ export class DraggingSelection implements MouseState {
 	}
 
 	dragCircuits(mouseLocScr: Vec2) {
-		const focusCircuitNewPositionWrl = viewManager
-			.screenToWorld(mouseLocScr)
-			.add(this.draggingOffsetWrl);
+		const focusCircuitNewPositionWrl = view.screenToWorld(mouseLocScr).add(this.draggingOffsetWrl);
 
 		const delta = focusCircuitNewPositionWrl.sub(this.focusCircuit.tightRectWrl.xy);
 		this.totalDelta = this.totalDelta.add(delta);

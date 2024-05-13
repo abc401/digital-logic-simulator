@@ -5,7 +5,7 @@ import { Wire } from './wire.js';
 import type { Circuit } from './circuits/circuit.js';
 import type { CustomCircuitInputs } from './circuits/custom-circuit-inputs.js';
 import { PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
-import { offColor, onColor, simEngine, viewManager } from '@routes/+page.svelte';
+import { offColor, onColor, simEngine, view } from '@routes/+page.svelte';
 import { CircuitSceneObject } from './circuits/circuit.js';
 // import { CircuitSceneObject } from '../scene.js';
 
@@ -66,7 +66,7 @@ export class ProducerPin {
 	}
 
 	getLocScr() {
-		return viewManager.worldToScreen(this.getLocWrl());
+		return view.worldToScreen(this.getLocWrl());
 	}
 
 	pointCollision(pointWrl: Vec2) {
@@ -82,7 +82,7 @@ export class ProducerPin {
 		// const onColor = style.getPropertyValue('--clr-on');
 		// const offColor = style.getPropertyValue('--clr-off');
 
-		ctx.lineWidth = 5 * viewManager.zoomLevel;
+		ctx.lineWidth = 5 * view.zoomLevel;
 		// ctx.strokeStyle = '#32424B';
 		// ctx.beginPath();
 		// ctx.arc(
@@ -95,13 +95,7 @@ export class ProducerPin {
 		// ctx.stroke();
 
 		ctx.beginPath();
-		ctx.arc(
-			posScr.x,
-			posScr.y,
-			CircuitSceneObject.pinRadiusWrl * viewManager.zoomLevel,
-			0,
-			2 * Math.PI
-		);
+		ctx.arc(posScr.x, posScr.y, CircuitSceneObject.pinRadiusWrl * view.zoomLevel, 0, 2 * Math.PI);
 
 		if (this.value) {
 			ctx.fillStyle = onColor;

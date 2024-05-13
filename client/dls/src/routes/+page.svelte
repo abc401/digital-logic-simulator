@@ -6,7 +6,7 @@
 	export let secondaryCtx: CanvasRenderingContext2D;
 
 	export let simEngine = new SimEngine();
-	export let viewManager = new ViewManager();
+	export let view = new View();
 	export let sceneManager = new SceneManager();
 	export let actionsManager: ActionsManager;
 
@@ -37,7 +37,7 @@
 	import { TouchScreenStateMachine } from '@ts/interactivity/touchscreen/state-machine';
 
 	import { SceneManager } from '@ts/scene/scene-manager';
-	import { ViewManager } from '@ts/view-manager';
+	import { View } from '@ts/view-manager';
 	import { onMount } from 'svelte';
 	import TopMenu from '@lib/components/TopMenu.svelte';
 	import SideBar from '@src/lib/components/SideBar.svelte';

@@ -4,7 +4,7 @@ import type { Circuit } from './circuits/circuit.js';
 import type { CustomCircuitOutputs } from './circuits/custom-circuit-outputs.js';
 import { PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
 import { Vec2 } from '@ts/math.js';
-import { offColor, onColor, viewManager } from '@routes/+page.svelte';
+import { offColor, onColor, view } from '@routes/+page.svelte';
 import { CircuitSceneObject } from './circuits/circuit.js';
 
 export class ConsumerPin {
@@ -36,7 +36,7 @@ export class ConsumerPin {
 	}
 
 	getLocScr() {
-		return viewManager.worldToScreen(this.getLocWrl());
+		return view.worldToScreen(this.getLocWrl());
 	}
 
 	attachWire(wire: Wire) {
@@ -57,7 +57,7 @@ export class ConsumerPin {
 		const pos = this.getLocScr();
 		// const style = getComputedStyle(document.body);
 
-		ctx.lineWidth = 5 * viewManager.zoomLevel;
+		ctx.lineWidth = 5 * view.zoomLevel;
 		// ctx.strokeStyle = circuitColor + "50";
 		// ctx.beginPath();
 		// ctx.arc(
@@ -71,7 +71,7 @@ export class ConsumerPin {
 		// ctx.stroke();
 		ctx.beginPath();
 
-		ctx.arc(pos.x, pos.y, CircuitSceneObject.pinRadiusWrl * viewManager.zoomLevel, 0, 2 * Math.PI);
+		ctx.arc(pos.x, pos.y, CircuitSceneObject.pinRadiusWrl * view.zoomLevel, 0, 2 * Math.PI);
 		if (this.value) {
 			ctx.fillStyle = onColor;
 		} else {

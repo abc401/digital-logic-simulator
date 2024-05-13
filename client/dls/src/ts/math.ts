@@ -41,6 +41,9 @@ export class Vec2 {
 	neg() {
 		return new Vec2(-this.x, -this.y);
 	}
+	isZero() {
+		return this.x === 0 && this.y === 0;
+	}
 }
 
 export class Circle implements BoundingBox {

@@ -1,5 +1,5 @@
 import { logState } from '@src/lib/stores/debugging';
-import { canvas, sceneManager, viewManager } from '@src/routes/+page.svelte';
+import { canvas, sceneManager, view } from '@src/routes/+page.svelte';
 import { Vec2 } from '@src/ts/math';
 import type { Circuit } from '@src/ts/scene/objects/circuits/circuit';
 import type { ConsumerPin } from '@src/ts/scene/objects/consumer-pin';
@@ -64,7 +64,7 @@ export class Home implements TouchScreenState {
 				stateMachine.state = new SingleTouch(
 					touch.identifier,
 					circuit.sceneObject,
-					circuit.sceneObject.tightRectWrl.xy.sub(viewManager.screenToWorld(locScr))
+					circuit.sceneObject.tightRectWrl.xy.sub(view.screenToWorld(locScr))
 				);
 
 				// stateMachine.state = new CircuitSelected(

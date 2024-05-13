@@ -9,7 +9,7 @@ import { Panning } from './panning.js';
 import { Vec2 } from '@ts/math.js';
 import { Home } from './home.js';
 import { DraggingSelection } from './dragging-selection.js';
-import { actionsManager, canvas, sceneManager } from '@routes/+page.svelte';
+import { actionsManager, canvas } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 import type { ID } from '@src/ts/scene/scene.js';
 import {

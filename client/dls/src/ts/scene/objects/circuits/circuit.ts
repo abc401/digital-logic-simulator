@@ -10,7 +10,7 @@ import {
 	ornamentColor,
 	sceneManager,
 	simEngine,
-	viewManager
+	view
 } from '@routes/+page.svelte';
 import { Scene } from '@ts/scene/scene.js';
 // import { CircuitSceneObject } from './circuit.js';
@@ -558,9 +558,9 @@ export class CircuitSceneObject {
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {
-		const headRectScr = viewManager.worldToScreenRect(this.headRectWrl);
-		const bodyRectScr = viewManager.worldToScreenRect(this.bodyRectWrl);
-		const looseRectScr = viewManager.worldToScreenRect(this.looseRectWrl);
+		const headRectScr = view.worldToScreenRect(this.headRectWrl);
+		const bodyRectScr = view.worldToScreenRect(this.bodyRectWrl);
+		const looseRectScr = view.worldToScreenRect(this.looseRectWrl);
 
 		// Head background
 		ctx.fillStyle = circuitColor;
@@ -569,7 +569,7 @@ export class CircuitSceneObject {
 		ctx.fill();
 
 		// Label
-		const labelSizeScr = CircuitSceneObject.labelTextSizeWrl * viewManager.zoomLevel;
+		const labelSizeScr = CircuitSceneObject.labelTextSizeWrl * view.zoomLevel;
 		ctx.font = `bold ${labelSizeScr}px "Advent Pro"`;
 		ctx.fillStyle = '#fff';
 		ctx.textBaseline = 'bottom';
@@ -582,13 +582,13 @@ export class CircuitSceneObject {
 
 		ctx.fillText(
 			actualLabel,
-			headRectScr.x + CircuitSceneObject.paddingXWrl * viewManager.zoomLevel,
-			headRectScr.y + headRectScr.h - CircuitSceneObject.headPaddingYWrl * viewManager.zoomLevel
+			headRectScr.x + CircuitSceneObject.paddingXWrl * view.zoomLevel,
+			headRectScr.y + headRectScr.h - CircuitSceneObject.headPaddingYWrl * view.zoomLevel
 		);
 
 		//render Body
 		// Head and Body separator
-		const separatorWidth = 1 * viewManager.zoomLevel;
+		const separatorWidth = 1 * view.zoomLevel;
 		ctx.lineWidth = separatorWidth;
 		ctx.strokeStyle = '#1e1e1e';
 		ctx.beginPath();

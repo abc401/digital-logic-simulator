@@ -8,16 +8,9 @@ import {
 } from '../state-machine.js';
 import { type Circuit } from '@ts/scene/objects/circuits/circuit.js';
 import { Illegal } from './Illegal.js';
-import { Vec2 } from '@ts/math.js';
 import { Home as TouchScreenHome } from './home';
 import { Home as MouseHome } from '@ts/interactivity/mouse/states/home.js';
-import {
-	actionsManager,
-	canvas,
-	mouseStateMachine,
-	sceneManager,
-	viewManager
-} from '@routes/+page.svelte';
+import { actionsManager, mouseStateMachine, sceneManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 import { CreateCircuitUserAction } from '../../actions.js';
 

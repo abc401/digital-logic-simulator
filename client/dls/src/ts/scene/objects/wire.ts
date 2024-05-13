@@ -3,7 +3,7 @@ import type { SceneObject } from '../scene-manager.js';
 import { SimEvent, UpdationStrategy } from '@ts/engine.js';
 import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
 import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
-import { offColor, onColor, sceneManager, simEngine, viewManager } from '@routes/+page.svelte';
+import { offColor, onColor, sceneManager, simEngine, view } from '@routes/+page.svelte';
 import { SELECTED_COLOR } from '@ts/config.js';
 import type { ID, Scene } from '../scene.js';
 
@@ -320,7 +320,7 @@ export class Wire implements SceneObject {
 		ctx.closePath();
 
 		if (this.isSelected) {
-			ctx.lineWidth = 12 * viewManager.zoomLevel;
+			ctx.lineWidth = 12 * view.zoomLevel;
 			ctx.strokeStyle = SELECTED_COLOR;
 			ctx.stroke();
 		}
@@ -333,7 +333,7 @@ export class Wire implements SceneObject {
 			ctx.strokeStyle = offColor;
 		}
 
-		ctx.lineWidth = 10 * viewManager.zoomLevel;
+		ctx.lineWidth = 10 * view.zoomLevel;
 		ctx.stroke();
 	}
 }

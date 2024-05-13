@@ -2,8 +2,7 @@ import {
 	actionsManager,
 	canvas,
 	sceneManager,
-	touchScreenStateMachine,
-	viewManager
+	touchScreenStateMachine
 } from '@routes/+page.svelte';
 import {
 	MouseAction,
@@ -16,7 +15,6 @@ import { Home as TouchScreenHome } from '@ts/interactivity/touchscreen/states/ho
 import { Vec2 } from '@ts/math.js';
 import { type Circuit } from '@ts/scene/objects/circuits/circuit.js';
 import { logState } from '@lib/stores/debugging.js';
-import { currentScene } from '@src/ts/scene/scene.js';
 import { CreateCircuitUserAction } from '../../actions.js';
 
 export class CreatingCircuit implements MouseState {

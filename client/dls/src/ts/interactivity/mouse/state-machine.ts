@@ -1,7 +1,7 @@
 import { Home } from './states/home.js';
 import { ZoomUserAction, copySelectedToClipboard, pasteFromClipboard } from '../actions.js';
 import { Vec2 } from '@ts/math.js';
-import { actionsManager, canvas, viewManager } from '@routes/+page.svelte';
+import { actionsManager, canvas, view } from '@routes/+page.svelte';
 
 export enum MouseButton {
 	None = 0,
@@ -147,7 +147,7 @@ export class MouseStateMachine {
 					}
 				}
 
-				viewManager.zoom(zoomOriginScr, viewManager.zoomLevel + zoomDelta);
+				view.zoom(zoomOriginScr, view.zoomLevel + zoomDelta);
 
 				ev.preventDefault();
 			},

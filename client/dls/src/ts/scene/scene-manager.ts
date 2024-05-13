@@ -5,7 +5,7 @@ import { CustomCircuitInputs } from './objects/circuits/custom-circuit-inputs.js
 import { Wire } from './objects/wire.js';
 // import { circuitCreators, domLog, secondaryCtx, viewManager } from '../main.js';
 import { Vec2 } from '@ts/math.js';
-import { actionsManager, viewManager } from '@routes/+page.svelte';
+import { actionsManager, view } from '@routes/+page.svelte';
 import { Scene, type ID } from './scene.js';
 import { currentScene } from './scene.js';
 import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config.js';
@@ -359,12 +359,10 @@ export class SceneManager {
 		// return undefined;
 		const currentScene = this.getCurrentScene();
 		for (const circuit of currentScene.circuits.topToBottom()) {
-			if (!circuit.data.looseCollisionCheck(viewManager.screenToWorld(locScr))) {
+			if (!circuit.data.looseCollisionCheck(view.screenToWorld(locScr))) {
 				continue;
 			}
-			const tightCollisionResult = circuit.data.tightCollisionCheck(
-				viewManager.screenToWorld(locScr)
-			);
+			const tightCollisionResult = circuit.data.tightCollisionCheck(view.screenToWorld(locScr));
 			if (tightCollisionResult == null) {
 				continue;
 			}

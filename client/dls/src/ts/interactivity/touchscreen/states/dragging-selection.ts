@@ -7,7 +7,7 @@ import {
 	type TouchScreenState,
 	type TouchScreenStateMachine
 } from '../state-machine';
-import { actionsManager, viewManager } from '@src/routes/+page.svelte';
+import { actionsManager, view } from '@src/routes/+page.svelte';
 import type { CircuitSceneObject } from '@src/ts/scene/objects/circuits/circuit';
 import { logState } from '@src/lib/stores/debugging';
 import { DragUserAction, dragSelection } from '../../actions';
@@ -61,9 +61,7 @@ export class DraggingSelection implements TouchScreenState {
 	}
 
 	dragCircuits(mouseLocScr: Vec2) {
-		const focusCircuitNewPositionWrl = viewManager
-			.screenToWorld(mouseLocScr)
-			.add(this.draggingOffsetWrl);
+		const focusCircuitNewPositionWrl = view.screenToWorld(mouseLocScr).add(this.draggingOffsetWrl);
 
 		const delta = focusCircuitNewPositionWrl.sub(this.focusCircuit.tightRectWrl.xy);
 		this.totalDelta = this.totalDelta.add(delta);

@@ -10,16 +10,20 @@ import { Rect, Vec2 } from '@ts/math.js';
 import { Panning } from './panning.js';
 import { Home } from './home.js';
 import { Illegal } from './Illegal.js';
-import { canvas, viewManager } from '@routes/+page.svelte';
+import { actionsManager, canvas, view } from '@routes/+page.svelte';
 import { domLog, logState } from '@lib/stores/debugging.js';
+import type { View } from '@src/ts/view-manager.js';
+import { TouchScreenZoomUserAction } from '../../actions.js';
 
 export class Zooming implements TouchScreenState {
+	startingView: View;
 	stateName = 'Zooming';
 	constructor(
 		private touch1Id: number,
 		private touch2Id: number
 	) {
 		logState('TSZooming');
+		this.startingView = view.clone();
 	}
 	update(stateMachine: TouchScreenStateMachine, action: TouchAction): void {
 		const boundingRect = canvas.getBoundingClientRect();
@@ -27,13 +31,14 @@ export class Zooming implements TouchScreenState {
 		const [insideOfCanvas, outsideOfCanvas] = discriminateTouches(payload.changedTouches);
 		if (outsideOfCanvas.length > 0) {
 			stateMachine.state = new Illegal();
+			this.configAction();
+			return;
 		}
 
 		if (action.kind === TouchActionKind.TouchStart) {
 			stateMachine.state = new Illegal();
-		}
-
-		if (action.kind === TouchActionKind.TouchMove) {
+			this.configAction();
+		} else if (action.kind === TouchActionKind.TouchMove) {
 			const touch1 = findTouch(this.touch1Id, payload.changedTouches);
 			const touch2 = findTouch(this.touch2Id, payload.changedTouches);
 
@@ -67,16 +72,18 @@ export class Zooming implements TouchScreenState {
 				.forceAspectRatio(1)
 				.withMidPoint(touch1LocScr.lerp(touch2LocScr, 1 / 2));
 			const zoomOriginScr = zoomRectCurrent.midPoint();
-			const newZoomLevel = (viewManager.zoomLevel * zoomRectCurrent.w) / zoomRectPrevious.w;
-			viewManager.zoom(zoomOriginScr, newZoomLevel);
-			viewManager.pan(zoomRectCurrent.midPoint().sub(zoomRectPrevious.midPoint()));
+			const newZoomLevel = (view.zoomLevel * zoomRectCurrent.w) / zoomRectPrevious.w;
+			view.zoom(zoomOriginScr, newZoomLevel);
+			view.pan(zoomRectCurrent.midPoint().sub(zoomRectPrevious.midPoint()));
 		} else if (action.kind === TouchActionKind.TouchEnd) {
 			if (insideOfCanvas.length === 1) {
 				const touch = insideOfCanvas[0];
 				if (touch.identifier === this.touch1Id) {
 					stateMachine.state = new Panning(this.touch2Id);
+					this.configAction();
 				} else if (touch.identifier === this.touch2Id) {
 					stateMachine.state = new Panning(this.touch1Id);
+					this.configAction();
 				} else {
 					domLog('[TSZooming][TouchEnd] Ended touch is not one of the touches used for zooming');
 					throw Error();
@@ -89,10 +96,20 @@ export class Zooming implements TouchScreenState {
 					throw Error();
 				}
 				stateMachine.state = new Home();
+				this.configAction();
 			} else {
 				domLog('[TSZooming][TouchEnd] Ended touch is not one of the touches used for zooming');
 				throw Error();
 			}
+		}
+	}
+
+	configAction() {
+		const endingView = view.clone();
+		const zoomDelta = endingView.zoomLevel - this.startingView.zoomLevel;
+		const panDelta = endingView.panOffset.sub(this.startingView.panOffset);
+		if (zoomDelta !== 0 || !panDelta.isZero()) {
+			actionsManager.push(new TouchScreenZoomUserAction(this.startingView, endingView));
 		}
 	}
 }

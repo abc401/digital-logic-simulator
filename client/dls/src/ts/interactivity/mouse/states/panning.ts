@@ -7,7 +7,7 @@ import {
 } from '@ts/interactivity/mouse/state-machine.js';
 import { Home } from './home.js';
 import { Vec2 } from '@ts/math.js';
-import { actionsManager, canvas, viewManager } from '@routes/+page.svelte';
+import { actionsManager, canvas, view } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 import { PanUserAction } from '../../actions.js';
 
@@ -37,7 +37,7 @@ export class Panning implements MouseState {
 		if (action.kind === MouseActionKind.MouseMove) {
 			const delta = new Vec2(payload.movementX, payload.movementY);
 			this.totalDelta = this.totalDelta.add(delta);
-			viewManager.pan(delta);
+			view.pan(delta);
 		}
 	}
 }

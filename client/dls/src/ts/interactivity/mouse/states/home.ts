@@ -6,14 +6,14 @@ import {
 	MouseButton
 } from '../state-machine.js';
 import { ConcreteObjectKind } from '@ts/scene/scene-manager.js';
-import type { Circuit, CircuitSceneObject } from '@ts/scene/objects/circuits/circuit.js';
+import type { Circuit } from '@ts/scene/objects/circuits/circuit.js';
 import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
 import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
 import { Wire } from '@ts/scene/objects/wire.js';
 import { Vec2 } from '@ts/math.js';
 import { CreatingWire } from './creating-wire.js';
 import { MouseDownPrimaryButton } from './mouse-down-primary-button.js';
-import { actionsManager, canvas, sceneManager, viewManager } from '@routes/+page.svelte';
+import { actionsManager, canvas, sceneManager, view } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 import { currentScene, type ID } from '@src/ts/scene/scene.js';
 import { DeleteWireUserAction } from '../../actions.js';
@@ -59,7 +59,7 @@ export class Home implements MouseState {
 
 				stateMachine.state = new MouseDownPrimaryButton(
 					circuit.sceneObject,
-					circuit.sceneObject.tightRectWrl.xy.sub(viewManager.screenToWorld(locScr))
+					circuit.sceneObject.tightRectWrl.xy.sub(view.screenToWorld(locScr))
 				);
 
 				return;

@@ -10,7 +10,7 @@ import { Vec2 } from '@ts/math.js';
 import { Home } from './home.js';
 import { Zooming } from './zooming.js';
 import { Illegal } from './Illegal.js';
-import { actionsManager, canvas, viewManager } from '@routes/+page.svelte';
+import { actionsManager, canvas, view } from '@routes/+page.svelte';
 import { domLog, logState } from '@lib/stores/debugging.js';
 import { PanUserAction } from '../../actions.js';
 
@@ -50,7 +50,7 @@ export class Panning implements TouchScreenState {
 			const delta = locScr.sub(previousLocScr);
 			this.totalDelta = this.totalDelta.add(delta);
 
-			viewManager.pan(delta);
+			view.pan(delta);
 		} else if (action.kind === TouchActionKind.TouchEnd) {
 			stateMachine.state = new Home();
 			actionsManager.push(new PanUserAction(this.totalDelta));

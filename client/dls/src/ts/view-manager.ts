@@ -1,13 +1,25 @@
 import { MAX_ZOOM, MIN_ZOOM } from './config.js';
 import { Rect, Vec2, clamp } from './math.js';
 
-export class ViewManager {
+export class View {
 	zoomLevel: number;
 	panOffset: Vec2;
 
 	constructor() {
 		this.zoomLevel = 1;
 		this.panOffset = new Vec2(0, 0);
+	}
+
+	clone() {
+		const view = new View();
+		view.zoomLevel = this.zoomLevel;
+		view.panOffset = this.panOffset;
+		return view;
+	}
+
+	setView(view: View) {
+		this.zoomLevel = view.zoomLevel;
+		this.panOffset = view.panOffset;
 	}
 
 	pan(amountScr: Vec2) {

@@ -1,5 +1,5 @@
 // import { clipboard, sceneManager } from '@ts/main';
-import { ctx, sceneManager, viewManager } from '@routes/+page.svelte';
+import { ctx, sceneManager, view } from '@routes/+page.svelte';
 import {
 	type Circuit,
 	cloneGraphAfterCircuit,
@@ -15,6 +15,7 @@ import { domLog } from '@src/lib/stores/debugging';
 import { icNames } from '@src/lib/stores/integrated-circuits';
 import { icInstantiators, icInstanciator } from '@src/lib/stores/circuitInstantiators';
 import { integratedCircuits } from '@src/lib/stores/integrated-circuits';
+import type { View } from '../view-manager';
 
 export const clipboard = {
 	circuits: new Array<Circuit>(),
@@ -117,10 +118,10 @@ export class PanUserAction implements UserAction {
 	name = 'Pan';
 
 	do(): void {
-		viewManager.pan(this.delta);
+		view.pan(this.delta);
 	}
 	undo(): void {
-		viewManager.pan(this.delta.neg());
+		view.pan(this.delta.neg());
 	}
 }
 
@@ -133,10 +134,24 @@ export class ZoomUserAction implements UserAction {
 	name = 'Zoom';
 
 	do(): void {
-		viewManager.zoom(this.zoomOriginScr, viewManager.zoomLevel + this.zoomLevelDelta);
+		view.zoom(this.zoomOriginScr, view.zoomLevel + this.zoomLevelDelta);
 	}
 	undo(): void {
-		viewManager.zoom(this.zoomOriginScr, viewManager.zoomLevel - this.zoomLevelDelta);
+		view.zoom(this.zoomOriginScr, view.zoomLevel - this.zoomLevelDelta);
+	}
+}
+export class TouchScreenZoomUserAction implements UserAction {
+	name = '';
+	constructor(
+		readonly startingView: View,
+		readonly endingView: View
+	) {}
+
+	do(): void {
+		view.setView(this.endingView);
+	}
+	undo(): void {
+		view.setView(this.startingView);
 	}
 }
 
@@ -167,7 +182,7 @@ export class CreateCircuitUserAction implements UserAction {
 		CircuitSceneObject.newWithID(
 			this.circuitID,
 			circuit,
-			viewManager.screenToWorld(this.locScr),
+			view.screenToWorld(this.locScr),
 			currentScene,
 			ctx
 		);
