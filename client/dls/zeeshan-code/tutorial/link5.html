@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>FlipFlop</title>
+  </head>
+  <body>
+    <h1>FlipFlop</h1>
+    <p>
+      A flip-flop is a fundamental building block in digital logic that is used
+      to store binary information. It is a type of sequential logic circuit,
+      meaning its output depends not only on its current input but also on its
+      previous state.
+    </p>
+
+    <p>
+      In a digital logic simulator, a flip-flop is typically represented as a
+      component with inputs and outputs. The most common types of flip-flops are
+      the D flip-flop, the JK flip-flop, the T flip-flop, and the SR flip-flop.
+    </p>
+
+    <h2>D flipflop</h2>
+    <p>
+      The D flip-flop, or data flip-flop, has a single data input (D), a clock
+      input (CLK), and two outputs: Q and Q' (the inverse of Q). When the clock
+      signal transitions from low to high (rising edge), the value of D is
+      transferred to the output Q. This means that the flip-flop stores the
+      value of D and holds it until the next rising edge of the clock signal.
+    </p>
+    <h2>JK flipflop</h2>
+    <p>
+      The JK flip-flop is similar to the D flip-flop but has two additional
+      inputs: J (set) and K (reset). When both J and K are high, the flip-flop
+      toggles its output on each clock cycle. When J is high and K is low, the
+      flip-flop sets its output to high (Q = 1). When J is low and K is high,
+      the flip-flop resets its output to low (Q = 0). And when both J and K are
+      low, the flip-flop holds its current state.
+    </p>
+    <h2>T flip-flop</h2>
+    <p>
+      The T flip-flop, or toggle flip-flop, toggles its output on each clock
+      cycle when its input (T) is high. It is useful for creating frequency
+      dividers and counters.
+    </p>
+    <h2>SR flipflop</h2>
+    <p>
+      The SR flipflop, or set-reset flip-flop, has two inputs: S (set) and R
+      (reset). When S is high and R is low, the flip-flop sets its output to
+      high (Q = 1). When R is high and S is low, the flip-flop resets its output
+      to low (Q = 0). When both S and R are low, the flip-flop holds its current
+      state. This flip-flop is useful for creating memory elements and
+      sequential circuits.
+    </p>
+    <p>
+      In a digital logic simulator, flip-flops are used to store intermediate
+      results, create memory elements, and implement sequential logic circuits
+      such as counters, shift registers, and finite state machines.
+      Understanding how flip-flops work and how to use them is essential for
+      designing complex digital circuits in a simulator.
+    </p>
+    <h3>Quiz Section</h3>
+    <h4>Q 1 - What is the main function of a flip-flop in digital logic?</h4>
+    <input type="radio" name="a" /> To perform arithmetic operations
+    <br />
+    <input type="radio" name="a" /> To store binary information
+    <br />
+    <input type="radio" name="a" /> To generate clock signals
+    <br />
+    <input type="radio" name="a" /> To convert analog signals to digital signals
+    <h4>Q 2 - What is the purpose of the clock input in a flip-flop?</h4>
+    <input type="radio" name="b" /> To control the output voltage levels
+    <br />
+    <input type="radio" name="b" /> To synchronize the storage of data
+    <br />
+    <input type="radio" name="b" /> To determine the type of flip-flop used
+    <br />
+    <input type="radio" name="b" /> To provide power to the flip-flop
+    <h4>
+      Q 3 - Which type of flip-flop toggles its output on each clock cycle when
+      its input is high?
+    </h4>
+    <input type="radio" name="c" /> D flip-flop
+    <br />
+    <input type="radio" name="c" /> JK flip-flop
+    <br />
+    <input type="radio" name="c" /> T flip-flop
+    <br />
+    <input type="radio" name="c" /> SR flip-flop
+    <h4>
+      Q 4 - What happens to the output of an SR flip-flop when both the set (S)
+      and reset (R) inputs are low?
+    </h4>
+    <input type="radio" name="d" /> The output is set to high
+    <br />
+    <input type="radio" name="d" /> The output is reset to low
+    <br />
+    <input type="radio" name="d" /> The output holds its current state
+    <br />
+    <input type="radio" name="d" /> The output toggles on each clock cycle
+    <h4>
+      Q 5 - How are flip-flops typically represented in a digital logic
+      simulator?
+    </h4>
+    <input type="radio" name="e" /> As simple gates with multiple inputs and
+    outputs
+    <br />
+    <input type="radio" name="e" /> As components with only input signals
+    <br />
+    <input type="radio" name="e" /> As components with inputs, outputs, and
+    clock signals
+    <br />
+    <input type="radio" name="e" /> As components with only output signals
+  </body>
+</html>

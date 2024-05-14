@@ -114,53 +114,7 @@ export function dummyCircuit() {
 	return circuit;
 }
 
-// class CircuitColliderObject implements ColliderObject {
-//   constructor(public circuit: Circuit) {}
-
-//   looseCollisionCheck(pointWrl: Vec2) {
-//     if (this.circuit.sceneObject == null) {
-//       throw Error();
-//     }
-//     const res =
-//       this.circuit.sceneObject.looseRectWrl.pointIntersection(pointWrl);
-//     if (res) {
-//       console.log("Loose Collision Passed");
-//     }
-//     return res;
-//   }
-
-//   tightCollisionCheck(pointWrl: Vec2):
-//     | {
-//         kind: ConcreteObjectKind;
-//         object: any;
-//       }
-//     | undefined {
-//     if (this.circuit.sceneObject == null) {
-//       throw Error();
-//     }
-
-//     if (this.circuit.sceneObject.tightRectWrl.pointIntersection(pointWrl)) {
-//       console.log("Tight Collision Passed");
-//       return { kind: ConcreteObjectKind.Circuit, object: this.circuit };
-//     }
-
-//     for (let pin of this.circuit.consumerPins) {
-//       if (pin.pointCollision(pointWrl)) {
-//         console.log("Tight Collision Passed");
-//         return { kind: ConcreteObjectKind.ConsumerPin, object: pin };
-//       }
-//     }
-
-//     for (let pin of this.circuit.producerPins) {
-//       if (pin.pointCollision(pointWrl)) {
-//         console.log("Tight Collision Passed");
-//         return { kind: ConcreteObjectKind.ProducerPin, object: pin };
-//       }
-//     }
-
-//     return undefined;
-//   }
-// }
+export function drawAndCircuit(circuit: Circuit, ctx: CanvasRenderingContext2D) {}
 
 export function circuitCloneHelper(circuit: Circuit) {
 	const cloned = Object.assign({}, circuit);

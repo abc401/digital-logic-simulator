@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Latches</title>
+  </head>
+  <body>
+    <h1>Latches</h1>
+    <p>
+      In digital logic, a latch is a circuit that can store one bit of
+      information. Latches are similar to flip-flops but are level sensitive,
+      meaning they can change their output whenever the input changes and the
+      clock signal meets certain conditions, rather than only changing on a
+      clock edge like a flip-flop. Latches are often used in digital systems for
+      temporary storage or as building blocks for more complex circuits. There
+      are several types of latches, with the most common being the SR latch, the
+      D latch, and the JK latch.
+    </p>
+    <h2>SR Latch</h2>
+    <p>
+      The SR latch has two inputs, S (set) and R (reset), and two outputs, Q and
+      Q'. When S is high and R is low, the Q output is set to high and the Q'
+      output is set to low. When R is high and S is low, the Q output is set to
+      low and the Q' output is set to high. When both S and R are low, the latch
+      holds its previous state. The SR latch is level-sensitive, meaning its
+      outputs can change as long as the inputs are held at the appropriate
+      levels.
+    </p>
+    <h2>D Latch</h2>
+    <p>
+      The D latch has a single data input (D), a clock input (CLK), and two
+      outputs, Q and Q'. When the clock signal transitions to a specific level
+      (either high or low, depending on the latch type), the value of D is
+      transferred to the output Q. The D latch is level-sensitive and can change
+      its output whenever the input changes, as long as the clock signal meets
+      the latch's timing requirements.
+    </p>
+    <h2>JK Latch</h2>
+    <p>
+      The JK latch is similar to the SR latch but includes an additional input,
+      K (kill). The JK latch has two stable states, like the SR latch, but the
+      inputs have different meanings. When J=K=1, the latch toggles its state,
+      meaning if Q=1, it becomes 0, and if Q=0, it becomes 1. This behavior is
+      similar to a T flip-flop. The JK latch is level-sensitive and can change
+      its output whenever the input changes and the clock signal meets the
+      latch's timing requirements.
+    </p>
+    <p>
+      Latches are used in digital logic simulators to store intermediate values,
+      create temporary storage elements, and implement certain types of
+      circuits. They are especially useful in asynchronous circuits, where
+      timing constraints are less rigid than in synchronous circuits that use
+      flip-flops. Latches can be used to hold data temporarily before it is
+      transferred to a flip-flop or to create feedback loops in digital systems.
+    </p>
+
+    <p>
+      In summary, latches are level-sensitive storage elements used in digital
+      logic to temporarily store one bit of information. They are similar to
+      flip-flops but are more flexible in terms of when they can change their
+      output. Latches are commonly used in digital systems for temporary
+      storage, feedback loops, and other applications where asynchronous
+      behavior is desired.
+    </p>
+    <h3>Quiz Section</h3>
+    <h4>Q 1 - How does a latch differ from a flip-flop?</h4>
+    <input type="radio" name="a" /> Latches are edge-triggered, while flip-flops
+    are level-sensitive.
+    <br />
+    <input type="radio" name="a" /> Latches can only store one bit of
+    information, while flip-flops can store multiple bits.
+    <br />
+    <input type="radio" name="a" /> Latches change their output whenever the
+    input changes and the clock signal meets certain conditions, while
+    flip-flops only change on a clock edge.
+    <br />
+    <input type="radio" name="a" /> Latches are only used for temporary storage,
+    while flip-flops are used for long-term storage.
+    <h4>
+      Q 2 - What happens to the output of an SR latch when both the set (S) and
+      reset (R) inputs are low?
+    </h4>
+    <input type="radio" name="b" /> The output is set to high
+    <br />
+    <input type="radio" name="b" /> The output is reset to low
+    <br />
+    <input type="radio" name="b" /> The output holds its previous state
+    <br />
+    <input type="radio" name="b" /> The output toggles between high and low
+    <h4>Q 3 - How does a D latch differ from an SR latch?</h4>
+    <input type="radio" name="c" /> A D latch has two inputs, while an SR latch
+    has three inputs.
+    <br />
+    <input type="radio" name="c" /> A D latch has a clock input, while an SR
+    latch does not.
+    <br />
+    <input type="radio" name="c" /> A D latch can only store one bit, while an
+    SR latch can store multiple bits.
+    <br />
+    <input type="radio" name="c" /> A D latch transfers the input value to the
+    output on a clock edge, while an SR latch can change
+    <h4>
+      Q 4 - What additional input does a JK latch have compared to an SR latch?
+    </h4>
+    <input type="radio" name="d" /> Kill (K)
+    <br />
+    <input type="radio" name="d" /> Data (D)
+    <br />
+    <input type="radio" name="d" /> Clock (CLK)
+    <br />
+    <input type="radio" name="d" /> Toggle (T)
+    <h4>
+      Q 5 - What is the main advantage of using latches in asynchronous
+      circuits?
+    </h4>
+    <input type="radio" name="e" /> They are faster than flip-flops
+    <br />
+    <input type="radio" name="e" /> They are more flexible in terms of timing
+    requirements
+    <br />
+    <input type="radio" name="e" /> They can store more bits of information
+    <br />
+    <input type="radio" name="e" /> They consume less power than flip-flops
+  </body>
+</html>

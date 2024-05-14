@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Basic Gates</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <h1>Basic Gates</h1>
+    <h2>And Gate</h2>
+    <p>
+      The AND gate is one of the fundamental building blocks of digital
+      electronic circuits. It is a digital logic gate that performs the AND
+      operation, which is a basic operation in Boolean algebra. The AND gate
+      takes two binary inputs (usually labeled A and B) and produces a single
+      binary output (usually labeled Y), according to the following truth table:
+    </p>
+    <table>
+      <tr>
+        <th>A</th>
+        <th>B</th>
+        <th>Y</th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>1</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>1</td>
+        <td>1</td>
+      </tr>
+    </table>
+    <p>
+      In the truth table, the output Y is 1 (or true) only when both inputs A
+      and B are 1 (or true); otherwise, the output is 0 (or false). The inputs A
+      and B are connected to the left side of the gate, and the output Y is on
+      the right side. The AND gate can have more than two inputs, in which case
+      it behaves as if all inputs must be 1 for the output to be 1.
+    </p>
+    <p>
+      One of the key properties of the AND gate is that it can be used to
+      implement logical conjunction, which is a fundamental operation in Boolean
+      algebra. Conjunction is a binary operation that takes two propositions and
+      produces a new proposition that is true only when both input propositions
+      are true. This property makes the AND gate essential in the design of
+      digital circuits that require logical AND operations.
+    </p>
+    <p>
+      The AND gate is used in various digital circuits and systems for a wide
+      range of applications. One common application is in arithmetic circuits,
+      where AND gates are used to perform the bitwise AND operation between
+      binary numbers. In this application, each pair of corresponding bits in
+      the two input numbers is fed into an AND gate, and the outputs are then
+      combined to produce the final result. Another common application of the
+      AND gate is in the implementation of logic functions and Boolean
+      expressions. By combining multiple AND gates with other logic gates such
+      as OR gates and NOT gates, complex logic functions can be implemented.
+      This allows digital designers to create circuits that perform a wide range
+      of logical operations, making the AND gate a versatile building block in
+      digital circuit design.
+    </p>
+    <p>
+      In summary, the AND gate is a fundamental building block of digital
+      electronic circuits that performs the AND operation. It takes two binary
+      inputs and produces a single binary output, according to the truth table.
+      The AND gate is essential in digital circuit design, as it is used in
+      various applications, including arithmetic circuits and logic function
+      implementation. Its simple yet powerful operation makes it a key component
+      in modern digital electronics.
+    </p>
+    <h2>Or Gate</h2>
+    <p>
+      The OR gate is another fundamental building block of digital electronic
+      circuits. Like the AND gate, the OR gate is a digital logic gate that
+      performs a basic operation in Boolean algebra. The OR gate takes two
+      binary inputs (usually labeled A and B) and produces a single binary
+      output (usually labeled Y), according to the following truth table:
+    </p>
+
+    <table>
+      <tr>
+        <th>A</th>
+        <th>B</th>
+        <th>C</th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+
+      <tr>
+        <td>0</td>
+        <td>1</td>
+        <td>1</td>
+      </tr>
+
+      <tr>
+        <td>1</td>
+        <td>0</td>
+        <td>1</td>
+      </tr>
+
+      <tr>
+        <td>1</td>
+        <td>1</td>
+        <td>1</td>
+      </tr>
+    </table>
+    <p>
+      In the truth table, the output Y is 1 (or true) if at least one of the
+      inputs A or B is 1 (or true); otherwise, the output is 0 (or false). This
+      behavior can be summarized by the Boolean expression Y = A OR B. The
+      inputs A and B are connected to the left side of the gate, and the output
+      Y is on the right side. Like the AND gate, the OR gate can have more than
+      two inputs, in which case it behaves as if at least one of the inputs must
+      be 1 for the output to be 1.
+    </p>
+    <p>
+      One of the key properties of the OR gate is that it can be used to
+      implement logical disjunction, which is another fundamental operation in
+      Boolean algebra. Disjunction is a binary operation that takes two
+      propositions and produces a new proposition that is true if at least one
+      of the input propositions is true. This property makes the OR gate
+      essential in the design of digital circuits that require logical OR
+      operations.
+    </p>
+    <p>
+      The OR gate is used in various digital circuits and systems for a wide
+      range of applications. One common application is in the implementation of
+      logic functions and Boolean expressions. By combining multiple OR gates
+      with other logic gates such as AND gates and NOT gates, complex logic
+      functions can be implemented. This allows digital designers to create
+      circuits that perform a wide range of logical operations, making the OR
+      gate a versatile building block in digital circuit design. Another common
+      application of the OR gate is in the implementation of multiplexers and
+      other data routing circuits. In these applications, OR gates are used to
+      select between multiple data inputs based on a control signal. The OR gate
+      is also used in the design of adders and other arithmetic circuits, where
+      it is used to combine the carry-out signals from multiple stages of the
+      circuit.
+    </p>
+    <p>
+      In summary, the OR gate is a fundamental building block of digital
+      electronic circuits that performs the OR operation. It takes two binary
+      inputs and produces a single binary output, according to the truth table.
+      The OR gate is essential in digital circuit design, as it is used in
+      various applications, including logic function implementation, data
+      routing, and arithmetic circuit design. Its simple yet powerful operation
+      makes it a key component in modern digital electronics.
+    </p>
+    <h2>Not Gate</h2>
+    <p>
+      The NOT gate, also known as an inverter, is a fundamental building block
+      of digital electronic circuits. It is a digital logic gate that performs
+      the NOT operation, which is a basic operation in Boolean algebra. The NOT
+      gate takes a single binary input (usually labeled A) and produces a single
+      binary output (usually labeled Y), according to the following truth table:
+    </p>
+
+    <table>
+      <tr>
+        <th>A</th>
+        <th>Y</th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>0</td>
+      </tr>
+    </table>
+    <p>
+      In the truth table, the output Y is the complement of the input A. If A is
+      0, then Y is 1, and if A is 1, then Y is 0. This behavior can be
+      summarized by the Boolean expression Y = NOT A or Y = A', where '
+      represents the NOT operation.
+    </p>
+    <p>
+      The input A is connected to the left side of the gate, and the output Y is
+      on the right side. The NOT gate is a unary gate, meaning it has only one
+      input. One of the key properties of the NOT gate is its ability to invert
+      the input signal. This property is useful in digital circuits for changing
+      the logic level of a signal. For example, if the input signal is 0, the
+      NOT gate will produce an output of 1, and if the input signal is 1, the
+      NOT gate will produce an output of 0. This property is used in various
+      digital circuits to complement signals and perform logical negation.
+    </p>
+    <p>
+      The NOT gate is used in combination with other logic gates to implement
+      more complex logic functions. For example, by combining a NOT gate with an
+      AND gate, one can implement a NAND gate, which is a universal gate that
+      can be used to implement any Boolean function. Similarly, by combining a
+      NOT gate with an OR gate, one can implement a NOR gate, another universal
+      gate. The NOT gate is also used in flip-flops and other memory elements to
+      store and manipulate binary information. In these applications, the NOT
+      gate is used to invert the state of a signal, which can be used to change
+      the state of the memory element.
+    </p>
+    <p>
+      In summary, the NOT gate is a fundamental building block of digital
+      electronic circuits that performs the NOT operation. It takes a single
+      binary input and produces a single binary output, which is the complement
+      of the input. The NOT gate is essential in digital circuit design, as it
+      is used to invert signals and implement logical negation. Its simple yet
+      powerful operation makes it a key component in modern digital electronics.
+    </p>
+    <h2>Nand Gate</h2>
+    <p>
+      The NAND gate is a fundamental building block of digital electronic
+      circuits. It is a digital logic gate that performs the NAND (NOT-AND)
+      operation, which is a basic operation in Boolean algebra. The NAND gate
+      takes two binary inputs (usually labeled A and B) and produces a single
+      binary output (usually labeled Y), according to the following truth table:
+    </p>
+
+    <table>
+      <tr>
+        <th>A</th>
+        <th>B</th>
+        <th>C</th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>0</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>1</td>
+        <td>1</td>
+      </tr>
+
+      <tr>
+        <td>1</td>
+        <td>0</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>1</td>
+        <td>0</td>
+      </tr>
+    </table>
+    <p>
+      In the truth table, the output Y is 0 (or false) only when both inputs A
+      and B are 1 (or true); otherwise, the output is 1 (or true). This behavior
+      can be summarized by the Boolean expression Y = NOT (A AND B) or Y = A
+      NAND B.
+    </p>
+    <p>
+      The inputs A and B are connected to the left side of the gate, and the
+      output Y is on the right side. The NAND gate can have more than two
+      inputs, in which case it behaves as if all inputs must be 1 for the output
+      to be 0. One of the key properties of the NAND gate is its ability to
+      function as a universal gate. This means that any other logical operation
+      can be implemented using only NAND gates. For example, an OR gate can be
+      implemented using NAND gates by connecting the inputs of the NAND gate to
+      the inputs of the OR gate and connecting the output of the NAND gate to a
+      NOT gate. Similarly, an AND gate can be implemented using NAND gates by
+      connecting the inputs of the NAND gates to the inputs of the AND gate and
+      connecting the outputs of the NAND gates to another NAND gate.
+    </p>
+    <p>
+      The NAND gate is used in various digital circuits and systems for a wide
+      range of applications. One common application is in the implementation of
+      arithmetic circuits, where NAND gates are used to perform the bitwise NAND
+      operation between binary numbers. In this application, each pair of
+      corresponding bits in the two input numbers is fed into a NAND gate, and
+      the outputs are then combined to produce the final result. Another common
+      application of the NAND gate is in the implementation of logic functions
+      and Boolean expressions. By combining multiple NAND gates with other logic
+      gates such as OR gates and NOT gates, complex logic functions can be
+      implemented. This allows digital designers to create circuits that perform
+      a wide range of logical operations, making the NAND gate a versatile
+      building block in digital circuit design.
+    </p>
+    <p>
+      In summary, the NAND gate is a fundamental building block of digital
+      electronic circuits that performs the NAND operation. It takes two binary
+      inputs and produces a single binary output, according to the truth table.
+      The NAND gate is essential in digital circuit design, as it is used in
+      various applications, including logic function implementation, arithmetic
+      circuit design, and universal gate implementation. Its simple yet powerful
+      operation makes it a key component in modern digital electronics.
+    </p>
+    <h2>Nor Gate</h2>
+    <p>
+      The NOR gate is a fundamental building block of digital electronic
+      circuits. It is a digital logic gate that performs the NOR (NOT-OR)
+      operation, which is a basic operation in Boolean algebra. The NOR gate
+      takes two binary inputs (usually labeled A and B) and produces a single
+      binary output (usually labeled Y), according to the following truth table:
+    </p>
+
+    <table>
+      <tr>
+        <th>A</th>
+        <th>B</th>
+        <th>C</th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>0</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>1</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>1</td>
+        <td>0</td>
+      </tr>
+    </table>
+    <p>
+      In the truth table, the output Y is 1 (or true) only when both inputs A
+      and B are 0 (or false); otherwise, the output is 0 (or false). This
+      behavior can be summarized by the Boolean expression Y = NOT (A OR B) or Y
+      = A NOR B.
+    </p>
+    <p>
+      The inputs A and B are connected to the left side of the gate, and the
+      output Y is on the right side. The NOR gate can have more than two inputs,
+      in which case it behaves as if all inputs must be 0 for the output to be
+      1. One of the key properties of the NOR gate is its ability to function as
+      a universal gate, similar to the NAND gate. This means that any other
+      logical operation can be implemented using only NOR gates. For example, an
+      AND gate can be implemented using NOR gates by connecting the inputs of
+      the NOR gate to the inputs of the AND gate and connecting the output of
+      the NOR gate to a NOT gate. Similarly, an OR gate can be implemented using
+      NOR gates by connecting the inputs of the NOR gates to the inputs of the
+      OR gate and connecting the outputs of the NOR gates to another NOR gate.
+    </p>
+    <p>
+      The NOR gate is used in various digital circuits and systems for a wide
+      range of applications. One common application is in the implementation of
+      logic functions and Boolean expressions. By combining multiple NOR gates
+      with other logic gates such as AND gates and NOT gates, complex logic
+      functions can be implemented. This allows digital designers to create
+      circuits that perform a wide range of logical operations, making the NOR
+      gate a versatile building block in digital circuit design. Another common
+      application of the NOR gate is in the design of flip-flops and other
+      memory elements. In these applications, the NOR gate is used to implement
+      the feedback mechanism that allows the memory element to store and
+      manipulate binary information.
+    </p>
+    <p>
+      In summary, the NOR gate is a fundamental building block of digital
+      electronic circuits that performs the NOR operation. It takes two binary
+      inputs and produces a single binary output, according to the truth table.
+      The NOR gate is essential in digital circuit design, as it is used in
+      various applications, including logic function implementation, memory
+      element design, and universal gate implementation. Its simple yet powerful
+      operation makes it a key component in modern digital electronics.
+    </p>
+    <h2>Xor Gate</h2>
+    <p>
+      The XOR gate, short for exclusive OR gate, is a digital logic gate that
+      performs the exclusive OR operation. It takes two binary inputs (usually
+      labeled A and B) and produces a single binary output (usually labeled Y),
+      according to the following truth table:
+    </p>
+
+    <table>
+      <tr>
+        <th>A</th>
+        <th>B</th>
+        <th>C</th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>1</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>0</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>1</td>
+        <td>0</td>
+      </tr>
+    </table>
+    <p>
+      In the truth table, the output Y is 1 (or true) if either input A or input
+      B is 1, but not both. If both inputs are 0 or both inputs are 1, the
+      output is 0 (or false). This behavior can be summarized by the Boolean
+      expression Y = A XOR B.
+    </p>
+    <p>
+      The inputs A and B are connected to the left side of the gate, and the
+      output Y is on the right side. The XOR gate can also be represented by the
+      following Boolean expression: Y = (A AND NOT B) OR (NOT A AND B) One of
+      the key properties of the XOR gate is its ability to detect when the
+      number of 1s in its inputs is odd. This property makes the XOR gate useful
+      in error detection and correction circuits, as well as in cryptographic
+      algorithms.
+    </p>
+    <p>
+      The XOR gate is used in various digital circuits and systems for a wide
+      range of applications. One common application is in the implementation of
+      arithmetic circuits, where XOR gates are used to perform the bitwise XOR
+      operation between binary numbers. In this application, each pair of
+      corresponding bits in the two input numbers is fed into an XOR gate, and
+      the outputs are then combined to produce the final result. Another common
+      application of the XOR gate is in the implementation of parity check
+      circuits. In these circuits, XOR gates are used to calculate the parity of
+      a set of binary inputs. If the number of 1s in the inputs is odd, the
+      output of the XOR gate is 1, indicating an error. The XOR gate is also
+      used in the design of flip-flops and other memory elements. In these
+      applications, the XOR gate is used to implement the feedback mechanism
+      that allows the memory element to store and manipulate binary information.
+    </p>
+    <p>
+      In summary, the XOR gate is a fundamental building block of digital
+      electronic circuits that performs the exclusive OR operation. It takes two
+      binary inputs and produces a single binary output, according to the truth
+      table. The XOR gate is essential in digital circuit design, as it is used
+      in various applications, including arithmetic circuit design, error
+      detection and correction, and memory element design. Its unique behavior
+      makes it a valuable component in modern digital electronics.
+    </p>
+    <h3>Quiz Section</h3>
+    <h4>Q 1 - Which of the following best describes the AND gate?</h4>
+    <input type="radio" name="a" /> Takes two inputs and outputs their sum
+    <br />
+    <input type="radio" name="a" /> Takes two inputs and outputs their product
+    <br />
+    <input type="radio" name="a" /> Takes two inputs and outputs their
+    difference
+    <br />
+    <input type="radio" name="a" /> Takes two inputs and outputs their
+    conjunction
+    <h4>
+      Q 2 - What is the output of an AND gate if the inputs are A = 0 and B = 1?
+    </h4>
+    <input type="radio" name="b" /> 0
+    <br />
+    <input type="radio" name="b" /> 1
+    <br />
+    <input type="radio" name="b" /> 2
+    <br />
+    <input type="radio" name="b" /> none
+    <h4>Q 3 - How many binary inputs does an AND gate typically have?</h4>
+    <input type="radio" name="c" /> one
+    <br />
+    <input type="radio" name="c" /> two
+    <br />
+    <input type="radio" name="c" /> three
+    <br />
+    <input type="radio" name="c" /> none
+    <h4>
+      Q 4 - What is the output of an OR gate if both inputs A and B are 0?
+    </h4>
+    <input type="radio" name="d" /> 0
+    <br />
+    <input type="radio" name="d" /> 1
+    <br />
+    <input type="radio" name="d" /> all of these
+    <br />
+    <input type="radio" name="d" /> none
+    <h4>Q 5 - Which of the following best describes the OR gate?</h4>
+    <input type="radio" name="e" /> Takes two inputs and outputs their sum
+    <br />
+    <input type="radio" name="e" /> Takes two inputs and outputs their product
+    <br />
+    <input type="radio" name="e" /> all of these
+    <br />
+    <input type="radio" name="e" /> Takes two inputs and outputs their
+    disjunction
+    <h4>Q 6 - What is the output of a NOT gate if the input A is 1?</h4>
+    <input type="radio" name="f" /> 0
+    <br />
+    <input type="radio" name="f" /> 1
+    <br />
+    <input type="radio" name="f" /> all of these
+    <br />
+    <input type="radio" name="f" /> none
+    <h4>Q 7 - How many binary inputs does a NOT gate typically have?</h4>
+    <input type="radio" name="g" /> 0
+    <br />
+    <input type="radio" name="g" /> 1
+    <br />
+    <input type="radio" name="g" /> 3
+    <br />
+    <input type="radio" name="g" /> all of these
+    <h4>
+      Q 8 - What is the output of a NAND gate if both inputs A and B are 1?
+    </h4>
+    <input type="radio" name="h" /> 0
+    <br />
+    <input type="radio" name="h" /> 1
+    <br />
+    <input type="radio" name="h" /> 3
+    <br />
+    <input type="radio" name="h" /> all of these
+    <h4>Q 9 - Which of the following best describes the NAND gate?</h4>
+    <input type="radio" name="i" /> Takes two inputs and outputs their sum
+    <br />
+    <input type="radio" name="i" /> Takes two inputs and outputs their product
+    <br />
+    <input type="radio" name="i" /> Takes two inputs and outputs their NAND
+    operation
+    <br />
+    <input type="radio" name="i" /> Takes two inputs and outputs their OR
+    operation
+    <h4>
+      Q 10 - What is the output of a NOR gate if both inputs A and B are 0?
+    </h4>
+    <input type="radio" name="j" /> 0
+    <br />
+    <input type="radio" name="j" /> 1
+    <br />
+    <input type="radio" name="j" /> all of these
+    <br />
+    <input type="radio" name="j" /> none
+    <h4>
+      Q 11 - What is the output of a NOR gate if both inputs A and B are 0?
+    </h4>
+    <input type="radio" name="k" /> 0
+    <br />
+    <input type="radio" name="k" /> 1
+    <br />
+    <input type="radio" name="k" /> all of these
+    <br />
+    <input type="radio" name="k" /> none
+    <h4>Q 12 - What is one key property of the NOR gate?</h4>
+    <input type="radio" name="l" /> It can only have two inputs
+    <br />
+    <input type="radio" name="l" /> It can function as a universal gate
+    <br />
+    <input type="radio" name="l" /> It can only output 1
+    <br />
+    <input type="radio" name="l" /> It is used in arithmetic circuits
+    <h4>
+      Q 13 - What is the output of an XOR gate if both inputs A and B are 1?
+    </h4>
+    <input type="radio" name="m" /> 0
+    <br />
+    <input type="radio" name="m" /> 1
+    <br />
+    <input type="radio" name="m" /> all of these
+    <br />
+    <input type="radio" name="m" /> none
+    <h4>Q 14 - Which of the following best describes the XOR gate?</h4>
+    <input type="radio" name="n" /> Takes two inputs and outputs their sum
+    <br />
+    <input type="radio" name="n" /> Takes two inputs and outputs their product
+    <br />
+    <input type="radio" name="n" /> Takes two inputs and outputs their exclusive
+    OR operation
+    <br />
+    <input type="radio" name="n" /> Takes two inputs and outputs their OR
+    operation
+    <h4>Q 15 - What is one key property of the XOR gate?</h4>
+    <input type="radio" name="o" /> It can only output 1
+    <br />
+    <input type="radio" name="o" /> It can detect when the number of 1s in its
+    inputs is odd
+    <br />
+    <input type="radio" name="o" /> It can only have two inputs
+    <br />
+    <input type="radio" name="o" /> It is used in arithmetic circuits
+  </body>
+</html>

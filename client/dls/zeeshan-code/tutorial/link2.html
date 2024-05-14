@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Mux/DeMux</title>
+  </head>
+  <body>
+    <h1>Mux/DeMux</h1>
+    <h2>MUX</h2>
+    <p>
+      A multiplexer, often abbreviated as "MUX," is a fundamental building block
+      in digital electronics and computer systems. It is used to select one of
+      many input signals and route it to a single output. This selection process
+      is controlled by a set of input selection lines, also known as control
+      lines. The number of input selection lines determines the number of input
+      channels the multiplexer can handle. The basic concept of a multiplexer
+      can be understood by considering a simple 2-to-1 multiplexer, which has
+      two input channels (A and B), one output (Y), and one control line (S).
+      The truth table for a 2-to-1 multiplexer is as follows:
+    </p>
+    <table>
+      <tr>
+        <th>S</th>
+        <th>A</th>
+        <th>B</th>
+        <th>O</th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>0</td>
+        <td>1</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>0</td>
+        <td>1</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>1</td>
+        <td>0</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>1</td>
+        <td>1</td>
+        <td>1</td>
+      </tr>
+
+      <tr>
+        <td>1</td>
+        <td>1</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>1</td>
+        <td>1</td>
+        <td>1</td>
+      </tr>
+    </table>
+    <p>
+      In this truth table, when the select line (S) is 0, the output (Y)
+      corresponds to input A, and when the select line (S) is 1, the output (Y)
+      corresponds to input B. Multiplexers find applications in various areas of
+      digital design, such as data routing, signal selection, and digital
+      communication systems. They are often used in combination with
+      demultiplexers, which perform the reverse operation, taking a single input
+      and routing it to one of several outputs. Multiplexers are also used in
+      the design of arithmetic logic units (ALUs), which are essential
+      components in processors for performing arithmetic and logic operations.
+      In ALUs, multiplexers are used to select between different operations or
+      input sources based on control signals. In summary, a multiplexer is a
+      versatile digital logic component that plays a crucial role in data
+      processing and routing within digital systems. Its ability to select and
+      route signals based on control inputs makes it a fundamental building
+      block in the design of complex digital circuits.
+    </p>
+    <h2>DeMux</h2>
+    <p>
+      A demultiplexer (demux) is a combinational logic circuit that takes a
+      single input and selects one of many outputs based on the control inputs.
+      It is essentially the opposite of a multiplexer, which selects one of many
+      inputs to be routed to a single output. Demultiplexers are commonly used
+      in digital electronics for data routing and distribution The truth table
+      for a 2-to-1 multiplexer is as follows:
+    </p>
+
+    <table>
+      <tr>
+        <th>S</th>
+        <th>A</th>
+        <th>B</th>
+        <th>O</th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>1</td>
+        <td>1</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>1</td>
+        <td>0</td>
+        <td>1</td>
+      </tr>
+    </table>
+    <p>
+      In this truth table, when the select line (S) is 0, the input (I) is
+      routed to output A, and when the select line (S) is 1, the input (I) is
+      routed to output B.Demultiplexers are used in various applications, such
+      as in digital communication systems, where they are used to route a single
+      input signal to multiple output channels based on control signals. They
+      are also used in memory systems, where they can be used to select specific
+      memory locations for reading or writing data. In summary, a demultiplexer
+      is a digital logic component that takes a single input and routes it to
+      one of several outputs based on control signals. It is the counterpart to
+      a multiplexer and is essential in digital systems for signal distribution
+      and routing.
+    </p>
+    <h3>Quiz Section</h3>
+    <h4>Q 1 - In a 2-to-1 multiplexer, how many input channels are there?</h4>
+    <input type="radio" name="a" /> 1
+    <br />
+    <input type="radio" name="a" /> 2
+    <br />
+    <input type="radio" name="a" /> 3
+    <br />
+    <input type="radio" name="a" /> 4
+    <h4>Q 2 - What is the purpose of a multiplexer?</h4>
+    <input type="radio" name="b" /> To combine multiple signals into one
+    <br />
+    <input type="radio" name="b" /> To select one of many input signals and
+    route it to a single output
+    <br />
+    <input type="radio" name="b" /> To perform arithmetic and logic operations
+    <br />
+    <input type="radio" name="b" /> To reverse the operation of a demultiplexer
+    <h4>Q 3 - How many control lines does a 2-to-1 multiplexer have?</h4>
+    <input type="radio" name="c" /> 1
+    <br />
+    <input type="radio" name="c" /> 2
+    <br />
+    <input type="radio" name="c" /> 3
+    <br />
+    <input type="radio" name="c" /> 4
+    <h4>
+      Q 4 - What is the output of a 2-to-1 multiplexer if the select line is 1
+      and input A is 0?
+    </h4>
+    <input type="radio" name="d" /> 1
+    <br />
+    <input type="radio" name="d" /> 2
+    <br />
+    <input type="radio" name="d" /> none
+    <br />
+    <input type="radio" name="d" /> all of these
+    <h4>Q 5 - Where are multiplexers commonly used?</h4>
+    <input type="radio" name="e" /> In digital communication systems
+    <br />
+    <input type="radio" name="e" /> In microwave ovens
+    <br />
+    <input type="radio" name="e" /> In automobiles
+    <br />
+    <input type="radio" name="e" /> In household appliances
+    <h4>Q 6 - How many outputs does a demultiplexer typically have?</h4>
+    <input type="radio" name="f" /> 1
+    <br />
+    <input type="radio" name="f" /> 2
+    <br />
+    <input type="radio" name="f" /> 3
+    <br />
+    <input type="radio" name="f" /> 4
+    <h4>Q 7 - What is the purpose of a demultiplexer?</h4>
+    <input type="radio" name="g" /> To combine multiple signals into one
+    <br />
+    <input type="radio" name="g" /> To select one of many input signals and
+    route it to a single output
+    <br />
+    <input type="radio" name="g" /> To select one of many outputs based on the
+    control inputs
+    <br />
+    <input type="radio" name="g" /> To reverse the operation of a multiplexer
+    <h4>
+      Q 8 - What is the output of a demultiplexer if the select line is 0 and
+      the input is 1?
+    </h4>
+    <input type="radio" name="h" /> 1
+    <br />
+    <input type="radio" name="h" /> 0
+    <br />
+    <input type="radio" name="h" /> none
+    <br />
+    <input type="radio" name="h" /> 3
+    <h4>Q 9 - Where are demultiplexers commonly used?</h4>
+    <input type="radio" name="i" /> In microwave ovens
+    <br />
+    <input type="radio" name="i" /> In digital communication systems
+    <br />
+    <input type="radio" name="i" /> In automobiles
+    <br />
+    <input type="radio" name="i" /> In household appliances
+    <h4>Q 10 - What is the opposite function of a demultiplexer?</h4>
+    <input type="radio" name="j" /> Adder
+    <br />
+    <input type="radio" name="j" /> Multiplexer
+    <br />
+    <input type="radio" name="j" /> Decoder
+    <br />
+    <input type="radio" name="j" /> Decoder
+  </body>
+</html>

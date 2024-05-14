@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Encoder/Decoder</title>
+  </head>
+  <body>
+    <h1>Encoder/Decoder</h1>
+    <h2>Encoder</h2>
+    <p>
+      An encoder is a digital circuit that converts a set of input signals into
+      a coded output representation. It is commonly used in digital
+      communication systems, data transmission, and control systems to convert
+      various types of data into a more compact format for efficient
+      transmission or processing. Encoders are also used in digital-to-analog
+      conversion, error detection, and data compression. There are several types
+      of encoders, each designed for specific applications:
+    </p>
+    <h3>Priority Encoder</h3>
+    <p>
+      A priority encoder is used to encode multiple input signals into a binary
+      code based on the priority of the input signals. It ensures that only the
+      highest-priority active input is encoded, ignoring lower-priority inputs.
+      Priority encoders are commonly used in interrupt handling in
+      microprocessors and in data communication systems where certain signals
+      need to be processed first.
+    </p>
+    <h3>Decimal to BCD Encoder</h3>
+    <p>
+      This type of encoder converts decimal (base-10) numbers into binary-coded
+      decimal (BCD) format. It is often used in digital display systems and
+      digital clocks where decimal digits are displayed using binary-coded
+      representation.
+    </p>
+    <h3>Rotary Encoder</h3>
+    <p>
+      A rotary encoder is a type of sensor that converts the angular position or
+      rotation of a shaft into an analog or digital signal. It is commonly used
+      in robotics, industrial controls, and consumer electronics for measuring
+      rotation or angular displacement.
+    </p>
+    <h3>Absolute Encoder</h3>
+    <p>
+      An absolute encoder provides a unique digital code for each position of a
+      rotating shaft. It can determine the exact position of the shaft without
+      needing a reference point. Absolute encoders are used in applications
+      where precise positioning is critical, such as in industrial automation
+      and robotics.
+    </p>
+    <h3>Gray Code Encoder</h3>
+    <p>
+      Gray code is a binary numeral system where two consecutive values differ
+      in only one bit. A Gray code encoder converts binary numbers into Gray
+      code. Gray code is used in mechanical encoders and in applications where
+      reducing errors in data transmission is important.
+    </p>
+    <h3>Magnetic Encoder</h3>
+    <p>
+      A magnetic encoder uses magnetic fields to determine the position of a
+      shaft or object. It is used in automotive applications, such as in
+      electronic throttle control systems and anti-lock braking systems (ABS),
+      as well as in robotics and industrial automation.
+    </p>
+    <p>
+      Encoders play a crucial role in modern digital systems by enabling the
+      conversion of various types of data into a format that is suitable for
+      processing, transmission, or control. Their ability to efficiently encode
+      data helps improve the performance and reliability of digital systems in a
+      wide range of applications.
+    </p>
+    <h2>Decoder</h2>
+    <p>
+      A decoder is a digital circuit that performs the opposite function of an
+      encoder. It takes a coded input and decodes it into a set of output
+      signals. Decoders are essential components in digital systems for tasks
+      such as address decoding in memory systems, selecting specific inputs in
+      multiplexers, and converting coded data into a format that can be easily
+      understood by other parts of the system. There are several types of
+      decoders, each designed for specific applications:
+    </p>
+    <h3>Binary Decoder</h3>
+    <p>
+      A binary decoder is the most basic type of decoder, which converts a
+      binary-coded input into one of multiple output lines. The number of output
+      lines corresponds to the number of possible input combinations. For
+      example, a 2-to-4 binary decoder has two input lines and four output
+      lines, with each output line representing one of the possible binary
+      combinations of the input lines.
+    </p>
+    <h3>Decimal Decoder</h3>
+    <p>
+      A decimal decoder converts a binary-coded decimal (BCD) input into one of
+      ten output lines, each representing a decimal digit (0-9). Decimal
+      decoders are used in digital display systems and digital clocks to convert
+      BCD numbers into a format suitable for driving a display.
+    </p>
+    <h3>7-Segment Decoder</h3>
+    <p>
+      A 7-segment decoder is a specialized decoder used for driving 7-segment
+      LED displays. It converts a 4-bit binary-coded input into signals that can
+      illuminate the segments of a 7-segment display to represent decimal digits
+      (0-9) and some alphabetic characters (A-F).
+    </p>
+    <h3>BCD to Excess-3 Decoder</h3>
+    <p>
+      This type of decoder converts BCD input into Excess-3 code, which is a
+      binary code in which each digit is represented by adding 3 to the
+      corresponding BCD digit. BCD to Excess-3 decoders are used in digital
+      systems that require arithmetic operations using BCD numbers.
+    </p>
+    <h3>Gray Code Decoder</h3>
+    <p>
+      A Gray code decoder converts Gray code input into binary output. Gray code
+      is a binary numeral system in which two consecutive values differ in only
+      one bit. Gray code decoders are used in applications where error detection
+      and correction are important, such as in communication systems.
+    </p>
+    <p>
+      Decoders are essential components in digital systems for converting coded
+      data into a format that can be easily processed, displayed, or
+      transmitted. Their ability to decode data helps improve the efficiency and
+      reliability of digital systems in various applications.
+    </p>
+    <h4>Quiz Section</h4>
+    <h5>Q 1 - What is the primary function of an encoder?</h5>
+    <input type="radio" name="a" /> To convert analog signals to digital signals
+    <br />
+    <input type="radio" name="a" /> To convert digital signals to analog signals
+    <br />
+    <input type="radio" name="a" /> To convert a set of input signals into a
+    coded output representation
+    <br />
+    <input type="radio" name="a" /> To decode binary-coded decimal (BCD) numbers
+    <h5>
+      Q 2 - Which type of encoder is commonly used in interrupt handling in
+      microprocessors?
+    </h5>
+    <input type="radio" name="b" /> Decimal to BCD Encoder
+    <br />
+    <input type="radio" name="b" /> Priority Encoder
+    <br />
+    <input type="radio" name="b" /> Rotary Encoder
+    <br />
+    <input type="radio" name="b" /> Absolute Encoder
+    <h5>Q 3 - What does a priority encoder do?</h5>
+    <input type="radio" name="c" /> Converts decimal numbers to binary-coded
+    decimal (BCD) format
+    <br />
+    <input type="radio" name="c" /> Converts binary numbers to Gray code
+    <br />
+    <input type="radio" name="c" /> Encodes multiple input signals into a binary
+    code based on priority
+    <br />
+    <input type="radio" name="c" /> Converts angular position into a digital
+    signal
+    <h5>Q 4 - Where is a rotary encoder commonly used?</h5>
+    <input type="radio" name="d" /> In digital display systems
+    <br />
+    <input type="radio" name="d" /> In automotive applications
+    <br />
+    <input type="radio" name="d" /> In interrupt handling
+    <br />
+    <input type="radio" name="d" /> In robotics and industrial controls
+    <h5>Q 5 - What is the function of a Gray code encoder?</h5>
+    <input type="radio" name="e" /> Converts binary numbers to Gray code
+    <br />
+    <input type="radio" name="e" /> Converts Gray code to binary numbers
+    <br />
+    <input type="radio" name="e" /> Converts decimal numbers to binary-coded
+    decimal (BCD) format
+    <br />
+    <input type="radio" name="e" /> Converts analog signals to digital signals
+    <h5>Q 6 - What is the primary function of a decoder?</h5>
+    <input type="radio" name="a" /> To convert analog signals to digital signals
+    <br />
+    <input type="radio" name="a" /> To convert digital signals to analog signals
+    <br />
+    <input type="radio" name="a" /> To convert a coded input into a set of
+    output signals
+    <br />
+    <input type="radio" name="a" /> To encode data for transmission
+    <h5>Q 7 - What does a 7-segment decoder do?</h5>
+    <input type="radio" name="a" /> Converts binary-coded decimal (BCD) input
+    into decimal output
+    <br />
+    <input type="radio" name="a" /> Converts Gray code input into binary output
+    <br />
+    <input type="radio" name="a" /> Converts BCD input into Excess-3 code
+    <br />
+    <input type="radio" name="a" /> Converts binary-coded input into signals for
+    a 7-segment LED display
+    <h5>Q 8 - Where are decimal decoders commonly used?</h5>
+    <input type="radio" name="a" /> In digital communication systems
+    <br />
+    <input type="radio" name="a" /> In digital clocks and display systems
+    <br />
+    <input type="radio" name="a" /> In automotive applications
+    <br />
+    <input type="radio" name="a" /> In industrial automation
+    <h5>Q 9 - What is the function of a BCD to Excess-3 decoder?</h5>
+    <input type="radio" name="a" /> Converts BCD input into decimal output
+    <br />
+    <input type="radio" name="a" /> Converts BCD input into binary output
+    <br />
+    <input type="radio" name="a" /> Converts BCD input into Excess-3 code
+    <br />
+    <input type="radio" name="a" /> Converts BCD input into Gray code
+    <h5>
+      Q 10 - What type of decoder is used for driving 7-segment LED displays?
+    </h5>
+    <input type="radio" name="a" /> Binary Decoder
+    <br />
+    <input type="radio" name="a" /> Decimal Decoder
+    <br />
+    <input type="radio" name="a" /> 7-Segment Decoder
+    <br />
+    <input type="radio" name="a" /> Gray Code Decoder
+  </body>
+</html>

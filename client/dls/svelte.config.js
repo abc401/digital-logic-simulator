@@ -24,9 +24,9 @@ const config = {
 			'@comps': path.resolve('./src/lib/components'),
 			'@stores': path.resolve('./src/lib/stores')
 		},
-		paths: {
-			base: '/build'
-		}
+		// paths: {
+		// 	base: '/build'
+		// }
 	}
 };
 
