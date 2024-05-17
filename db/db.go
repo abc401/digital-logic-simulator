@@ -6,14 +6,31 @@ import (
 	"os"
 
 	"github.com/abc401/digital-logic-simulator/models"
-	"gorm.io/driver/mysql"
+	"github.com/go-sql-driver/mysql"
+	gormDb "gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 const Dsn = "root:1234@tcp(localhost:3306)/dls"
 
-func GetDBCon() *gorm.DB {
-	db, err := gorm.Open(mysql.Open(Dsn), &gorm.Config{})
+var cfg = mysql.Config{
+	User:   "root",
+	Passwd: "1234",
+	Net:    "tcp",
+	Addr:   "127.0.0.1:3306",
+	DBName: "dls",
+}
+
+func GetDBCon() *sql.DB {
+	db, err := sql.Open("mysql", cfg.FormatDSN())
+	if err != nil {
+		panic(err.Error())
+	}
+	return db
+}
+
+func GetGormDBCon() *gorm.DB {
+	db, err := gorm.Open(gormDb.Open(cfg.FormatDSN()), &gorm.Config{})
 	if err != nil {
 		panic(err.Error())
 	}
@@ -22,7 +39,7 @@ func GetDBCon() *gorm.DB {
 }
 
 func AutoMigrate() {
-	db := GetDBCon()
+	db := GetGormDBCon()
 	err := db.AutoMigrate(&models.Article{})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Could not auto migrate: %s\n", err.Error())
@@ -56,7 +73,7 @@ func ConfigNextAndPrevious(tutorials []*models.Article) {
 }
 
 func AddTutorials(tutorials []*models.Article) {
-	db := GetDBCon()
+	db := GetGormDBCon()
 	db.Exec("delete from articles")
 
 	ConfigNextAndPrevious(tutorials)
@@ -80,7 +97,7 @@ func AddTutorial(tutorial *models.Article) {
 		panic("Content of tutorial is not defined")
 	}
 
-	db := GetDBCon()
+	db := GetGormDBCon()
 	db.Create(&tutorial)
 
 }

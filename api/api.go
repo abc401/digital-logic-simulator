@@ -21,14 +21,14 @@ var AllowedOrigins = []string{
 func CorsMiddleWare(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Next()
-
 }
 
 func ConfigHandelers(router gin.IRouter) {
 
 	router.Use(CorsMiddleWare)
 	tutorialsRouter := router.Group("/tutorials")
-	tutorialsRouter.GET("/", GetAllTutorials)
+	tutorialsRouter.GET("/nav", TutorialsNav)
+	tutorialsRouter.GET("/:link_title", GetTutorial)
 
 	// circuitRouter := router.Group("/circuit")
 
@@ -48,7 +48,41 @@ func InitState() {
 	CurrentScene = models.DEFAULT_SCENE_ID
 }
 
-func GetAllTutorials(ctx *gin.Context) {
+func GetTutorial(ctx *gin.Context) {
+	title, found := ctx.Params.Get("link_title")
+	if !found {
+		panic("Wrong Parameter name")
+	}
+	fmt.Println("Title: ", title)
+	con := db.GetGormDBCon()
+	tutorial := models.Article{}
+
+	con.Where("link_title = ?", title).Find(&tutorial)
+	fmt.Println("Tutorial: ", tutorial.LinkTitle)
+
+	type Res struct {
+		LinkTitle    string  `json:"link_title"`
+		DisplayTitle string  `json:"display_title"`
+		Previous     *string `json:"previous"`
+		Next         *string `json:"next"`
+		Content      string  `json:"content"`
+	}
+	res := Res{
+		LinkTitle:    tutorial.LinkTitle,
+		DisplayTitle: tutorial.DisplayTitle,
+		Content:      tutorial.Content,
+	}
+	if tutorial.Previous.Valid {
+		res.Previous = &tutorial.Previous.String
+	}
+	if tutorial.Next.Valid {
+		res.Next = &tutorial.Next.String
+	}
+	ctx.JSON(http.StatusOK, res)
+
+}
+
+func TutorialsNav(ctx *gin.Context) {
 	type Res struct {
 		LinkTitle    string  `json:"link_title"`
 		DisplayTitle string  `json:"display_title"`
@@ -56,7 +90,7 @@ func GetAllTutorials(ctx *gin.Context) {
 		Next         *string `json:"next"`
 	}
 
-	con := db.GetDBCon()
+	con := db.GetGormDBCon()
 	tutorials := []models.Article{}
 	con.Select("link_title", "display_title", "previous", "next").Find(&tutorials)
 	res := []Res{}
@@ -81,7 +115,7 @@ func GetAllTutorials(ctx *gin.Context) {
 
 		res = append(res, currRes)
 	}
-	ctx.Header("Access-Control-Allow-Origin", "http://localhost:5173")
+	// ctx.Header("Access-Control-Allow-Origin", "http://localhost:5173")
 	ctx.JSON(http.StatusOK, res)
 }
 

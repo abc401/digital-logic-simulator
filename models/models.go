@@ -2,8 +2,6 @@ package models
 
 import (
 	"database/sql"
-
-	"gorm.io/gorm"
 )
 
 const DEFAULT_SCENE_NAME = "Main"
@@ -19,8 +17,9 @@ func (id *IDType) ToNullable() NullableID {
 }
 
 type Article struct {
-	gorm.Model
-	LinkTitle    string `gorm:"unique"`
+	// gorm.Model
+	ID           uint   `gorm:"primarykey"`
+	LinkTitle    string `gorm:"index"`
 	DisplayTitle string
 	Content      string
 	Previous     sql.NullString
