@@ -1,33 +1,29 @@
 <script context="module" lang="ts">
-	import { tutorials, type Tutorial } from '@src/lib/stores/tutorials';
-
-	export async function load(ctx) {
-		const title = ctx.params.title;
-		let tutsVal: Tutorial[] | undefined = undefined;
-		const unsub = tutorials.subscribe((value) => {
-			tutsVal = value;
-		});
-		unsub();
-		if (tutsVal == null) {
-			const url = new URL('/api/tutorials/', import.meta.env.VITE_API_SERVER);
-			const res = await ctx.fetch(url);
-			tutsVal = await res.json();
-			tutorials.set(tutsVal);
-		}
-		if (tutsVal == null) {
-			throw Error();
-		}
-		const currentTut = tutsVal.find((value) => {
-			return value.link_title === title;
-		});
-		console.log('currentTut: ', currentTut);
-		if (currentTut == null) {
-			return {
-				status: 404,
-				error: 'not found'
-			};
-		}
-	}
 </script>
 
-<div></div>
+<script>
+	import { currentTut, tutorialNav } from '@src/lib/stores/tutorials';
+	import './tut-style.css';
+
+	$: next = tutorialNav.get()?.find((value) => value.link_title === $currentTut?.next);
+	$: previous = tutorialNav.get()?.find((value) => value.link_title === $currentTut?.previous);
+</script>
+
+{@html $currentTut?.content}
+<nav>
+	{#if previous != null}
+		<a
+			data-sveltekit-preload-data="off"
+			style="float: inline-start;"
+			href={`/tutorials/${previous.link_title}`}>Previous</a
+		>
+	{/if}
+
+	{#if next != null}
+		<a
+			data-sveltekit-preload-data="off"
+			style="float: inline-end;"
+			href={`/tutorials/${next.link_title}`}>Next</a
+		>
+	{/if}
+</nav>

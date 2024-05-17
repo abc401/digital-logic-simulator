@@ -25,6 +25,7 @@
 </script>
 
 <script lang="ts">
+	import '@src/app.css';
 	// import button from '@lib/button.svelte';
 
 	import SimControls from '@comps/SimControls.svelte';
