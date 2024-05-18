@@ -1,5 +1,5 @@
 // import { clipboard, sceneManager } from '@ts/main';
-import { ctx, sceneManager, view } from '@routes/+page.svelte';
+import { actionsManager, ctx, sceneManager, view } from '@routes/+page.svelte';
 import {
 	type Circuit,
 	cloneGraphAfterCircuit,

@@ -20,56 +20,39 @@ class HistoryNode {
 }
 
 export class ActionsManager {
-	startNode: HistoryNode | undefined;
-	currentNode: HistoryNode | undefined;
+	history: UserAction[] = [];
+	currentNode = -1;
 
-	constructor() {
-		this.startNode = undefined;
-		this.currentNode = undefined;
-	}
+	constructor() {}
 
 	push(action: UserAction) {
-		const node = new HistoryNode(action, this.currentNode);
-		if (this.startNode == null || this.currentNode == null) {
-			this.startNode = node;
-			this.currentNode = node;
-		} else {
-			this.currentNode.next = node;
-			this.currentNode = this.currentNode.next;
-		}
-		console.log('Push: ', this.currentNode.action.name);
+		this.history.push(action);
+		this.currentNode++;
+
+		console.log('Push: ', action.name);
 	}
 
 	undo() {
-		if (this.currentNode == null) {
+		if (this.currentNode < 0) {
 			return false;
 		}
-		this.currentNode.action.undo();
-		console.log('Undo: ', this.currentNode.action.name);
-		if (this.currentNode.prev != null) {
-			this.currentNode = this.currentNode.prev;
-		} else {
-			this.currentNode = undefined;
-		}
+		const currentAction = this.history[this.currentNode];
+		currentAction.undo();
+		this.currentNode--;
+
+		console.log('Undo: ', currentAction.name);
 		return true;
 	}
 
 	redo() {
-		if (this.startNode == null) {
+		if (this.history.length >= this.currentNode + 1) {
 			return false;
 		}
+		const currentAction = this.history[this.currentNode];
+		currentAction.do();
+		this.currentNode++;
 
-		if (this.currentNode != null) {
-			if (this.currentNode.next == null) {
-				return false;
-			}
-			this.currentNode = this.currentNode.next;
-		} else {
-			this.currentNode = this.startNode;
-		}
-
-		this.currentNode.action.do();
-		console.log('Do: ', this.currentNode.action.name);
+		console.log('Do: ', currentAction.name);
 		return true;
 	}
 
@@ -77,7 +60,7 @@ export class ActionsManager {
 		this.push(action);
 		action.do();
 		console.log('Do: ', action.name);
-		console.trace();
+		// console.trace();
 	}
 }
 // class ActionsManager {}
