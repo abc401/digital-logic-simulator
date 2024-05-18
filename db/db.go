@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"math/rand"
 	"os"
 
 	"github.com/abc401/digital-logic-simulator/models"
@@ -41,6 +42,11 @@ func GetGormDBCon() *gorm.DB {
 func AutoMigrate() {
 	db := GetGormDBCon()
 	err := db.AutoMigrate(&models.Article{})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Could not auto migrate: %s\n", err.Error())
+		panic("")
+	}
+	err = db.AutoMigrate(&models.MCQ{})
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Could not auto migrate: %s\n", err.Error())
 		panic("")
@@ -100,4 +106,42 @@ func AddTutorial(tutorial *models.Article) {
 	db := GetGormDBCon()
 	db.Create(&tutorial)
 
+}
+
+func AddMCQs() {
+	stmts := []string{
+		"Hello", "How Are You?", "I am fine",
+	}
+	options := []string{
+		"option", "1", "2", "qwerty", "lorem", "ipsum", "all of above",
+	}
+	article_ids := []uint{1, 2, 3, 4}
+
+	con := GetGormDBCon()
+
+	for i := 0; i < 10; i++ {
+		mcq := models.MCQ{}
+
+		idx := rand.Intn(len(stmts))
+		mcq.Statement = stmts[idx]
+
+		idx = rand.Intn(len(options))
+		mcq.Option1 = options[idx]
+
+		idx = rand.Intn(len(options))
+		mcq.Option2 = options[idx]
+
+		idx = rand.Intn(len(options))
+		mcq.Option3 = options[idx]
+
+		idx = rand.Intn(len(options))
+		mcq.Option4 = options[idx]
+
+		idx = rand.Intn(len(article_ids))
+		mcq.ArticleID = article_ids[idx]
+
+		mcq.CorrectOption = uint(rand.Intn(4) + 1)
+
+		con.Create(&mcq)
+	}
 }

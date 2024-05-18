@@ -16,7 +16,7 @@ import { Zooming } from './zooming';
 import { Home } from './home';
 
 export class DraggingSelection implements TouchScreenState {
-	totalDelta: Vec2 = new Vec2(0, 0);
+	totalDeltaWrl: Vec2 = new Vec2(0, 0);
 
 	constructor(
 		readonly touchID: number,
@@ -53,8 +53,8 @@ export class DraggingSelection implements TouchScreenState {
 			const locScr = getLocScr(touch);
 			this.dragCircuits(locScr);
 		} else if (action.kind === TouchActionKind.TouchEnd) {
-			if (this.totalDelta.x !== 0 || this.totalDelta.y !== 0) {
-				actionsManager.push(new DragUserAction(this.totalDelta));
+			if (this.totalDeltaWrl.x !== 0 || this.totalDeltaWrl.y !== 0) {
+				actionsManager.push(new DragUserAction(this.totalDeltaWrl));
 			}
 			stateMachine.state = new Home();
 		}
@@ -63,9 +63,9 @@ export class DraggingSelection implements TouchScreenState {
 	dragCircuits(mouseLocScr: Vec2) {
 		const focusCircuitNewPositionWrl = view.screenToWorld(mouseLocScr).add(this.draggingOffsetWrl);
 
-		const delta = focusCircuitNewPositionWrl.sub(this.focusCircuit.tightRectWrl.xy);
-		this.totalDelta = this.totalDelta.add(delta);
+		const deltaWrl = focusCircuitNewPositionWrl.sub(this.focusCircuit.tightRectWrl.xy);
+		this.totalDeltaWrl = this.totalDeltaWrl.add(deltaWrl);
 
-		dragSelection(delta);
+		dragSelection(deltaWrl);
 	}
 }

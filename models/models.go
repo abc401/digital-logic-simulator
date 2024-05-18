@@ -2,12 +2,24 @@ package models
 
 import (
 	"database/sql"
+	"encoding/json"
+	"log"
+
+	"github.com/abc401/digital-logic-simulator/math"
 )
 
 const DEFAULT_SCENE_NAME = "Main"
 const DEFAULT_SCENE_ID = IDType(0)
 
 type IDType uint64
+
+func SPrettyPrint(val interface{}) []byte {
+	json, err := json.MarshalIndent(val, "", "  ")
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	return json
+}
 
 func (id *IDType) ToNullable() NullableID {
 	return NullableID{
@@ -24,6 +36,18 @@ type Article struct {
 	Content      string
 	Previous     sql.NullString
 	Next         sql.NullString
+	MCQs         []MCQ
+}
+
+type MCQ struct {
+	ID            uint `gorm:"primarykey"`
+	Statement     string
+	Option1       string
+	Option2       string
+	Option3       string
+	Option4       string
+	CorrectOption uint
+	ArticleID     uint
 }
 
 type NullableID struct {
@@ -47,10 +71,6 @@ func (id *NullableID) Unwrap() (IDType, bool) {
 }
 
 type CircuitProps map[string]interface{}
-type Vec2 struct {
-	X float64
-	Y float64
-}
 
 var DefaultCircuits = map[string]Circuit{
 	"and": {
@@ -127,7 +147,7 @@ var DefaultCircuits = map[string]Circuit{
 type Circuit struct {
 	ID            IDType
 	Type          string
-	Pos           Vec2
+	Pos           math.Vec2
 	NConsumerPins uint64
 	NProducerPins uint64
 	Props         CircuitProps
@@ -149,4 +169,9 @@ type Scene struct {
 	ICInputs  NullableID
 	ICOutputs NullableID
 	Circuits  map[IDType]Circuit
+}
+
+func (scene *Scene) HasCircuit(id IDType) bool {
+	_, exists := scene.Circuits[id]
+	return exists
 }

@@ -8,6 +8,7 @@ export interface UserAction {
 	name: string;
 	undo(): void;
 	do(): void;
+	getApiURL(): URL;
 }
 
 class HistoryNode {

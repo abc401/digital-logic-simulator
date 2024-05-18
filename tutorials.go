@@ -4,7 +4,7 @@ import "github.com/abc401/digital-logic-simulator/models"
 
 const FIRST_TUTORIAL_TITLE = "index"
 
-var Tutorials = []*models.Article{
+var Tutorials = []models.Article{
 	{
 		LinkTitle:    FIRST_TUTORIAL_TITLE,
 		DisplayTitle: "Introduction",

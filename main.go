@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/abc401/digital-logic-simulator/api"
+	"github.com/abc401/digital-logic-simulator/db"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,6 +24,7 @@ func main1() {
 
 func main() {
 	main1()
+	// tmp()
 	// db.AutoMigrate()
 	// db.AddTutorials(Tutorials)
 	// db.AddTutorial(
@@ -31,4 +33,9 @@ func main() {
 	// 		Content: ``,
 	// 	},
 	// )
+}
+
+func tmp() {
+	db.AddMCQs()
+
 }

@@ -16,6 +16,7 @@ import { icNames } from '@src/lib/stores/integrated-circuits';
 import { icInstantiators, icInstanciator } from '@src/lib/stores/circuitInstantiators';
 import { integratedCircuits } from '@src/lib/stores/integrated-circuits';
 import type { View } from '../view-manager';
+import { makeApiURL } from '../api';
 
 export const clipboard = {
 	circuits: new Array<Circuit>(),
@@ -99,17 +100,20 @@ export function dragSelection(delta: Vec2) {
 
 export class DragUserAction implements UserAction {
 	name = 'Drag';
-	constructor(private delta: Vec2) {
+	constructor(private deltaWrl: Vec2) {
 		// console.log('Drag Action Created');
 	}
 
 	do(): void {
-		dragSelection(this.delta);
+		dragSelection(this.deltaWrl);
 		// console.log('Drag Action Do');
 	}
 	undo(): void {
-		dragSelection(this.delta.neg());
+		dragSelection(this.deltaWrl.neg());
 		// console.log('Drag Action Undo');
+	}
+	getApiURL(): URL {
+		return new URL('');
 	}
 }
 
@@ -122,6 +126,9 @@ export class PanUserAction implements UserAction {
 	}
 	undo(): void {
 		view.pan(this.delta.neg());
+	}
+	getApiURL(): URL {
+		return new URL('');
 	}
 }
 
@@ -139,6 +146,9 @@ export class ZoomUserAction implements UserAction {
 	undo(): void {
 		view.zoom(this.zoomOriginScr, view.zoomLevel - this.zoomLevelDelta);
 	}
+	getApiURL(): URL {
+		return new URL('');
+	}
 }
 export class TouchScreenZoomUserAction implements UserAction {
 	name = '';
@@ -152,6 +162,9 @@ export class TouchScreenZoomUserAction implements UserAction {
 	}
 	undo(): void {
 		view.setView(this.startingView);
+	}
+	getApiURL(): URL {
+		return new URL('');
 	}
 }
 
@@ -195,6 +208,9 @@ export class CreateCircuitUserAction implements UserAction {
 		}
 		targetScene.unregisterCircuit(this.circuitID);
 		console.log('TargetScene: ', targetScene);
+	}
+	getApiURL(): URL {
+		return new URL('');
 	}
 }
 
@@ -270,6 +286,9 @@ export class DeleteWireUserAction implements UserAction {
 
 		wire.registerWithID(this.wireID, targetScene);
 	}
+	getApiURL(): URL {
+		return new URL('');
+	}
 }
 
 export class CreateWireUserAction implements UserAction {
@@ -340,6 +359,9 @@ export class CreateWireUserAction implements UserAction {
 		targetScene.unregisterWire(this.wireID);
 		wire.detach();
 	}
+	getApiURL(): URL {
+		return new URL('');
+	}
 }
 
 export class SetCircuitPropUserAction implements UserAction {
@@ -391,6 +413,9 @@ export class SetCircuitPropUserAction implements UserAction {
 
 		circuitProps.refresh();
 	}
+	getApiURL(): URL {
+		return new URL('');
+	}
 }
 
 export class SelectCircuitUserAction implements UserAction {
@@ -423,6 +448,9 @@ export class SelectCircuitUserAction implements UserAction {
 		}
 		sceneManager.deselectCircuit(this.circuitID);
 	}
+	getApiURL(): URL {
+		return new URL('');
+	}
 }
 
 export class DeselectCircuitUserAction implements UserAction {
@@ -454,6 +482,9 @@ export class DeselectCircuitUserAction implements UserAction {
 			throw Error();
 		}
 		sceneManager.selectCircuit(this.circuitID);
+	}
+	getApiURL() {
+		return makeApiURL('/action/deselect-circuit');
 	}
 }
 export class SwitchSceneUserAction implements UserAction {
@@ -553,6 +584,9 @@ export class SwitchSceneUserAction implements UserAction {
 			// sceneManager.selectedWires.add(wire);
 		}
 	}
+	getApiURL(): URL {
+		return new URL('');
+	}
 }
 export class CreateICUserAction implements UserAction {
 	name = 'CreateICUserAction';
@@ -607,6 +641,9 @@ export class CreateICUserAction implements UserAction {
 
 		icInstantiators.removeInstantiator(this.sceneID);
 	}
+	getApiURL(): URL {
+		return new URL('');
+	}
 }
 export class RenameICUserAction implements UserAction {
 	name = 'RenameICUserAction';
@@ -630,6 +667,9 @@ export class RenameICUserAction implements UserAction {
 	undo(): void {
 		integratedCircuits.rename(this.id, this.from);
 		currentScene.get().refreshICLabels();
+	}
+	getApiURL(): URL {
+		return new URL('');
 	}
 }
 
@@ -683,5 +723,8 @@ export class DeselectAllUserAction implements UserAction {
 
 			sceneManager.selectWireUnchecked(wire);
 		}
+	}
+	getApiURL(): URL {
+		return new URL('');
 	}
 }

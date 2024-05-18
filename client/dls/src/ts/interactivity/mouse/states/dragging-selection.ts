@@ -13,7 +13,7 @@ import { logState } from '@lib/stores/debugging.js';
 import { DragUserAction, dragSelection } from '../../actions.js';
 
 export class DraggingSelection implements MouseState {
-	totalDelta: Vec2 = new Vec2(0, 0);
+	totalDeltaWrl: Vec2 = new Vec2(0, 0);
 
 	constructor(
 		private focusCircuit: CircuitSceneObject,
@@ -46,8 +46,8 @@ export class DraggingSelection implements MouseState {
 				return;
 			}
 
-			if (this.totalDelta.x != 0 || this.totalDelta.y != 0) {
-				actionsManager.push(new DragUserAction(this.totalDelta));
+			if (this.totalDeltaWrl.x != 0 || this.totalDeltaWrl.y != 0) {
+				actionsManager.push(new DragUserAction(this.totalDeltaWrl));
 			}
 
 			stateMachine.state = new Home();
@@ -57,9 +57,9 @@ export class DraggingSelection implements MouseState {
 	dragCircuits(mouseLocScr: Vec2) {
 		const focusCircuitNewPositionWrl = view.screenToWorld(mouseLocScr).add(this.draggingOffsetWrl);
 
-		const delta = focusCircuitNewPositionWrl.sub(this.focusCircuit.tightRectWrl.xy);
-		this.totalDelta = this.totalDelta.add(delta);
+		const deltaWrl = focusCircuitNewPositionWrl.sub(this.focusCircuit.tightRectWrl.xy);
+		this.totalDeltaWrl = this.totalDeltaWrl.add(deltaWrl);
 
-		dragSelection(delta);
+		dragSelection(deltaWrl);
 	}
 }
