@@ -103,6 +103,7 @@ export class NoopUserAction implements UserAction {
 	}
 }
 
+// Api implemented
 export class DragUserAction implements UserAction {
 	name = 'Drag';
 	constructor(private deltaWrl: Vec2) {
@@ -125,6 +126,7 @@ export class DragUserAction implements UserAction {
 	}
 }
 
+// Api implemented
 export class PanUserAction implements UserAction {
 	constructor(private deltaScr: Vec2) {}
 	name = 'Pan';
@@ -145,6 +147,7 @@ export class PanUserAction implements UserAction {
 	}
 }
 
+// Api implemented
 export class ZoomUserAction implements UserAction {
 	constructor(
 		readonly zoomOriginScr: Vec2,
@@ -180,10 +183,10 @@ export class TouchScreenZoomUserAction implements UserAction {
 		view.setView(this.startingView);
 	}
 	getDoURL(): URL {
-		return DUMMY_URL;
+		return actionURL('/touch-screen-zoom/do');
 	}
 	getUndoURL(): URL {
-		return DUMMY_URL;
+		return actionURL('/touch-screen-zoom/undo');
 	}
 }
 

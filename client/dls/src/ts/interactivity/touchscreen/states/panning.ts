@@ -10,7 +10,7 @@ import { Vec2 } from '@ts/math.js';
 import { Home } from './home.js';
 import { Zooming } from './zooming.js';
 import { Illegal } from './Illegal.js';
-import { actionsManager, canvas, view } from '@routes/+page.svelte';
+import { actionsManager, view } from '@routes/+page.svelte';
 import { domLog, logState } from '@lib/stores/debugging.js';
 import { PanUserAction } from '../../actions.js';
 
@@ -36,7 +36,9 @@ export class Panning implements TouchScreenState {
 			} else {
 				stateMachine.state = new Illegal();
 			}
-			actionsManager.push(new PanUserAction(this.totalDelta));
+			if (this.totalDelta.x !== 0 || this.totalDelta.y !== 0) {
+				actionsManager.push(new PanUserAction(this.totalDelta));
+			}
 		} else if (action.kind === TouchActionKind.TouchMove) {
 			const touch = payload.changedTouches[0];
 			const locScr = getLocScr(touch);
@@ -53,7 +55,9 @@ export class Panning implements TouchScreenState {
 			view.pan(delta);
 		} else if (action.kind === TouchActionKind.TouchEnd) {
 			stateMachine.state = new Home();
-			actionsManager.push(new PanUserAction(this.totalDelta));
+			if (this.totalDelta.x !== 0 || this.totalDelta.y !== 0) {
+				actionsManager.push(new PanUserAction(this.totalDelta));
+			}
 		}
 	}
 }

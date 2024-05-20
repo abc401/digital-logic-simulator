@@ -21,9 +21,9 @@ func PanDo(ctx *gin.Context) {
 	}
 
 	var project = state.GetProject()
-	// fmt.Printf("\n\nPrevious View: %s\n", helpers.SPrettyPrint(project.View))
+	fmt.Printf("\n\nPrevious View: %s\n", helpers.SPrettyPrint(project.View))
 	project.View.PanOffset = project.View.PanOffset.Add(params.DeltaScr)
-	// fmt.Printf("Current View: %s\n\n", helpers.SPrettyPrint(project.View))
+	fmt.Printf("Current View: %s\n\n", helpers.SPrettyPrint(project.View))
 	ctx.JSON(http.StatusOK, gin.H{
 		"current-view": project.View,
 	})
@@ -36,9 +36,9 @@ func PanUndo(ctx *gin.Context) {
 	}
 
 	var project = state.GetProject()
-	// fmt.Printf("Previous View: %s", SPrettyPrint(View))
+	fmt.Printf("Previous View: %s", helpers.SPrettyPrint(project.View))
 	project.View.PanOffset = project.View.PanOffset.Sub(params.DeltaScr)
-	// fmt.Printf("Current View: %s", SPrettyPrint(View))
+	fmt.Printf("Current View: %s", helpers.SPrettyPrint(project.View))
 	ctx.JSON(http.StatusOK, gin.H{
 		"current-view": project.View,
 	})
@@ -78,4 +78,38 @@ func MouseZoomUndo(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"current-view": project.View,
 	})
+}
+
+func TouchScreenZoomDo(ctx *gin.Context) {
+	type Params struct {
+		EndingView math.ViewManager `bind:"required"`
+	}
+
+	var params Params
+
+	if !helpers.BindParams(&params, ctx) {
+		return
+	}
+
+	var project = state.GetProject()
+	project.View = params.EndingView
+
+	ctx.JSON(http.StatusOK, gin.H{})
+}
+
+func TouchScreenZoomUndo(ctx *gin.Context) {
+	type Params struct {
+		StartingView math.ViewManager `bind:"required"`
+	}
+
+	var params Params
+
+	if !helpers.BindParams(&params, ctx) {
+		return
+	}
+
+	var project = state.GetProject()
+	project.View = params.StartingView
+
+	ctx.JSON(http.StatusOK, gin.H{})
 }

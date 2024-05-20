@@ -1,8 +1,8 @@
 package math
 
 type ViewManager struct {
-	ZoomLevel float64
-	PanOffset Vec2
+	ZoomLevel float64 `bind:"required"`
+	PanOffset Vec2    `bind:"required"`
 }
 
 func NewViewManager() ViewManager {
