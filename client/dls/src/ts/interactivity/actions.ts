@@ -480,10 +480,10 @@ export class SelectCircuitUserAction implements UserAction {
 		sceneManager.deselectCircuit(this.circuitID);
 	}
 	getDoURL(): URL {
-		return DUMMY_URL;
+		return actionURL('/select-circuit/do');
 	}
 	getUndoURL(): URL {
-		return DUMMY_URL;
+		return actionURL('/select-circuit/undo');
 	}
 }
 
@@ -518,10 +518,10 @@ export class DeselectCircuitUserAction implements UserAction {
 		sceneManager.selectCircuit(this.circuitID);
 	}
 	getDoURL() {
-		return actionURL('/deselect-circuit');
+		return actionURL('/deselect-circuit/do');
 	}
 	getUndoURL(): URL {
-		return DUMMY_URL;
+		return actionURL('/deselect-circuit/undo');
 	}
 }
 export class SwitchSceneUserAction implements UserAction {

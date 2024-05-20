@@ -4,28 +4,15 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
-	"strings"
 
+	"github.com/abc401/digital-logic-simulator/api/actions"
+	"github.com/abc401/digital-logic-simulator/api/helpers"
 	"github.com/abc401/digital-logic-simulator/db"
-	"github.com/abc401/digital-logic-simulator/math"
 	"github.com/abc401/digital-logic-simulator/models"
 
 	// "github.com/abc401/digital-logic-simulator/models"
 	"github.com/gin-gonic/gin"
 )
-
-var Scenes = []models.Scene{
-	{
-		ID:        models.DEFAULT_SCENE_ID,
-		Name:      models.DEFAULT_SCENE_NAME,
-		ICInputs:  models.NullableID{},
-		ICOutputs: models.NullableID{},
-		Circuits:  map[models.IDType]models.Circuit{},
-	},
-}
-var CurrentScene = models.DEFAULT_SCENE_ID
-var SelectedCircuits = map[models.IDType]bool{}
-var View = math.NewViewManager()
 
 var AllowedOrigins = []string{
 	"http://localhost5173",
@@ -34,34 +21,14 @@ var AllowedOrigins = []string{
 func ConfigHandelers(router gin.IRouter) {
 
 	router.Use(CorsMiddleWare)
-	router.Use(PrintReqBody)
+	router.Use(helpers.PrintReqBody)
 
 	tutorialsRouter := router.Group("/tutorials")
 	tutorialsRouter.GET("/nav", TutorialsNav)
 	tutorialsRouter.GET("/:link_title", GetTutorial)
 
 	action := router.Group("/action")
-	{
-
-		action.POST("/create-circuit", AddCircuit)
-		action.POST("/drag-selection", DragSelection)
-
-		action.POST("/select-circuit", SelectCircuitDo)
-		action.POST("/deselect-circuit", DragSelection)
-
-		action.POST("/pan/do", PanDo)
-		action.POST("/pan/undo", PanUndo)
-
-		action.POST("/mouse-zoom/do", MouseZoomDo)
-		action.POST("/mouse-zoom/undo", MouseZoomUndo)
-	}
-
-	// circuitRouter := router.Group("/circuit")
-
-	// circuitRouter.POST("/create", AddCircuit)
-}
-
-func InitState() {
+	actions.ConfigHandlers(action)
 }
 
 func CorsMiddleWare(ctx *gin.Context) {
@@ -69,166 +36,63 @@ func CorsMiddleWare(ctx *gin.Context) {
 	ctx.Next()
 }
 
-func PanDo(ctx *gin.Context) {
-	type Params struct {
-		DeltaScr math.Vec2 `bind:"required"`
-	}
-	var params Params
-	if !bindParams(&params, ctx) {
-		return
-	}
+// func AddCircuit(ctx *gin.Context) {
+// 	type Params struct {
+// 		ID          models.IDType `binding:"required"`
+// 		CircuitType string        `json:"type" binding:"required"`
+// 		PosWrl      math.Vec2     `binding:"required"`
+// 	}
 
-	// fmt.Printf("\n\nPrevious View: %s\n", SPrettyPrint(View))
-	View.PanOffset = View.PanOffset.Add(params.DeltaScr)
-	// fmt.Printf("Current View: %s\n\n", SPrettyPrint(View))
-}
-func PanUndo(ctx *gin.Context) {
-	type Params struct {
-		DeltaScr math.Vec2 `bind:"required"`
-	}
-	var params Params
-	if !bindParams(&params, ctx) {
-		return
-	}
-	// fmt.Printf("Previous View: %s", SPrettyPrint(View))
-	View.PanOffset = View.PanOffset.Sub(params.DeltaScr)
-	// fmt.Printf("Current View: %s", SPrettyPrint(View))
-}
+// 	var params Params
+// 	if !BindParams(&params, ctx) {
+// 		return
+// 	}
 
-func MouseZoomDo(ctx *gin.Context) {
-	type Params struct {
-		ZoomOriginScr  math.Vec2 `bind:"required"`
-		ZoomLevelDelta float64   `bind:"required"`
-	}
-	var params Params
-	if !bindParams(&params, ctx) {
-		return
-	}
+// 	currentScene := Scenes[CurrentScene]
+// 	if currentScene.HasCircuit(params.ID) {
+// 		ctx.JSON(http.StatusConflict, gin.H{
+// 			"error": fmt.Sprintf("Another circuit is already registered with id: %d", params.ID),
+// 		})
+// 		return
+// 	}
 
-	fmt.Printf("\n\nPrevious View: %s\n", SPrettyPrint(View))
-	View.MouseZoom(params.ZoomOriginScr, View.ZoomLevel+params.ZoomLevelDelta)
-	fmt.Printf("Current View: %s\n\n", SPrettyPrint(View))
-}
-func MouseZoomUndo(ctx *gin.Context) {
-	type Params struct {
-		ZoomOriginScr  math.Vec2 `json:"zoomOriginScr" bind:"required"`
-		ZoomLevelDelta float64   `json:"zoomLevelDelta" bind:"required"`
-	}
-	var params Params
-	if !bindParams(&params, ctx) {
-		return
-	}
+// 	newCircuit, ok := models.DefaultCircuits[strings.ToLower(params.CircuitType)]
+// 	if !ok {
+// 		ctx.JSON(http.StatusBadRequest, gin.H{
+// 			"error": fmt.Sprintf("Invalid circuit type: %s", params.CircuitType),
+// 		})
+// 	}
 
-	fmt.Printf("\n\nPrevious View: %s\n", SPrettyPrint(View))
-	View.MouseZoom(params.ZoomOriginScr, View.ZoomLevel-params.ZoomLevelDelta)
-	fmt.Printf("Current View: %s\n\n", SPrettyPrint(View))
-}
+// 	newCircuit.ID = params.ID
+// 	newCircuit.Pos = params.PosWrl
+// 	currentScene.Circuits[params.ID] = newCircuit
+// 	PrintCurrentScene()
+// 	fmt.Printf("%+v\n", newCircuit)
 
-func SelectCircuitDo(ctx *gin.Context) {
-	type Params struct {
-		ID models.IDType `binding:"required"`
-	}
+// 	// fmt.Printf("\n\nProject State: %+v\n\n\n", currentScene)
+// }
 
-	params := Params{}
-	if !bindParams(&params, ctx) {
-		return
-	}
+// func DragSelection(ctx *gin.Context) {
+// 	type Params struct {
+// 		DeltaWrl math.Vec2 `binding:"required"`
+// 	}
+// 	params := Params{}
+// 	if !BindParams(&params, ctx) {
+// 		return
+// 	}
 
-	if !Scenes[CurrentScene].HasCircuit(params.ID) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "No circuit with provided id",
-			"id":    params.ID,
-		})
-	}
+// 	for id := range SelectedCircuits {
+// 		currentScene := Scenes[CurrentScene]
 
-	SelectedCircuits[params.ID] = true
+// 		circuit := currentScene.Circuits[id]
+// 		{
+// 			circuit.Pos = currentScene.Circuits[id].Pos.Add(params.DeltaWrl)
+// 		}
+// 		currentScene.Circuits[id] = circuit
+// 	}
+// 	PrintCurrentScene()
 
-	PrintCurrentScene()
-	ctx.JSON(http.StatusOK, gin.H{
-		"selected-circuits": SelectedCircuits,
-	})
-}
-func DeselectCircuit(ctx *gin.Context) {
-	type Params struct {
-		ID models.IDType `binding:"required"`
-	}
-
-	params := Params{}
-	if !bindParams(&params, ctx) {
-		return
-	}
-
-	if !Scenes[CurrentScene].HasCircuit(params.ID) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "No circuit with provided id",
-			"id":    params.ID,
-		})
-	}
-
-	delete(SelectedCircuits, params.ID)
-	PrintCurrentScene()
-	ctx.JSON(http.StatusOK, gin.H{
-		"selected-circuits": SelectedCircuits,
-	})
-}
-
-func AddCircuit(ctx *gin.Context) {
-	type Params struct {
-		ID          models.IDType `binding:"required"`
-		CircuitType string        `json:"type" binding:"required"`
-		PosWrl      math.Vec2     `binding:"required"`
-	}
-
-	var params Params
-	if !bindParams(&params, ctx) {
-		return
-	}
-
-	currentScene := Scenes[CurrentScene]
-	if currentScene.HasCircuit(params.ID) {
-		ctx.JSON(http.StatusConflict, gin.H{
-			"error": fmt.Sprintf("Another circuit is already registered with id: %d", params.ID),
-		})
-		return
-	}
-
-	newCircuit, ok := models.DefaultCircuits[strings.ToLower(params.CircuitType)]
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": fmt.Sprintf("Invalid circuit type: %s", params.CircuitType),
-		})
-	}
-
-	newCircuit.ID = params.ID
-	newCircuit.Pos = params.PosWrl
-	currentScene.Circuits[params.ID] = newCircuit
-	PrintCurrentScene()
-	fmt.Printf("%+v\n", newCircuit)
-
-	// fmt.Printf("\n\nProject State: %+v\n\n\n", currentScene)
-}
-
-func DragSelection(ctx *gin.Context) {
-	type Params struct {
-		DeltaWrl math.Vec2 `binding:"required"`
-	}
-	params := Params{}
-	if !bindParams(&params, ctx) {
-		return
-	}
-
-	for id := range SelectedCircuits {
-		currentScene := Scenes[CurrentScene]
-
-		circuit := currentScene.Circuits[id]
-		{
-			circuit.Pos = currentScene.Circuits[id].Pos.Add(params.DeltaWrl)
-		}
-		currentScene.Circuits[id] = circuit
-	}
-	PrintCurrentScene()
-
-}
+// }
 
 func GetTutorial(ctx *gin.Context) {
 	title, found := ctx.Params.Get("link_title")

@@ -170,11 +170,12 @@ export class ActionsManager {
 				return;
 			}
 
+			console.log('Request Succeeded: ', action);
+			const json = await res.json();
+			console.log('Response.Body: ', json);
+			console.log('Response: ', res);
 			if (res.status !== 200) {
 				this.saveJobRunning = false;
-				const json = await res.json();
-				console.log('Response.Body: ', json);
-				console.log('Response: ', res);
 				throw Error('You did a fucky wucky');
 			}
 
