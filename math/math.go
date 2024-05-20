@@ -5,6 +5,13 @@ type Vec2 struct {
 	Y float64
 }
 
+func NewVec2(x float64, y float64) Vec2 {
+	return Vec2{
+		X: x,
+		Y: y,
+	}
+}
+
 func (vec Vec2) Add(other Vec2) Vec2 {
 	return Vec2{
 		X: vec.X + other.X,

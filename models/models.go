@@ -2,8 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"encoding/json"
-	"log"
 
 	"github.com/abc401/digital-logic-simulator/math"
 )
@@ -12,14 +10,6 @@ const DEFAULT_SCENE_NAME = "Main"
 const DEFAULT_SCENE_ID = IDType(0)
 
 type IDType uint64
-
-func SPrettyPrint(val interface{}) []byte {
-	json, err := json.MarshalIndent(val, "", "  ")
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
-	return json
-}
 
 func (id *IDType) ToNullable() NullableID {
 	return NullableID{

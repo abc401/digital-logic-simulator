@@ -1,21 +1,26 @@
-package api
-
-import "github.com/abc401/digital-logic-simulator/math"
+package math
 
 type ViewManager struct {
 	ZoomLevel float64
-	PanOffset math.Vec2
+	PanOffset Vec2
+}
+
+func NewViewManager() ViewManager {
+	return ViewManager{
+		ZoomLevel: 1,
+		PanOffset: NewVec2(0, 0),
+	}
 }
 
 const MIN_ZOOM = 0.2
 const MAX_ZOOM = 40
 
-func (view *ViewManager) ScreenToWorld(vecScr math.Vec2) math.Vec2 {
+func (view *ViewManager) ScreenToWorld(vecScr Vec2) Vec2 {
 	return vecScr.Sub(view.PanOffset).ScalarDiv(view.ZoomLevel)
 }
 
-func (view *ViewManager) MouseZoom(zoomOriginScr math.Vec2, newZoomLevel float64) {
-	newZoomLevel = math.Clamp(newZoomLevel, MIN_ZOOM, MAX_ZOOM)
+func (view *ViewManager) MouseZoom(zoomOriginScr Vec2, newZoomLevel float64) {
+	newZoomLevel = Clamp(newZoomLevel, MIN_ZOOM, MAX_ZOOM)
 	if view.ZoomLevel == newZoomLevel {
 		return
 	}

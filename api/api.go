@@ -14,10 +14,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var Scenes []models.Scene
-var CurrentScene models.IDType
-var SelectedCircuits map[models.IDType]bool
-var View ViewManager
+var Scenes = []models.Scene{
+	{
+		ID:        models.DEFAULT_SCENE_ID,
+		Name:      models.DEFAULT_SCENE_NAME,
+		ICInputs:  models.NullableID{},
+		ICOutputs: models.NullableID{},
+		Circuits:  map[models.IDType]models.Circuit{},
+	},
+}
+var CurrentScene = models.DEFAULT_SCENE_ID
+var SelectedCircuits = map[models.IDType]bool{}
+var View = math.NewViewManager()
 
 var AllowedOrigins = []string{
 	"http://localhost5173",
@@ -26,6 +34,8 @@ var AllowedOrigins = []string{
 func ConfigHandelers(router gin.IRouter) {
 
 	router.Use(CorsMiddleWare)
+	router.Use(PrintReqBody)
+
 	tutorialsRouter := router.Group("/tutorials")
 	tutorialsRouter.GET("/nav", TutorialsNav)
 	tutorialsRouter.GET("/:link_title", GetTutorial)
@@ -36,10 +46,14 @@ func ConfigHandelers(router gin.IRouter) {
 		action.POST("/create-circuit", AddCircuit)
 		action.POST("/drag-selection", DragSelection)
 
-		action.POST("/select-circuit", SelectCircuit)
+		action.POST("/select-circuit", SelectCircuitDo)
 		action.POST("/deselect-circuit", DragSelection)
 
-		action.POST("/mouse-zoom", MouseZoom)
+		action.POST("/pan/do", PanDo)
+		action.POST("/pan/undo", PanUndo)
+
+		action.POST("/mouse-zoom/do", MouseZoomDo)
+		action.POST("/mouse-zoom/undo", MouseZoomUndo)
 	}
 
 	// circuitRouter := router.Group("/circuit")
@@ -48,17 +62,6 @@ func ConfigHandelers(router gin.IRouter) {
 }
 
 func InitState() {
-	Scenes = []models.Scene{
-		{
-			ID:        models.DEFAULT_SCENE_ID,
-			Name:      models.DEFAULT_SCENE_NAME,
-			ICInputs:  models.NullableID{},
-			ICOutputs: models.NullableID{},
-			Circuits:  map[models.IDType]models.Circuit{},
-		},
-	}
-	CurrentScene = models.DEFAULT_SCENE_ID
-	SelectedCircuits = map[models.IDType]bool{}
 }
 
 func CorsMiddleWare(ctx *gin.Context) {
@@ -66,7 +69,47 @@ func CorsMiddleWare(ctx *gin.Context) {
 	ctx.Next()
 }
 
-func MouseZoom(ctx *gin.Context) {
+func PanDo(ctx *gin.Context) {
+	type Params struct {
+		DeltaScr math.Vec2 `bind:"required"`
+	}
+	var params Params
+	if !bindParams(&params, ctx) {
+		return
+	}
+
+	// fmt.Printf("\n\nPrevious View: %s\n", SPrettyPrint(View))
+	View.PanOffset = View.PanOffset.Add(params.DeltaScr)
+	// fmt.Printf("Current View: %s\n\n", SPrettyPrint(View))
+}
+func PanUndo(ctx *gin.Context) {
+	type Params struct {
+		DeltaScr math.Vec2 `bind:"required"`
+	}
+	var params Params
+	if !bindParams(&params, ctx) {
+		return
+	}
+	// fmt.Printf("Previous View: %s", SPrettyPrint(View))
+	View.PanOffset = View.PanOffset.Sub(params.DeltaScr)
+	// fmt.Printf("Current View: %s", SPrettyPrint(View))
+}
+
+func MouseZoomDo(ctx *gin.Context) {
+	type Params struct {
+		ZoomOriginScr  math.Vec2 `bind:"required"`
+		ZoomLevelDelta float64   `bind:"required"`
+	}
+	var params Params
+	if !bindParams(&params, ctx) {
+		return
+	}
+
+	fmt.Printf("\n\nPrevious View: %s\n", SPrettyPrint(View))
+	View.MouseZoom(params.ZoomOriginScr, View.ZoomLevel+params.ZoomLevelDelta)
+	fmt.Printf("Current View: %s\n\n", SPrettyPrint(View))
+}
+func MouseZoomUndo(ctx *gin.Context) {
 	type Params struct {
 		ZoomOriginScr  math.Vec2 `json:"zoomOriginScr" bind:"required"`
 		ZoomLevelDelta float64   `json:"zoomLevelDelta" bind:"required"`
@@ -75,10 +118,13 @@ func MouseZoom(ctx *gin.Context) {
 	if !bindParams(&params, ctx) {
 		return
 	}
-	View.MouseZoom(params.ZoomOriginScr, View.ZoomLevel+params.ZoomLevelDelta)
+
+	fmt.Printf("\n\nPrevious View: %s\n", SPrettyPrint(View))
+	View.MouseZoom(params.ZoomOriginScr, View.ZoomLevel-params.ZoomLevelDelta)
+	fmt.Printf("Current View: %s\n\n", SPrettyPrint(View))
 }
 
-func SelectCircuit(ctx *gin.Context) {
+func SelectCircuitDo(ctx *gin.Context) {
 	type Params struct {
 		ID models.IDType `binding:"required"`
 	}
