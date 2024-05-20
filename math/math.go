@@ -1,8 +1,8 @@
 package math
 
 type Vec2 struct {
-	X float64
-	Y float64
+	X float64 `binding:"required"`
+	Y float64 `binding:"required"`
 }
 
 func NewVec2(x float64, y float64) Vec2 {

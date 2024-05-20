@@ -11,7 +11,7 @@ import (
 )
 
 type PanParams struct {
-	DeltaScr math.Vec2 `bind:"required"`
+	DeltaScr math.Vec2 `binding:"required"`
 }
 
 func PanDo(ctx *gin.Context) {
@@ -45,8 +45,8 @@ func PanUndo(ctx *gin.Context) {
 }
 
 type MouseZoomParams struct {
-	ZoomOriginScr  math.Vec2 `bind:"required"`
-	ZoomLevelDelta float64   `bind:"required"`
+	ZoomOriginScr  math.Vec2 `binding:"required"`
+	ZoomLevelDelta float64   `binding:"required"`
 }
 
 func MouseZoomDo(ctx *gin.Context) {
@@ -82,7 +82,7 @@ func MouseZoomUndo(ctx *gin.Context) {
 
 func TouchScreenZoomDo(ctx *gin.Context) {
 	type Params struct {
-		EndingView math.ViewManager `bind:"required"`
+		EndingView math.ViewManager `binding:"required"`
 	}
 
 	var params Params
@@ -99,11 +99,19 @@ func TouchScreenZoomDo(ctx *gin.Context) {
 
 func TouchScreenZoomUndo(ctx *gin.Context) {
 	type Params struct {
-		StartingView math.ViewManager `bind:"required"`
+		StartingView math.ViewManager `binding:"required"`
 	}
 
 	var params Params
 
+	// if err := ctx.ShouldBindBodyWith(&params, binding.JSON); err != nil {
+	// 	fmt.Fprintf(os.Stderr, "\n\nError: %s\n\n\n", err.Error())
+	// 	ctx.JSON(http.StatusBadRequest, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
+	// fmt.Println("Target: ", params)
 	if !helpers.BindParams(&params, ctx) {
 		return
 	}

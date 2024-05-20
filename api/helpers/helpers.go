@@ -1,20 +1,20 @@
 package helpers
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/abc401/digital-logic-simulator/api/state"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 func BindParams(target interface{}, ctx *gin.Context) bool {
-	if err := ctx.BindJSON(target); err != nil {
+	if err := ctx.ShouldBindBodyWith(target, binding.JSON); err != nil {
+		// if err := ctx.BindJSON(target); err != nil {
 		fmt.Fprintf(os.Stderr, "\n\nError: %s\n\n\n", err.Error())
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -38,8 +38,10 @@ func SPrettyPrint(val interface{}) string {
 }
 
 func PrintReqBody(ctx *gin.Context) {
-	body, err := io.ReadAll(ctx.Request.Body)
-	if err != nil {
+	var body map[string]interface{}
+
+	if err := ctx.ShouldBindBodyWith(&body, binding.JSON); err != nil {
+
 		fmt.Println("Could not read request body: ", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Could not read request body",
@@ -47,8 +49,9 @@ func PrintReqBody(ctx *gin.Context) {
 		panic("")
 	}
 
-	fmt.Println("Request Body: ", string(body))
-	ctx.Request.Body = io.NopCloser(bytes.NewReader(body))
+	fmt.Println("Request Body: ", SPrettyPrint(body))
+
+	// ctx.Request.Body = io.NopCloser(bytes.NewReader(body))
 
 	ctx.Next()
 

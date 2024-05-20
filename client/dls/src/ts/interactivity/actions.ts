@@ -169,6 +169,8 @@ export class ZoomUserAction implements UserAction {
 		return actionURL('/mouse-zoom/undo');
 	}
 }
+
+// Api implemented
 export class TouchScreenZoomUserAction implements UserAction {
 	name = '';
 	constructor(
@@ -232,6 +234,7 @@ export class CreateCircuitUserAction implements UserAction {
 		console.log('TargetScene: ', targetScene);
 	}
 	getDoURL(): URL {
+		// return actionURL('/touch-screen-zoom/undo');
 		return DUMMY_URL;
 	}
 	getUndoURL(): URL {
