@@ -1,66 +1,192 @@
-// class Action {
-//     constructor() {}
-// 	undo() {}
-// 	do() {}
-// }
+import { DUMMY_HOSTNAME, NoopUserAction } from './actions';
 
 export interface UserAction {
 	name: string;
 	undo(): void;
 	do(): void;
-	getApiURL(): URL;
+	getDoURL(): URL;
+	getUndoURL(): URL;
 }
 
-class HistoryNode {
+interface HistoryNode {
+	previous: HistoryNode | undefined;
 	next: HistoryNode | undefined;
-	constructor(
-		public action: UserAction,
-		public prev: HistoryNode | undefined = undefined
-	) {}
+	action: UserAction;
+	unDone: boolean;
 }
 
 export class ActionsManager {
-	history: UserAction[] = [];
-	currentNode = -1;
+	startNode: HistoryNode = {
+		action: new NoopUserAction(),
+		next: undefined,
+		previous: undefined,
+		unDone: false
+	};
 
-	constructor() {}
+	tmpHistory: UserAction[] = [];
+	currentNode: HistoryNode;
+	currentSaveState: HistoryNode;
+
+	saveJobRunning = false;
+	saveFileTimeOut: NodeJS.Timeout | undefined;
+
+	constructor() {
+		this.currentNode = this.startNode;
+		this.currentSaveState = this.startNode;
+	}
 
 	push(action: UserAction) {
-		this.history.push(action);
-		this.currentNode++;
+		for (const action of this.tmpHistory) {
+			this.pushNoSave(action);
+		}
+		this.tmpHistory = [];
+
+		this.pushNoSave(action);
 
 		console.log('Push: ', action.name);
+		this.saveFile();
+	}
+
+	commitTmpHistory() {
+		for (const action of this.tmpHistory) {
+			this.pushNoSave(action);
+		}
+		this.tmpHistory = [];
+		this.saveFile();
+	}
+
+	pushTmp(action: UserAction) {
+		this.tmpHistory.push(action);
+	}
+
+	pushNoSave(action: UserAction) {
+		this.currentNode.next = {
+			action,
+			unDone: false,
+
+			previous: this.currentNode,
+			next: undefined
+		};
+		this.currentNode = this.currentNode.next;
 	}
 
 	undo() {
-		if (this.currentNode < 0) {
+		if (this.currentNode.previous == null) {
 			return false;
 		}
-		const currentAction = this.history[this.currentNode];
+
+		const currentAction = this.currentNode.action;
 		currentAction.undo();
-		this.currentNode--;
+		this.currentNode.unDone = true;
+		this.currentNode = this.currentNode.previous;
 
 		console.log('Undo: ', currentAction.name);
+		this.saveFile();
 		return true;
 	}
 
 	redo() {
-		if (this.history.length >= this.currentNode + 1) {
+		if (this.currentNode.next == null) {
 			return false;
 		}
-		const currentAction = this.history[this.currentNode];
+
+		this.currentNode = this.currentNode.next;
+
+		const currentAction = this.currentNode.action;
 		currentAction.do();
-		this.currentNode++;
+		this.currentNode.unDone = false;
 
 		console.log('Do: ', currentAction.name);
+		this.saveFile();
 		return true;
 	}
 
 	do(action: UserAction) {
-		this.push(action);
 		action.do();
+		this.push(action);
 		console.log('Do: ', action.name);
 		// console.trace();
 	}
+
+	async saveFile() {
+		if (this.saveJobRunning) {
+			console.log('[ActionsManager.saveFile] SaveFile job already running.');
+			return;
+		}
+		if (this.saveFileTimeOut != null) {
+			clearTimeout(this.saveFileTimeOut);
+			console.log('[ActionsManager.saveFile] Cleared timeout');
+		}
+
+		if (this.currentNode === this.currentSaveState) {
+			console.log('[ActionsManager.saveFile] Server already up to date.');
+			// this.saveFileTimeOut = setTimeout(() => this.saveFile(), 5 * 1000);
+			return;
+		}
+
+		this.saveJobRunning = true;
+
+		const getNextSaveState = (currentSaveState: HistoryNode) => {
+			if (currentSaveState.unDone) {
+				if (currentSaveState.previous == null) {
+					throw Error();
+				}
+				return currentSaveState.previous;
+			} else {
+				if (currentSaveState.next == null) {
+					throw Error();
+				}
+				return currentSaveState.next;
+			}
+		};
+
+		while (this.currentSaveState !== this.currentNode) {
+			let res: Response;
+
+			let action: UserAction;
+			if (this.currentSaveState.unDone) {
+				action = this.currentSaveState.action;
+			} else {
+				if (this.currentSaveState.next == null) {
+					throw Error();
+				}
+				action = this.currentSaveState.next.action;
+			}
+
+			const url = this.currentSaveState.unDone ? action.getUndoURL() : action.getDoURL();
+
+			if (url.hostname === DUMMY_HOSTNAME) {
+				console.log('Dummy Url encountered: ', action);
+				this.currentSaveState = getNextSaveState(this.currentSaveState);
+				continue;
+			}
+
+			try {
+				res = await fetch(url, { method: 'POST', body: JSON.stringify(action) });
+			} catch (e) {
+				// TODO: Notify the user that saving the file has failed
+				// 		 so that the user may manually retry saving the file
+				console.log('Request failed: ', action);
+				return;
+			}
+
+			if (res.status !== 200) {
+				this.saveJobRunning = false;
+				const json = await res.json();
+				console.log('Response.Body: ', json);
+				console.log('Response: ', res);
+				throw Error('You did a fucky wucky');
+			}
+
+			this.currentSaveState = getNextSaveState(this.currentSaveState);
+		}
+		this.saveJobRunning = false;
+		// this.saveFileTimeOut = setTimeout(() => this.saveFile(), 5 * 1000);
+	}
+	lastTmpAction() {
+		if (this.tmpHistory.length <= 0) {
+			return undefined;
+		}
+		return this.tmpHistory[this.tmpHistory.length - 1];
+	}
 }
-// class ActionsManager {}

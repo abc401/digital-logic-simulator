@@ -1,4 +1,4 @@
-import { makeApiURL } from '@src/ts/api';
+import { apiURL } from '@src/ts/api';
 import { writable, type Invalidator, type Subscriber, type Unsubscriber } from 'svelte/store';
 
 type FetchFunc = (url: URL) => Promise<Response>;
@@ -30,7 +30,7 @@ export let tutorialNav: {
 				return;
 			}
 
-			const url = makeApiURL('tutorials/nav');
+			const url = apiURL('tutorials/nav');
 			const res = await fetch(url);
 			const tutsVal = await res.json();
 			set(tutsVal);
@@ -60,7 +60,7 @@ export let currentTut: {
 	currentTut = {
 		subscribe,
 		async set(link_id: string, fetch: FetchFunc) {
-			const url = makeApiURL(`/tutorials/${link_id}`);
+			const url = apiURL(`/tutorials/${link_id}`);
 			const res = await fetch(url);
 			const tut: Tutorial = await res.json();
 			// console.log(tut);

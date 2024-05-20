@@ -118,19 +118,21 @@ export class MouseStateMachine {
 				if (ev.target != canvas) {
 					return;
 				}
+				// actionsManager.autoRetrySaving = false;
 				const zoomOriginScr = new Vec2(ev.offsetX, ev.offsetY);
 				const zoomDelta = -ev.deltaY * 0.001;
 
-				const lastActionNode = actionsManager.currentNode;
+				const lastTmpAction = actionsManager.lastTmpAction();
 
 				const thisZoomAction = new ZoomUserAction(zoomOriginScr, zoomDelta);
 
-				if (lastActionNode == undefined || lastActionNode.action.name != 'Zoom') {
+				if (lastTmpAction == undefined || lastTmpAction.name != 'Zoom') {
 					console.log("lastActionNode == undefined || lastActionNode.action.name != 'Zoom'");
-					actionsManager.push(thisZoomAction);
+					actionsManager.pushTmp(thisZoomAction);
+					// actionsManager.autoRetrySaving = true;
 				} else {
 					console.log('else');
-					const lastAction = lastActionNode.action as ZoomUserAction;
+					const lastAction = lastTmpAction as ZoomUserAction;
 					if (
 						!lastAction.zoomOriginScr.eq(zoomOriginScr) ||
 						Math.sign(lastAction.zoomLevelDelta) !== Math.sign(thisZoomAction.zoomLevelDelta)
@@ -138,12 +140,11 @@ export class MouseStateMachine {
 						console.log(
 							'!lastAction.zoomOriginScr.eq(zoomOriginScr) || Math.sign(lastAction.zoomLevelDelta) !== Math.sign(thisZoomAction.zoomLevelDelta)'
 						);
-						actionsManager.push(thisZoomAction);
+						actionsManager.commitTmpHistory();
+						actionsManager.pushTmp(thisZoomAction);
+						// actionsManager.autoRetrySaving = true;
 					} else {
-						lastActionNode.action = new ZoomUserAction(
-							zoomOriginScr,
-							lastAction.zoomLevelDelta + thisZoomAction.zoomLevelDelta
-						);
+						lastAction.zoomLevelDelta += thisZoomAction.zoomLevelDelta;
 					}
 				}
 

@@ -16,7 +16,10 @@ import { icNames } from '@src/lib/stores/integrated-circuits';
 import { icInstantiators, icInstanciator } from '@src/lib/stores/circuitInstantiators';
 import { integratedCircuits } from '@src/lib/stores/integrated-circuits';
 import type { View } from '../view-manager';
-import { makeApiURL } from '../api';
+import { actionURL } from '../api';
+
+export const DUMMY_HOSTNAME = 'this-url-should-not-be-fetched';
+const DUMMY_URL = new URL(`http://${DUMMY_HOSTNAME}/`);
 
 export const clipboard = {
 	circuits: new Array<Circuit>(),
@@ -39,17 +42,6 @@ export function copySelectedToClipboard() {
 			wireCloneMapping
 		);
 	}
-
-	// for (let circuit of clonedCircuits) {
-	//   if (circuit.sceneObject == null) {
-	//     throw Error();
-	//   }
-	//   circuit.sceneObject.isSelected = false;
-	// }
-
-	// for (let wire of clonedWires) {
-	//   wire.isSelected = false;
-	// }
 
 	clipboard.circuits = clonedCircuits;
 	clipboard.wires = clonedWires;
@@ -98,6 +90,19 @@ export function dragSelection(delta: Vec2) {
 	}
 }
 
+export class NoopUserAction implements UserAction {
+	name = 'Noop';
+	do(): void {}
+	undo(): void {}
+
+	getDoURL(): URL {
+		return DUMMY_URL;
+	}
+	getUndoURL(): URL {
+		return DUMMY_URL;
+	}
+}
+
 export class DragUserAction implements UserAction {
 	name = 'Drag';
 	constructor(private deltaWrl: Vec2) {
@@ -112,30 +117,38 @@ export class DragUserAction implements UserAction {
 		dragSelection(this.deltaWrl.neg());
 		// console.log('Drag Action Undo');
 	}
-	getApiURL(): URL {
-		return new URL('');
+	getDoURL(): URL {
+		return DUMMY_URL;
+	}
+	getUndoURL(): URL {
+		return DUMMY_URL;
 	}
 }
 
 export class PanUserAction implements UserAction {
-	constructor(private delta: Vec2) {}
+	constructor(private deltaScr: Vec2) {}
 	name = 'Pan';
 
 	do(): void {
-		view.pan(this.delta);
+		view.pan(this.deltaScr);
 	}
 	undo(): void {
-		view.pan(this.delta.neg());
+		view.pan(this.deltaScr.neg());
 	}
-	getApiURL(): URL {
-		return new URL('');
+	getDoURL(): URL {
+		// return DUMMY_URL;
+		return actionURL('/pan/do');
+	}
+	getUndoURL(): URL {
+		// return DUMMY_URL;
+		return actionURL('/pan/undo');
 	}
 }
 
 export class ZoomUserAction implements UserAction {
 	constructor(
 		readonly zoomOriginScr: Vec2,
-		readonly zoomLevelDelta: number
+		public zoomLevelDelta: number
 	) {}
 
 	name = 'Zoom';
@@ -146,8 +159,11 @@ export class ZoomUserAction implements UserAction {
 	undo(): void {
 		view.zoom(this.zoomOriginScr, view.zoomLevel - this.zoomLevelDelta);
 	}
-	getApiURL(): URL {
-		return new URL('');
+	getDoURL(): URL {
+		return actionURL('/mouse-zoom/do');
+	}
+	getUndoURL(): URL {
+		return actionURL('/mouse-zoom/undo');
 	}
 }
 export class TouchScreenZoomUserAction implements UserAction {
@@ -163,8 +179,11 @@ export class TouchScreenZoomUserAction implements UserAction {
 	undo(): void {
 		view.setView(this.startingView);
 	}
-	getApiURL(): URL {
-		return new URL('');
+	getDoURL(): URL {
+		return DUMMY_URL;
+	}
+	getUndoURL(): URL {
+		return DUMMY_URL;
 	}
 }
 
@@ -209,8 +228,11 @@ export class CreateCircuitUserAction implements UserAction {
 		targetScene.unregisterCircuit(this.circuitID);
 		console.log('TargetScene: ', targetScene);
 	}
-	getApiURL(): URL {
-		return new URL('');
+	getDoURL(): URL {
+		return DUMMY_URL;
+	}
+	getUndoURL(): URL {
+		return DUMMY_URL;
 	}
 }
 
@@ -286,8 +308,11 @@ export class DeleteWireUserAction implements UserAction {
 
 		wire.registerWithID(this.wireID, targetScene);
 	}
-	getApiURL(): URL {
-		return new URL('');
+	getDoURL(): URL {
+		return DUMMY_URL;
+	}
+	getUndoURL(): URL {
+		return DUMMY_URL;
 	}
 }
 
@@ -359,8 +384,11 @@ export class CreateWireUserAction implements UserAction {
 		targetScene.unregisterWire(this.wireID);
 		wire.detach();
 	}
-	getApiURL(): URL {
-		return new URL('');
+	getDoURL(): URL {
+		return DUMMY_URL;
+	}
+	getUndoURL(): URL {
+		return DUMMY_URL;
 	}
 }
 
@@ -413,8 +441,11 @@ export class SetCircuitPropUserAction implements UserAction {
 
 		circuitProps.refresh();
 	}
-	getApiURL(): URL {
-		return new URL('');
+	getDoURL(): URL {
+		return DUMMY_URL;
+	}
+	getUndoURL(): URL {
+		return DUMMY_URL;
 	}
 }
 
@@ -448,8 +479,11 @@ export class SelectCircuitUserAction implements UserAction {
 		}
 		sceneManager.deselectCircuit(this.circuitID);
 	}
-	getApiURL(): URL {
-		return new URL('');
+	getDoURL(): URL {
+		return DUMMY_URL;
+	}
+	getUndoURL(): URL {
+		return DUMMY_URL;
 	}
 }
 
@@ -483,8 +517,11 @@ export class DeselectCircuitUserAction implements UserAction {
 		}
 		sceneManager.selectCircuit(this.circuitID);
 	}
-	getApiURL() {
-		return makeApiURL('/action/deselect-circuit');
+	getDoURL() {
+		return actionURL('/deselect-circuit');
+	}
+	getUndoURL(): URL {
+		return DUMMY_URL;
 	}
 }
 export class SwitchSceneUserAction implements UserAction {
@@ -584,8 +621,11 @@ export class SwitchSceneUserAction implements UserAction {
 			// sceneManager.selectedWires.add(wire);
 		}
 	}
-	getApiURL(): URL {
-		return new URL('');
+	getDoURL(): URL {
+		return DUMMY_URL;
+	}
+	getUndoURL(): URL {
+		return DUMMY_URL;
 	}
 }
 export class CreateICUserAction implements UserAction {
@@ -641,8 +681,11 @@ export class CreateICUserAction implements UserAction {
 
 		icInstantiators.removeInstantiator(this.sceneID);
 	}
-	getApiURL(): URL {
-		return new URL('');
+	getDoURL(): URL {
+		return DUMMY_URL;
+	}
+	getUndoURL(): URL {
+		return DUMMY_URL;
 	}
 }
 export class RenameICUserAction implements UserAction {
@@ -668,8 +711,11 @@ export class RenameICUserAction implements UserAction {
 		integratedCircuits.rename(this.id, this.from);
 		currentScene.get().refreshICLabels();
 	}
-	getApiURL(): URL {
-		return new URL('');
+	getDoURL(): URL {
+		return DUMMY_URL;
+	}
+	getUndoURL(): URL {
+		return DUMMY_URL;
 	}
 }
 
@@ -724,7 +770,10 @@ export class DeselectAllUserAction implements UserAction {
 			sceneManager.selectWireUnchecked(wire);
 		}
 	}
-	getApiURL(): URL {
-		return new URL('');
+	getDoURL(): URL {
+		return DUMMY_URL;
+	}
+	getUndoURL(): URL {
+		return DUMMY_URL;
 	}
 }
