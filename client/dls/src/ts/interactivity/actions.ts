@@ -246,6 +246,7 @@ export class CreateCircuitUserAction implements UserAction {
 	}
 }
 
+// Api Implemented
 export class CreateWireUserAction implements UserAction {
 	name = 'CreateWireUserAction';
 	wireID: ID;
@@ -395,10 +396,10 @@ export class DeleteWireUserAction implements UserAction {
 		wire.registerWithID(this.wireID, targetScene);
 	}
 	getDoURL(): URL {
-		return DUMMY_URL;
+		return actionURL('/delete-wire/do');
 	}
 	getUndoURL(): URL {
-		return DUMMY_URL;
+		return actionURL('/delete-wire/undo');
 	}
 }
 

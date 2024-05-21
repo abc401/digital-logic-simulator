@@ -73,16 +73,17 @@ func CreateCircuitUndo(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{})
 }
 
-func CreateWireDo(ctx *gin.Context) {
-	type Params struct {
-		WireID            projectstate.IDType `binding:"required"`
-		ProducerCircuitID projectstate.IDType
-		ConsumerCircuitID projectstate.IDType
-		ProducerPinIdx    uint64
-		ConsumerPinIdx    uint64
-	}
+type WireParams struct {
+	WireID            projectstate.IDType `binding:"required"`
+	ProducerCircuitID projectstate.IDType
+	ConsumerCircuitID projectstate.IDType
+	ProducerPinIdx    uint64
+	ConsumerPinIdx    uint64
+}
 
-	var params Params
+func CreateWireDo(ctx *gin.Context) {
+
+	var params WireParams
 
 	if !helpers.BindParams(&params, ctx) {
 		return
@@ -199,11 +200,7 @@ func CreateWireDo(ctx *gin.Context) {
 }
 
 func CreateWireUndo(ctx *gin.Context) {
-	type Params struct {
-		WireID projectstate.IDType `binding:"required"`
-	}
-
-	var params Params
+	var params WireParams
 
 	if !helpers.BindParams(&params, ctx) {
 		return
