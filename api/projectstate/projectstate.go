@@ -1,6 +1,8 @@
-package state
+package projectstate
 
 import (
+	"errors"
+
 	"github.com/abc401/digital-logic-simulator/math"
 )
 
@@ -24,7 +26,6 @@ var project = ProjectType{
 
 func (project *ProjectType) GetCurrentScene() *Scene {
 	return &project.Scenes[project.CurrentScene]
-
 }
 
 func GetProject() *ProjectType {
@@ -64,7 +65,7 @@ type CircuitProps map[string]interface{}
 
 var DefaultCircuits = map[string]Circuit{
 	"and": {
-		Type: "and",
+		CircuitType: "and",
 
 		NConsumerPins: 2,
 		NProducerPins: 1,
@@ -74,7 +75,7 @@ var DefaultCircuits = map[string]Circuit{
 		},
 	},
 	"or": {
-		Type: "or",
+		CircuitType: "or",
 
 		NConsumerPins: 2,
 		NProducerPins: 1,
@@ -84,7 +85,7 @@ var DefaultCircuits = map[string]Circuit{
 		},
 	},
 	"not": {
-		Type: "not",
+		CircuitType: "not",
 
 		NConsumerPins: 1,
 		NProducerPins: 1,
@@ -93,7 +94,7 @@ var DefaultCircuits = map[string]Circuit{
 		},
 	},
 	"nand": {
-		Type: "nand",
+		CircuitType: "nand",
 
 		NConsumerPins: 2,
 		NProducerPins: 1,
@@ -103,7 +104,7 @@ var DefaultCircuits = map[string]Circuit{
 		},
 	},
 	"nor": {
-		Type: "nor",
+		CircuitType: "nor",
 
 		NConsumerPins: 2,
 		NProducerPins: 1,
@@ -113,7 +114,7 @@ var DefaultCircuits = map[string]Circuit{
 		},
 	},
 	"xor": {
-		Type: "xor",
+		CircuitType: "xor",
 
 		NConsumerPins: 2,
 		NProducerPins: 1,
@@ -123,7 +124,7 @@ var DefaultCircuits = map[string]Circuit{
 		},
 	},
 	"xnor": {
-		Type: "xnor",
+		CircuitType: "xnor",
 
 		NConsumerPins: 2,
 		NProducerPins: 1,
@@ -136,8 +137,8 @@ var DefaultCircuits = map[string]Circuit{
 
 type Circuit struct {
 	ID            IDType
-	Type          string
-	Pos           math.Vec2
+	CircuitType   string
+	PosWrl        math.Vec2
 	NConsumerPins uint64
 	NProducerPins uint64
 	Props         CircuitProps
@@ -164,6 +165,26 @@ type Scene struct {
 func (scene *Scene) HasCircuit(id IDType) bool {
 	_, exists := scene.Circuits[id]
 	return exists
+}
+
+func (scene *Scene) AddCircuit(id IDType, circuit Circuit) error {
+	if scene.HasCircuit(id) {
+		return errors.New("Circuit already exists")
+	}
+
+	scene.Circuits[id] = circuit
+
+	return nil
+}
+
+func (scene *Scene) DeleteCircuit(id IDType) error {
+	if !scene.HasCircuit(id) {
+		return errors.New("Circuit does not exist")
+	}
+
+	delete(scene.Circuits, id)
+
+	return nil
 }
 
 type ProjectType struct {

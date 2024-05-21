@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/abc401/digital-logic-simulator/api/helpers"
-	"github.com/abc401/digital-logic-simulator/api/state"
+	"github.com/abc401/digital-logic-simulator/api/projectstate"
 	"github.com/abc401/digital-logic-simulator/math"
 	"github.com/gin-gonic/gin"
 )
@@ -20,7 +20,7 @@ func PanDo(ctx *gin.Context) {
 		return
 	}
 
-	var project = state.GetProject()
+	var project = projectstate.GetProject()
 	fmt.Printf("\n\nPrevious View: %s\n", helpers.SPrettyPrint(project.View))
 	project.View.PanOffset = project.View.PanOffset.Add(params.DeltaScr)
 	fmt.Printf("Current View: %s\n\n", helpers.SPrettyPrint(project.View))
@@ -35,7 +35,7 @@ func PanUndo(ctx *gin.Context) {
 		return
 	}
 
-	var project = state.GetProject()
+	var project = projectstate.GetProject()
 	fmt.Printf("Previous View: %s", helpers.SPrettyPrint(project.View))
 	project.View.PanOffset = project.View.PanOffset.Sub(params.DeltaScr)
 	fmt.Printf("Current View: %s", helpers.SPrettyPrint(project.View))
@@ -55,7 +55,7 @@ func MouseZoomDo(ctx *gin.Context) {
 		return
 	}
 
-	var project = state.GetProject()
+	var project = projectstate.GetProject()
 
 	fmt.Printf("\n\nPrevious View: %s\n", helpers.SPrettyPrint(project.View))
 	project.View.MouseZoom(params.ZoomOriginScr, project.View.ZoomLevel+params.ZoomLevelDelta)
@@ -70,7 +70,7 @@ func MouseZoomUndo(ctx *gin.Context) {
 		return
 	}
 
-	var project = state.GetProject()
+	var project = projectstate.GetProject()
 
 	fmt.Printf("\n\nPrevious View: %s\n", helpers.SPrettyPrint(project.View))
 	project.View.MouseZoom(params.ZoomOriginScr, project.View.ZoomLevel-params.ZoomLevelDelta)
@@ -91,7 +91,7 @@ func TouchScreenZoomDo(ctx *gin.Context) {
 		return
 	}
 
-	var project = state.GetProject()
+	var project = projectstate.GetProject()
 	project.View = params.EndingView
 
 	ctx.JSON(http.StatusOK, gin.H{})
@@ -116,7 +116,7 @@ func TouchScreenZoomUndo(ctx *gin.Context) {
 		return
 	}
 
-	var project = state.GetProject()
+	var project = projectstate.GetProject()
 	project.View = params.StartingView
 
 	ctx.JSON(http.StatusOK, gin.H{})

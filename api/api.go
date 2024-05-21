@@ -36,42 +36,6 @@ func CorsMiddleWare(ctx *gin.Context) {
 	ctx.Next()
 }
 
-// func AddCircuit(ctx *gin.Context) {
-// 	type Params struct {
-// 		ID          models.IDType `binding:"required"`
-// 		CircuitType string        `json:"type" binding:"required"`
-// 		PosWrl      math.Vec2     `binding:"required"`
-// 	}
-
-// 	var params Params
-// 	if !BindParams(&params, ctx) {
-// 		return
-// 	}
-
-// 	currentScene := Scenes[CurrentScene]
-// 	if currentScene.HasCircuit(params.ID) {
-// 		ctx.JSON(http.StatusConflict, gin.H{
-// 			"error": fmt.Sprintf("Another circuit is already registered with id: %d", params.ID),
-// 		})
-// 		return
-// 	}
-
-// 	newCircuit, ok := models.DefaultCircuits[strings.ToLower(params.CircuitType)]
-// 	if !ok {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{
-// 			"error": fmt.Sprintf("Invalid circuit type: %s", params.CircuitType),
-// 		})
-// 	}
-
-// 	newCircuit.ID = params.ID
-// 	newCircuit.Pos = params.PosWrl
-// 	currentScene.Circuits[params.ID] = newCircuit
-// 	PrintCurrentScene()
-// 	fmt.Printf("%+v\n", newCircuit)
-
-// 	// fmt.Printf("\n\nProject State: %+v\n\n\n", currentScene)
-// }
-
 // func DragSelection(ctx *gin.Context) {
 // 	type Params struct {
 // 		DeltaWrl math.Vec2 `binding:"required"`

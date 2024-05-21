@@ -40,7 +40,9 @@ export class CreatingCircuit implements MouseState {
 			}
 
 			// CircuitSceneObject.new(circuit, viewManager.screenToWorld(locScr), currentScene, ctx);
-			actionsManager.do(new CreateCircuitUserAction(currentScene.id, this.creator, locScr));
+			actionsManager.do(
+				new CreateCircuitUserAction(currentScene.id, this.name, this.creator, locScr)
+			);
 
 			console.log(`Created ${this.name}`);
 			console.log('scene: ', sceneManager.getCurrentScene());

@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	"github.com/abc401/digital-logic-simulator/api/helpers"
-	"github.com/abc401/digital-logic-simulator/api/state"
+	"github.com/abc401/digital-logic-simulator/api/projectstate"
 	"github.com/gin-gonic/gin"
 )
 
 type SelectDeselectParams struct {
-	CircuitID state.IDType `json:"circuitID" binding:"required"`
+	CircuitID projectstate.IDType `json:"circuitID" binding:"required"`
 }
 
 func SelectCircuitDo(ctx *gin.Context) {
@@ -18,7 +18,7 @@ func SelectCircuitDo(ctx *gin.Context) {
 		return
 	}
 
-	var project = state.GetProject()
+	var project = projectstate.GetProject()
 
 	if !project.GetCurrentScene().HasCircuit(params.CircuitID) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -40,7 +40,7 @@ func DeselectCircuitDo(ctx *gin.Context) {
 	if !helpers.BindParams(&params, ctx) {
 		return
 	}
-	var project = state.GetProject()
+	var project = projectstate.GetProject()
 
 	if !project.GetCurrentScene().HasCircuit(params.CircuitID) {
 		ctx.JSON(http.StatusBadRequest, gin.H{

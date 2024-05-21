@@ -30,157 +30,155 @@ export const icInstanciator = (sceneId: ID) => () => {
 	return circuit;
 };
 
-export const circuitInstanciators: { [key: string]: { [key: string]: () => Circuit } } = {
-	Add: {
-		Input: () => {
-			return new InputCircuit(false) as Circuit;
-		},
-		And: () => {
-			const circuit = new ProcessingCircuit(
-				2,
-				1,
-				(self) => {
-					let value = true;
-					for (const pin of self.consumerPins) {
-						value = value && pin.value;
-						if (!value) {
-							break;
-						}
+export const circuitInstanciators: { [key: string]: () => Circuit } = {
+	Input: () => {
+		return new InputCircuit(false) as Circuit;
+	},
+	And: () => {
+		const circuit = new ProcessingCircuit(
+			2,
+			1,
+			(self) => {
+				let value = true;
+				for (const pin of self.consumerPins) {
+					value = value && pin.value;
+					if (!value) {
+						break;
 					}
-					self.producerPins[0].setValue(value);
-				},
-				'And'
-			);
-			circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
-				const num = +value;
-				if (Number.isNaN(num) || !Number.isFinite(num) || num % 1 !== 0 || num < 1) {
-					console.log('Hello1');
-					return false;
 				}
-				if (!setConsumerPinNumber(circuit, num)) {
-					console.log('Hello2');
-					return false;
-				}
-				circuit.props.Inputs = num;
-				if (circuit.sceneObject != null) {
-					circuit.sceneObject.calcRects();
-				}
-				return true;
-			});
-			return circuit;
-		},
-		Or: () => {
-			const circuit = new ProcessingCircuit(
-				2,
-				1,
-				(self) => {
-					let value = false;
-					for (const pin of self.consumerPins) {
-						value = value || pin.value;
-						if (value) {
-							break;
-						}
+				self.producerPins[0].setValue(value);
+			},
+			'And'
+		);
+		circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
+			const num = +value;
+			if (Number.isNaN(num) || !Number.isFinite(num) || num % 1 !== 0 || num < 1) {
+				console.log('Hello1');
+				return false;
+			}
+			if (!setConsumerPinNumber(circuit, num)) {
+				console.log('Hello2');
+				return false;
+			}
+			circuit.props.Inputs = num;
+			if (circuit.sceneObject != null) {
+				circuit.sceneObject.calcRects();
+			}
+			return true;
+		});
+		return circuit;
+	},
+	Or: () => {
+		const circuit = new ProcessingCircuit(
+			2,
+			1,
+			(self) => {
+				let value = false;
+				for (const pin of self.consumerPins) {
+					value = value || pin.value;
+					if (value) {
+						break;
 					}
-					self.producerPins[0].setValue(value);
-				},
-				'Or'
-			);
-			circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
-				const num = +value;
-				if (Number.isNaN(num) || !Number.isFinite(num) || num % 1 !== 0 || num < 1) {
-					console.log('Hello1');
-					return false;
 				}
-				if (!setConsumerPinNumber(circuit, num)) {
-					console.log('Hello2');
-					return false;
-				}
-				circuit.props.Inputs = num;
-				if (circuit.sceneObject != null) {
-					circuit.sceneObject.calcRects();
-				}
-				return true;
-			});
-			return circuit;
-		},
-		Not: () => {
-			return new ProcessingCircuit(
-				1,
-				1,
-				(self) => {
-					self.producerPins[0].setValue(!self.consumerPins[0].value);
-				},
-				'Not'
-			);
-		},
-		Nand: () => {
-			const circuit = new ProcessingCircuit(
-				2,
-				1,
-				(self) => {
-					let value = true;
-					for (const pin of self.consumerPins) {
-						value = value && pin.value;
-						if (!value) {
-							break;
-						}
+				self.producerPins[0].setValue(value);
+			},
+			'Or'
+		);
+		circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
+			const num = +value;
+			if (Number.isNaN(num) || !Number.isFinite(num) || num % 1 !== 0 || num < 1) {
+				console.log('Hello1');
+				return false;
+			}
+			if (!setConsumerPinNumber(circuit, num)) {
+				console.log('Hello2');
+				return false;
+			}
+			circuit.props.Inputs = num;
+			if (circuit.sceneObject != null) {
+				circuit.sceneObject.calcRects();
+			}
+			return true;
+		});
+		return circuit;
+	},
+	Not: () => {
+		return new ProcessingCircuit(
+			1,
+			1,
+			(self) => {
+				self.producerPins[0].setValue(!self.consumerPins[0].value);
+			},
+			'Not'
+		);
+	},
+	Nand: () => {
+		const circuit = new ProcessingCircuit(
+			2,
+			1,
+			(self) => {
+				let value = true;
+				for (const pin of self.consumerPins) {
+					value = value && pin.value;
+					if (!value) {
+						break;
 					}
-					self.producerPins[0].setValue(!value);
-				},
-				'Nand'
-			);
-			circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
-				const num = +value;
-				if (Number.isNaN(num) || !Number.isFinite(num) || num % 1 !== 0 || num < 1) {
-					console.log('Hello1');
-					return false;
 				}
-				if (!setConsumerPinNumber(circuit, num)) {
-					console.log('Hello2');
-					return false;
-				}
-				circuit.props.Inputs = num;
-				if (circuit.sceneObject != null) {
-					circuit.sceneObject.calcRects();
-				}
-				return true;
-			});
-			return circuit;
-		},
-		Nor: () => {
-			const circuit = new ProcessingCircuit(
-				2,
-				1,
-				(self) => {
-					let value = false;
-					for (const pin of self.consumerPins) {
-						value = value || pin.value;
-						if (value) {
-							break;
-						}
+				self.producerPins[0].setValue(!value);
+			},
+			'Nand'
+		);
+		circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
+			const num = +value;
+			if (Number.isNaN(num) || !Number.isFinite(num) || num % 1 !== 0 || num < 1) {
+				console.log('Hello1');
+				return false;
+			}
+			if (!setConsumerPinNumber(circuit, num)) {
+				console.log('Hello2');
+				return false;
+			}
+			circuit.props.Inputs = num;
+			if (circuit.sceneObject != null) {
+				circuit.sceneObject.calcRects();
+			}
+			return true;
+		});
+		return circuit;
+	},
+	Nor: () => {
+		const circuit = new ProcessingCircuit(
+			2,
+			1,
+			(self) => {
+				let value = false;
+				for (const pin of self.consumerPins) {
+					value = value || pin.value;
+					if (value) {
+						break;
 					}
-					self.producerPins[0].setValue(!value);
-				},
-				'Nor'
-			);
-			circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
-				const num = +value;
-				if (Number.isNaN(num) || !Number.isFinite(num) || num % 1 !== 0 || num < 1) {
-					console.log('Hello1');
-					return false;
 				}
-				if (!setConsumerPinNumber(circuit, num)) {
-					console.log('Hello2');
-					return false;
-				}
-				circuit.props.Inputs = num;
-				if (circuit.sceneObject != null) {
-					circuit.sceneObject.calcRects();
-				}
-				return true;
-			});
-			return circuit;
-		}
+				self.producerPins[0].setValue(!value);
+			},
+			'Nor'
+		);
+		circuit.newProp('Inputs', CircuitPropType.NaturalNumber, 2, function (circuit, value) {
+			const num = +value;
+			if (Number.isNaN(num) || !Number.isFinite(num) || num % 1 !== 0 || num < 1) {
+				console.log('Hello1');
+				return false;
+			}
+			if (!setConsumerPinNumber(circuit, num)) {
+				console.log('Hello2');
+				return false;
+			}
+			circuit.props.Inputs = num;
+			if (circuit.sceneObject != null) {
+				circuit.sceneObject.calcRects();
+			}
+			return true;
+		});
+		return circuit;
 	}
 };
 

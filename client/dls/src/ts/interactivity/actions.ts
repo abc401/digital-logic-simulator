@@ -197,6 +197,11 @@ export class CreateCircuitUserAction implements UserAction {
 	private readonly circuitID: ID;
 	constructor(
 		private targetSceneID: ID,
+
+		// DO NOT remove this property, this is a parameter for the api.
+		// It will not be used on the client side.
+		private circuitType: string,
+
 		private instantiator: () => Circuit,
 		private locScr: Vec2
 	) {
@@ -234,11 +239,10 @@ export class CreateCircuitUserAction implements UserAction {
 		console.log('TargetScene: ', targetScene);
 	}
 	getDoURL(): URL {
-		// return actionURL('/touch-screen-zoom/undo');
-		return DUMMY_URL;
+		return actionURL('/create-circuit/do');
 	}
 	getUndoURL(): URL {
-		return DUMMY_URL;
+		return actionURL('/create-circuit/undo');
 	}
 }
 

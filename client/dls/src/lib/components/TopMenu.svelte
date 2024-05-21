@@ -29,20 +29,18 @@
 	<!-- <DropDown>
 		<DropDownToggle>Add</DropDownToggle>
 		<DropDownMenu> -->
-	{#each Object.keys(circuitInstanciators) as category (category)}
-		<DropDown>
-			<DropDownToggle class="my-1 px-3 py-1.5 ">{category}</DropDownToggle>
-			<DropDownMenu position={DropDownPosition.Below}>
-				{#each Object.keys(circuitInstanciators[category]) as circuitName (circuitName)}
-					<DropDownItem
-						action={() => {
-							createCircuit(circuitName, circuitInstanciators[category][circuitName]);
-						}}>{circuitName}</DropDownItem
-					>
-				{/each}
-			</DropDownMenu>
-		</DropDown>
-	{/each}
+	<DropDown>
+		<DropDownToggle class="my-1 px-3 py-1.5 ">Add</DropDownToggle>
+		<DropDownMenu position={DropDownPosition.Below}>
+			{#each Object.keys(circuitInstanciators) as circuitName (circuitName)}
+				<DropDownItem
+					action={() => {
+						createCircuit(circuitName, circuitInstanciators[circuitName]);
+					}}>{circuitName}</DropDownItem
+				>
+			{/each}
+		</DropDownMenu>
+	</DropDown>
 	<DropDown>
 		<DropDownToggle class="my-1 px-3 py-1.5 ">Simulation</DropDownToggle>
 		<DropDownMenu>
