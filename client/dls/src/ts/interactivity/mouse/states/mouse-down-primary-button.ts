@@ -9,7 +9,7 @@ import { Panning } from './panning.js';
 import { Vec2 } from '@ts/math.js';
 import { Home } from './home.js';
 import { DraggingSelection } from './dragging-selection.js';
-import { actionsManager, canvas } from '@routes/+page.svelte';
+import { actionsManager, canvas, sceneManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 import type { ID } from '@src/ts/scene/scene.js';
 import {
@@ -47,18 +47,20 @@ export class MouseDownPrimaryButton implements MouseState {
 				}
 
 				if (!this.circuit.isSelected) {
-					actionsManager.do(new DeselectAllUserAction());
+					if (sceneManager.selectedCircuits.size > 0) {
+						actionsManager.do(new DeselectAllUserAction());
+					}
+					actionsManager.do(new SelectCircuitUserAction(this.circuit.id as ID));
 					// sceneManager.deselectAll();
 				}
 				// sceneManager.selectCircuit(this.circuit.id as ID);
-				actionsManager.do(new SelectCircuitUserAction(this.circuit.id as ID));
 				const locScr = new Vec2(payload.offsetX, payload.offsetY);
 
 				stateMachine.state = new DraggingSelection(this.circuit, this.offsetWrl, locScr);
 				return;
 			}
 		} else if (action.kind === MouseActionKind.MouseUp) {
-			if (!payload.ctrlKey) {
+			if (!payload.ctrlKey && sceneManager.selectedCircuits.size > 0) {
 				actionsManager.do(new DeselectAllUserAction());
 				// sceneManager.deselectAll();
 			}

@@ -16,7 +16,8 @@ var project = ProjectType{
 			Name:      DEFAULT_SCENE_NAME,
 			ICInputs:  NullableID{},
 			ICOutputs: NullableID{},
-			Circuits:  map[IDType]Circuit{},
+			Circuits:  map[IDType]*Circuit{},
+			Wires:     map[IDType]*Wire{},
 		},
 	},
 	CurrentScene:     DEFAULT_SCENE_ID,
@@ -159,27 +160,45 @@ type Scene struct {
 	Name      string
 	ICInputs  NullableID
 	ICOutputs NullableID
-	Circuits  map[IDType]Circuit
+	Circuits  map[IDType]*Circuit
+	Wires     map[IDType]*Wire
+}
+
+func (scene *Scene) HasObject(id IDType) bool {
+	return scene.HasCircuit(id) || scene.HasWire(id)
 }
 
 func (scene *Scene) HasCircuit(id IDType) bool {
-	_, exists := scene.Circuits[id]
-	return exists
+	_, circuitExists := scene.Circuits[id]
+	return circuitExists
+}
+
+func (scene *Scene) HasWire(id IDType) bool {
+	_, wireExists := scene.Wires[id]
+	return wireExists
+}
+
+func (scene *Scene) GetCircuit(id IDType) *Circuit {
+	circuit, ok := scene.Circuits[id]
+	if ok {
+		return circuit
+	}
+	return nil
 }
 
 func (scene *Scene) AddCircuit(id IDType, circuit Circuit) error {
-	if scene.HasCircuit(id) {
-		return errors.New("Circuit already exists")
+	if scene.HasObject(id) {
+		return errors.New("id is already taken")
 	}
 
-	scene.Circuits[id] = circuit
+	scene.Circuits[id] = &circuit
 
 	return nil
 }
 
 func (scene *Scene) DeleteCircuit(id IDType) error {
 	if !scene.HasCircuit(id) {
-		return errors.New("Circuit does not exist")
+		return errors.New("circuit does not exist")
 	}
 
 	delete(scene.Circuits, id)

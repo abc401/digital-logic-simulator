@@ -21,4 +21,6 @@ func ConfigHandlers(router gin.IRouter) {
 	router.POST("/create-circuit/do", CreateCircuitDo)
 	router.POST("/create-circuit/undo", CreateCircuitUndo)
 
+	router.POST("/create-wire/do", CreateWireDo)
+	router.POST("/create-wire/undo", CreateWireUndo)
 }

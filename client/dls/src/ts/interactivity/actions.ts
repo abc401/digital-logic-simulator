@@ -103,7 +103,6 @@ export class NoopUserAction implements UserAction {
 	}
 }
 
-// Api implemented
 export class DragUserAction implements UserAction {
 	name = 'Drag';
 	constructor(private deltaWrl: Vec2) {
@@ -192,6 +191,7 @@ export class TouchScreenZoomUserAction implements UserAction {
 	}
 }
 
+// Api implemented
 export class CreateCircuitUserAction implements UserAction {
 	name = 'CreateCircuitUserAction';
 	private readonly circuitID: ID;
@@ -243,6 +243,82 @@ export class CreateCircuitUserAction implements UserAction {
 	}
 	getUndoURL(): URL {
 		return actionURL('/create-circuit/undo');
+	}
+}
+
+export class CreateWireUserAction implements UserAction {
+	name = 'CreateWireUserAction';
+	wireID: ID;
+
+	producerCircuitID: ID;
+	producerPinIdx: number;
+
+	consumerCircuitID: ID;
+	consumerPinIdx: number;
+
+	constructor(
+		private sceneID: ID,
+		wire: Wire
+	) {
+		const targetScene = sceneManager.scenes.get(sceneID);
+		if (targetScene == null) {
+			throw Error();
+		}
+		this.wireID = targetScene.getNextID();
+		if (
+			wire.consumerPin == null ||
+			wire.consumerPin.parentCircuit.sceneObject == null ||
+			wire.consumerPin.parentCircuit.sceneObject.id == null ||
+			wire.producerPin == null ||
+			wire.producerPin.parentCircuit.sceneObject == null ||
+			wire.producerPin.parentCircuit.sceneObject.id == null
+		) {
+			throw Error();
+		}
+
+		this.producerCircuitID = wire.producerPin.parentCircuit.sceneObject.id;
+		this.producerPinIdx = wire.producerPin.pinIndex;
+		this.consumerCircuitID = wire.consumerPin.parentCircuit.sceneObject.id;
+		this.consumerPinIdx = wire.consumerPin.pinIndex;
+	}
+
+	do(): void {
+		const targetScene = sceneManager.scenes.get(this.sceneID);
+		if (targetScene == null) {
+			throw Error();
+		}
+
+		const producerCircuit = targetScene.idToCircuit.get(this.producerCircuitID);
+		const consumerCircuit = targetScene.idToCircuit.get(this.consumerCircuitID);
+		if (producerCircuit == null || consumerCircuit == null) {
+			throw Error();
+		}
+
+		const wire = Wire.newUnregistered(
+			producerCircuit.parentCircuit.producerPins[this.producerPinIdx],
+			consumerCircuit.parentCircuit.consumerPins[this.consumerPinIdx]
+		);
+
+		wire.registerWithID(this.wireID, targetScene);
+		console.log('[CreatingWireUserAction.do] wire: ', wire);
+	}
+	undo(): void {
+		const targetScene = sceneManager.scenes.get(this.sceneID);
+		if (targetScene == null) {
+			throw Error();
+		}
+		const wire = targetScene.idToWire.get(this.wireID);
+		if (wire == null) {
+			throw Error();
+		}
+		targetScene.unregisterWire(this.wireID);
+		wire.detach();
+	}
+	getDoURL(): URL {
+		return actionURL('/create-wire/do');
+	}
+	getUndoURL(): URL {
+		return actionURL('/create-wire/undo');
 	}
 }
 
@@ -317,82 +393,6 @@ export class DeleteWireUserAction implements UserAction {
 		);
 
 		wire.registerWithID(this.wireID, targetScene);
-	}
-	getDoURL(): URL {
-		return DUMMY_URL;
-	}
-	getUndoURL(): URL {
-		return DUMMY_URL;
-	}
-}
-
-export class CreateWireUserAction implements UserAction {
-	name = 'CreateWireUserAction';
-	wireID: ID;
-
-	producerCircuitID: ID;
-	producerPinIdx: number;
-
-	consumerCircuitID: ID;
-	consumerPinIdx: number;
-
-	constructor(
-		private sceneID: ID,
-		wire: Wire
-	) {
-		const targetScene = sceneManager.scenes.get(sceneID);
-		if (targetScene == null) {
-			throw Error();
-		}
-		this.wireID = targetScene.getNextID();
-		if (
-			wire.consumerPin == null ||
-			wire.consumerPin.parentCircuit.sceneObject == null ||
-			wire.consumerPin.parentCircuit.sceneObject.id == null ||
-			wire.producerPin == null ||
-			wire.producerPin.parentCircuit.sceneObject == null ||
-			wire.producerPin.parentCircuit.sceneObject.id == null
-		) {
-			throw Error();
-		}
-
-		this.producerCircuitID = wire.producerPin.parentCircuit.sceneObject.id;
-		this.producerPinIdx = wire.producerPin.pinIndex;
-		this.consumerCircuitID = wire.consumerPin.parentCircuit.sceneObject.id;
-		this.consumerPinIdx = wire.consumerPin.pinIndex;
-	}
-
-	do(): void {
-		const targetScene = sceneManager.scenes.get(this.sceneID);
-		if (targetScene == null) {
-			throw Error();
-		}
-
-		const producerCircuit = targetScene.idToCircuit.get(this.producerCircuitID);
-		const consumerCircuit = targetScene.idToCircuit.get(this.consumerCircuitID);
-		if (producerCircuit == null || consumerCircuit == null) {
-			throw Error();
-		}
-
-		const wire = Wire.newUnregistered(
-			producerCircuit.parentCircuit.producerPins[this.producerPinIdx],
-			consumerCircuit.parentCircuit.consumerPins[this.consumerPinIdx]
-		);
-
-		wire.registerWithID(this.wireID, targetScene);
-		console.log('[CreatingWireUserAction.do] wire: ', wire);
-	}
-	undo(): void {
-		const targetScene = sceneManager.scenes.get(this.sceneID);
-		if (targetScene == null) {
-			throw Error();
-		}
-		const wire = targetScene.idToWire.get(this.wireID);
-		if (wire == null) {
-			throw Error();
-		}
-		targetScene.unregisterWire(this.wireID);
-		wire.detach();
 	}
 	getDoURL(): URL {
 		return DUMMY_URL;

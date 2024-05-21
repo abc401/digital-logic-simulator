@@ -13,7 +13,7 @@ import { Vec2 } from '@ts/math.js';
 import { actionsManager, canvas, sceneManager } from '@routes/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 import { currentScene, type ID } from '@src/ts/scene/scene.js';
-import { CreateWireUserAction } from '../../actions.js';
+import { CreateWireUserAction, DeleteWireUserAction } from '../../actions.js';
 
 export class CreatingWire implements MouseState {
 	constructor(private wire: Wire) {
@@ -49,7 +49,12 @@ export class CreatingWire implements MouseState {
 				focusObject.kind === ConcreteObjectKind.ConsumerPin &&
 				this.wire.consumerPin == null
 			) {
-				this.wire.setConsumerPin(focusObject.object as ConsumerPin);
+				const pin = focusObject.object as ConsumerPin;
+				if (pin.wire != null) {
+					actionsManager.do(new DeleteWireUserAction(pin.wire, currentScene.get().id as ID));
+				}
+
+				this.wire.setConsumerPin(pin);
 			} else if (
 				focusObject.kind === ConcreteObjectKind.ProducerPin &&
 				this.wire.producerPin == null

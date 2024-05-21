@@ -9,7 +9,7 @@ import (
 )
 
 type SelectDeselectParams struct {
-	CircuitID projectstate.IDType `json:"circuitID" binding:"required"`
+	CircuitID projectstate.IDType `json:"circuitID"`
 }
 
 func SelectCircuitDo(ctx *gin.Context) {
@@ -20,7 +20,7 @@ func SelectCircuitDo(ctx *gin.Context) {
 
 	var project = projectstate.GetProject()
 
-	if !project.GetCurrentScene().HasCircuit(params.CircuitID) {
+	if !project.GetCurrentScene().HasObject(params.CircuitID) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "No circuit with provided id",
 			"id":    params.CircuitID,
@@ -42,7 +42,7 @@ func DeselectCircuitDo(ctx *gin.Context) {
 	}
 	var project = projectstate.GetProject()
 
-	if !project.GetCurrentScene().HasCircuit(params.CircuitID) {
+	if !project.GetCurrentScene().HasObject(params.CircuitID) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "No circuit with provided id",
 			"id":    params.CircuitID,
