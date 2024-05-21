@@ -20,13 +20,14 @@ var project = ProjectType{
 			Wires:     map[IDType]*Wire{},
 		},
 	},
-	CurrentScene:     DEFAULT_SCENE_ID,
+	CurrentSceneID:   DEFAULT_SCENE_ID,
 	SelectedCircuits: map[IDType]bool{},
+	SelectedWires:    map[IDType]bool{},
 	View:             math.NewViewManager(),
 }
 
 func (project *ProjectType) GetCurrentScene() *Scene {
-	return &project.Scenes[project.CurrentScene]
+	return &project.Scenes[project.CurrentSceneID]
 }
 
 func GetProject() *ProjectType {
@@ -142,17 +143,18 @@ type Circuit struct {
 	PosWrl        math.Vec2
 	NConsumerPins uint64
 	NProducerPins uint64
+	AttachedWires map[IDType]*Wire
 	Props         CircuitProps
 }
 
 type Wire struct {
 	ID IDType
 
-	FromCircuit IDType `json:"from-circuit"`
-	FromPin     uint64 `json:"from-pin"`
+	FromCircuit IDType
+	FromPin     uint64
 
-	ToCircuit IDType `json:"to-circuit"`
-	ToPin     uint64 `json:"to-pin"`
+	ToCircuit IDType
+	ToPin     uint64
 }
 
 type Scene struct {
@@ -185,6 +187,13 @@ func (scene *Scene) GetCircuit(id IDType) *Circuit {
 	}
 	return nil
 }
+func (scene *Scene) GetWire(id IDType) *Wire {
+	wire, ok := scene.Wires[id]
+	if ok {
+		return wire
+	}
+	return nil
+}
 
 func (scene *Scene) AddCircuit(id IDType, circuit Circuit) error {
 	if scene.HasObject(id) {
@@ -208,7 +217,8 @@ func (scene *Scene) DeleteCircuit(id IDType) error {
 
 type ProjectType struct {
 	Scenes           []Scene
-	CurrentScene     IDType
+	CurrentSceneID   IDType
 	SelectedCircuits map[IDType]bool
+	SelectedWires    map[IDType]bool
 	View             math.ViewManager
 }

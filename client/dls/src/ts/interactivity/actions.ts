@@ -323,6 +323,7 @@ export class CreateWireUserAction implements UserAction {
 	}
 }
 
+// Api implemented
 export class DeleteWireUserAction implements UserAction {
 	name = 'DeleteWireUserAction';
 
@@ -460,6 +461,7 @@ export class SetCircuitPropUserAction implements UserAction {
 	}
 }
 
+// Api Implemented
 export class SelectCircuitUserAction implements UserAction {
 	name = 'SelectCircuitUserAction';
 	private sceneID: ID;
@@ -498,6 +500,7 @@ export class SelectCircuitUserAction implements UserAction {
 	}
 }
 
+// Api Implemented
 export class DeselectCircuitUserAction implements UserAction {
 	name = 'DeselectCircuitUserAction';
 	private sceneID: ID;

@@ -187,13 +187,21 @@ func CreateWireDo(ctx *gin.Context) {
 			"specified-index": params.ConsumerPinIdx,
 		})
 	}
-	currentScene.Wires[params.WireID] = &projectstate.Wire{
+	var newWire = projectstate.Wire{
 		ID:          params.WireID,
 		FromCircuit: params.ProducerCircuitID,
 		FromPin:     params.ProducerPinIdx,
 		ToCircuit:   params.ConsumerCircuitID,
 		ToPin:       params.ConsumerPinIdx,
 	}
+
+	currentScene.Wires[params.WireID] = &newWire
+	var fromCircuit = currentScene.GetCircuit(params.ProducerCircuitID)
+
+	fromCircuit.AttachedWires[params.WireID] = &newWire
+
+	var toCircuit = currentScene.GetCircuit(params.ConsumerCircuitID)
+	toCircuit.AttachedWires[params.WireID] = &newWire
 
 	helpers.PrintCurrentScene(project)
 	ctx.JSON(http.StatusOK, gin.H{})
@@ -212,12 +220,20 @@ func CreateWireUndo(ctx *gin.Context) {
 	helpers.PrintCurrentScene(project)
 
 	if !currentScene.HasWire(params.WireID) {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"error": "no wire with specified id",
+		ctx.JSON(http.StatusConflict, gin.H{
+			"error": "no wire with provided id",
 			"id":    params.WireID,
 		})
 		return
 	}
+
+	var wire = currentScene.GetWire(params.WireID)
+
+	var fromCircuit = currentScene.GetCircuit(wire.FromCircuit)
+	delete(fromCircuit.AttachedWires, wire.ID)
+
+	var toCircuit = currentScene.GetCircuit(wire.ToCircuit)
+	delete(toCircuit.AttachedWires, wire.ID)
 
 	delete(currentScene.Wires, params.WireID)
 
