@@ -10,7 +10,6 @@ import (
 	"github.com/abc401/digital-logic-simulator/db"
 	"github.com/abc401/digital-logic-simulator/models"
 
-	// "github.com/abc401/digital-logic-simulator/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,28 +34,6 @@ func CorsMiddleWare(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Next()
 }
-
-// func DragSelection(ctx *gin.Context) {
-// 	type Params struct {
-// 		DeltaWrl math.Vec2 `binding:"required"`
-// 	}
-// 	params := Params{}
-// 	if !BindParams(&params, ctx) {
-// 		return
-// 	}
-
-// 	for id := range SelectedCircuits {
-// 		currentScene := Scenes[CurrentScene]
-
-// 		circuit := currentScene.Circuits[id]
-// 		{
-// 			circuit.Pos = currentScene.Circuits[id].Pos.Add(params.DeltaWrl)
-// 		}
-// 		currentScene.Circuits[id] = circuit
-// 	}
-// 	PrintCurrentScene()
-
-// }
 
 func GetTutorial(ctx *gin.Context) {
 	title, found := ctx.Params.Get("link_title")

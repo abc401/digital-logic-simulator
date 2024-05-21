@@ -106,7 +106,6 @@ export class Scene {
 			this.tmpCircuits.add(circuit);
 		}
 		console.log('Scene: ', this);
-		console.trace();
 	}
 
 	registerCircuit(circuit: CircuitSceneObject) {

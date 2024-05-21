@@ -118,10 +118,10 @@ export class DragUserAction implements UserAction {
 		// console.log('Drag Action Undo');
 	}
 	getDoURL(): URL {
-		return DUMMY_URL;
+		return actionURL('/drag-selection/do');
 	}
 	getUndoURL(): URL {
-		return DUMMY_URL;
+		return actionURL('/drag-selection/undo');
 	}
 }
 
@@ -733,6 +733,7 @@ export class RenameICUserAction implements UserAction {
 	}
 }
 
+// Api implemented
 export class DeselectAllUserAction implements UserAction {
 	name = 'DeselectAllUserAction';
 

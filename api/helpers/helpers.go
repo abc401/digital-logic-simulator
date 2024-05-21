@@ -21,7 +21,6 @@ func BindParams(target interface{}, ctx *gin.Context) bool {
 		})
 		return false
 	}
-	fmt.Println("Target: ", target)
 	return true
 }
 
