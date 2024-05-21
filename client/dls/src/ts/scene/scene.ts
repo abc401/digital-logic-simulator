@@ -13,6 +13,9 @@ import { Vec2 } from '../math.js';
 export type ID = number;
 export type SceneID = number;
 
+export const CUSTOM_CIRCUIT_INPUTS_ID = 0;
+export const CUSTOM_CIRCUIT_OUTPUTS_ID = 1;
+
 export class Scene {
 	id: ID | undefined;
 	name: string = '';

@@ -10,8 +10,8 @@ const DEFAULT_SCENE_NAME = "Main"
 const DEFAULT_SCENE_ID = IDType(0)
 
 var project = ProjectType{
-	Scenes: []Scene{
-		{
+	Scenes: map[IDType]*Scene{
+		DEFAULT_SCENE_ID: {
 			ID:        DEFAULT_SCENE_ID,
 			Name:      DEFAULT_SCENE_NAME,
 			ICInputs:  NullableID{},
@@ -27,7 +27,7 @@ var project = ProjectType{
 }
 
 func (project *ProjectType) GetCurrentScene() *Scene {
-	return &project.Scenes[project.CurrentSceneID]
+	return project.Scenes[project.CurrentSceneID]
 }
 
 func GetProject() *ProjectType {
@@ -216,9 +216,14 @@ func (scene *Scene) DeleteCircuit(id IDType) error {
 }
 
 type ProjectType struct {
-	Scenes           []Scene
+	Scenes           map[IDType]*Scene
 	CurrentSceneID   IDType
 	SelectedCircuits map[IDType]bool
 	SelectedWires    map[IDType]bool
 	View             math.ViewManager
+}
+
+func (project *ProjectType) DeselectAll() {
+	project.SelectedCircuits = map[IDType]bool{}
+	project.SelectedWires = map[IDType]bool{}
 }

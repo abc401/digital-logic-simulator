@@ -95,14 +95,15 @@ export class NoopUserAction implements UserAction {
 	do(): void {}
 	undo(): void {}
 
-	getDoURL(): URL {
-		return DUMMY_URL;
+	async hitDoEndpoint() {
+		return await fetch(actionURL('noop'), { method: 'POST', body: JSON.stringify(this) });
 	}
-	getUndoURL(): URL {
-		return DUMMY_URL;
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('noop'), { method: 'POST', body: JSON.stringify(this) });
 	}
 }
 
+// Api Implemented
 export class DragUserAction implements UserAction {
 	name = 'Drag';
 	constructor(private deltaWrl: Vec2) {
@@ -111,17 +112,22 @@ export class DragUserAction implements UserAction {
 
 	do(): void {
 		dragSelection(this.deltaWrl);
-		// console.log('Drag Action Do');
 	}
 	undo(): void {
 		dragSelection(this.deltaWrl.neg());
-		// console.log('Drag Action Undo');
 	}
-	getDoURL(): URL {
-		return actionURL('/drag-selection/do');
+	async hitDoEndpoint() {
+		return await fetch(actionURL('/drag-selection/do'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
-	getUndoURL(): URL {
-		return actionURL('/drag-selection/undo');
+
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('/drag-selection/undo'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
 }
 
@@ -136,13 +142,13 @@ export class PanUserAction implements UserAction {
 	undo(): void {
 		view.pan(this.deltaScr.neg());
 	}
-	getDoURL(): URL {
+	async hitDoEndpoint() {
 		// return DUMMY_URL;
-		return actionURL('/pan/do');
+		return await fetch(actionURL('/pan/do'), { method: 'POST', body: JSON.stringify(this) });
 	}
-	getUndoURL(): URL {
+	async hitUndoEndpoint() {
 		// return DUMMY_URL;
-		return actionURL('/pan/undo');
+		return await fetch(actionURL('/pan/undo'), { method: 'POST', body: JSON.stringify(this) });
 	}
 }
 
@@ -161,11 +167,14 @@ export class ZoomUserAction implements UserAction {
 	undo(): void {
 		view.zoom(this.zoomOriginScr, view.zoomLevel - this.zoomLevelDelta);
 	}
-	getDoURL(): URL {
-		return actionURL('/mouse-zoom/do');
+	async hitDoEndpoint() {
+		return await fetch(actionURL('/mouse-zoom/do'), { method: 'POST', body: JSON.stringify(this) });
 	}
-	getUndoURL(): URL {
-		return actionURL('/mouse-zoom/undo');
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('/mouse-zoom/undo'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
 }
 
@@ -183,11 +192,17 @@ export class TouchScreenZoomUserAction implements UserAction {
 	undo(): void {
 		view.setView(this.startingView);
 	}
-	getDoURL(): URL {
-		return actionURL('/touch-screen-zoom/do');
+	async hitDoEndpoint() {
+		return await fetch(actionURL('/touch-screen-zoom/do'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
-	getUndoURL(): URL {
-		return actionURL('/touch-screen-zoom/undo');
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('/touch-screen-zoom/undo'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
 }
 
@@ -238,11 +253,17 @@ export class CreateCircuitUserAction implements UserAction {
 		targetScene.unregisterCircuit(this.circuitID);
 		console.log('TargetScene: ', targetScene);
 	}
-	getDoURL(): URL {
-		return actionURL('/create-circuit/do');
+	async hitDoEndpoint() {
+		return await fetch(actionURL('/create-circuit/do'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
-	getUndoURL(): URL {
-		return actionURL('/create-circuit/undo');
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('/create-circuit/undo'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
 }
 
@@ -315,11 +336,17 @@ export class CreateWireUserAction implements UserAction {
 		targetScene.unregisterWire(this.wireID);
 		wire.detach();
 	}
-	getDoURL(): URL {
-		return actionURL('/create-wire/do');
+	async hitDoEndpoint() {
+		return await fetch(actionURL('/create-wire/do'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
-	getUndoURL(): URL {
-		return actionURL('/create-wire/undo');
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('/create-wire/undo'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
 }
 
@@ -396,11 +423,17 @@ export class DeleteWireUserAction implements UserAction {
 
 		wire.registerWithID(this.wireID, targetScene);
 	}
-	getDoURL(): URL {
-		return actionURL('/delete-wire/do');
+	async hitDoEndpoint() {
+		return await fetch(actionURL('/delete-wire/do'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
-	getUndoURL(): URL {
-		return actionURL('/delete-wire/undo');
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('/delete-wire/undo'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
 }
 
@@ -453,11 +486,11 @@ export class SetCircuitPropUserAction implements UserAction {
 
 		circuitProps.refresh();
 	}
-	getDoURL(): URL {
-		return DUMMY_URL;
+	async hitDoEndpoint() {
+		return await fetch(actionURL('noop'), { method: 'POST' });
 	}
-	getUndoURL(): URL {
-		return DUMMY_URL;
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('noop'), { method: 'POST' });
 	}
 }
 
@@ -492,11 +525,17 @@ export class SelectCircuitUserAction implements UserAction {
 		}
 		sceneManager.deselectCircuit(this.circuitID);
 	}
-	getDoURL(): URL {
-		return actionURL('/select-circuit/do');
+	async hitDoEndpoint() {
+		return await fetch(actionURL('/select-circuit/do'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
-	getUndoURL(): URL {
-		return actionURL('/select-circuit/undo');
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('/select-circuit/undo'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
 }
 
@@ -531,13 +570,20 @@ export class DeselectCircuitUserAction implements UserAction {
 		}
 		sceneManager.selectCircuit(this.circuitID);
 	}
-	getDoURL() {
-		return actionURL('/deselect-circuit/do');
+	async hitDoEndpoint() {
+		return await fetch(actionURL('/deselect-circuit/do'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
-	getUndoURL(): URL {
-		return actionURL('/deselect-circuit/undo');
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('/deselect-circuit/undo'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
 }
+
 export class SwitchSceneUserAction implements UserAction {
 	name = 'SwitchSceneUserAction';
 	private fromSceneID: ID;
@@ -635,11 +681,11 @@ export class SwitchSceneUserAction implements UserAction {
 			// sceneManager.selectedWires.add(wire);
 		}
 	}
-	getDoURL(): URL {
-		return DUMMY_URL;
+	async hitDoEndpoint() {
+		return await fetch(actionURL('noop'), { method: 'POST' });
 	}
-	getUndoURL(): URL {
-		return DUMMY_URL;
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('noop'), { method: 'POST' });
 	}
 }
 export class CreateICUserAction implements UserAction {
@@ -695,11 +741,11 @@ export class CreateICUserAction implements UserAction {
 
 		icInstantiators.removeInstantiator(this.sceneID);
 	}
-	getDoURL(): URL {
-		return DUMMY_URL;
+	async hitDoEndpoint() {
+		return await fetch(actionURL('noop'), { method: 'POST' });
 	}
-	getUndoURL(): URL {
-		return DUMMY_URL;
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('noop'), { method: 'POST' });
 	}
 }
 export class RenameICUserAction implements UserAction {
@@ -725,11 +771,11 @@ export class RenameICUserAction implements UserAction {
 		integratedCircuits.rename(this.id, this.from);
 		currentScene.get().refreshICLabels();
 	}
-	getDoURL(): URL {
-		return DUMMY_URL;
+	async hitDoEndpoint() {
+		return await fetch(actionURL('noop'), { method: 'POST' });
 	}
-	getUndoURL(): URL {
-		return DUMMY_URL;
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('noop'), { method: 'POST' });
 	}
 }
 
@@ -785,10 +831,10 @@ export class DeselectAllUserAction implements UserAction {
 			sceneManager.selectWireUnchecked(wire);
 		}
 	}
-	getDoURL(): URL {
-		return DUMMY_URL;
+	async hitDoEndpoint() {
+		return await fetch(actionURL('noop'), { method: 'POST' });
 	}
-	getUndoURL(): URL {
-		return DUMMY_URL;
+	async hitUndoEndpoint() {
+		return await fetch(actionURL('noop'), { method: 'POST' });
 	}
 }

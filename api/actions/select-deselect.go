@@ -77,8 +77,7 @@ func DeselectCircuitDo(ctx *gin.Context) {
 func DeselectAllDo(ctx *gin.Context) {
 	var project = projectstate.GetProject()
 
-	project.SelectedCircuits = map[projectstate.IDType]bool{}
-	project.SelectedWires = map[projectstate.IDType]bool{}
+	project.DeselectAll()
 
 	ctx.JSON(http.StatusOK, gin.H{})
 }

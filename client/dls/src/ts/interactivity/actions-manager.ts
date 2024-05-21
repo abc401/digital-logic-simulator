@@ -4,8 +4,10 @@ export interface UserAction {
 	name: string;
 	undo(): void;
 	do(): void;
-	getDoURL(): URL;
-	getUndoURL(): URL;
+	hitDoEndpoint(): Promise<Response>;
+	hitUndoEndpoint(): Promise<Response>;
+	// hitDoEndpoint(): URL;
+	// hitUndoEndpoint(): URL;
 }
 
 interface HistoryNode {
@@ -153,16 +155,12 @@ export class ActionsManager {
 				action = this.currentSaveState.next.action;
 			}
 
-			const url = this.currentSaveState.unDone ? action.getUndoURL() : action.getDoURL();
-
-			if (url.hostname === DUMMY_HOSTNAME) {
-				console.log('Dummy Url encountered: ', action);
-				this.currentSaveState = getNextSaveState(this.currentSaveState);
-				continue;
-			}
-
 			try {
-				res = await fetch(url, { method: 'POST', body: JSON.stringify(action) });
+				if (this.currentSaveState.unDone) {
+					res = await action.hitUndoEndpoint();
+				} else {
+					res = await action.hitDoEndpoint();
+				}
 			} catch (e) {
 				// TODO: Notify the user that saving the file has failed
 				// 		 so that the user may manually retry saving the file

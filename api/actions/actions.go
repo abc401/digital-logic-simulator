@@ -1,6 +1,10 @@
 package actions
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 func ConfigHandlers(router gin.IRouter) {
 	router.POST("/pan/do", PanDo)
@@ -29,4 +33,10 @@ func ConfigHandlers(router gin.IRouter) {
 
 	router.POST("/delete-wire/do", CreateWireUndo)
 	router.POST("/delete-wire/undo", CreateWireDo)
+
+	router.POST("/noop", Noop)
+}
+
+func Noop(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{"operation": "noop"})
 }
