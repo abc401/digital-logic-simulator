@@ -11,69 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CreateCircuitParams struct {
-	CircuitID   projectstate.IDType ``
-	CircuitType string              `binding:"required"`
-	LocScr      math.Vec2           `binding:"required"`
-}
-
-func CreateCircuitDo(ctx *gin.Context) {
-	var params CreateCircuitParams
-	if !helpers.BindParams(&params, ctx) {
-		return
-	}
-
-	var project = projectstate.GetProject()
-	currentScene := project.GetCurrentScene()
-
-	newCircuit, ok := projectstate.DefaultCircuits[strings.ToLower(params.CircuitType)]
-
-	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error":        "Invalid circuit type.",
-			"circuit-type": params.CircuitType,
-		})
-	}
-
-	newCircuit.ID = params.CircuitID
-	newCircuit.PosWrl = project.View.ScreenToWorld(params.LocScr)
-	newCircuit.AttachedWires = map[projectstate.IDType]*projectstate.Wire{}
-
-	if err := currentScene.AddCircuit(params.CircuitID, newCircuit); err != nil {
-		ctx.JSON(http.StatusConflict, gin.H{
-			"error": err.Error(),
-			"id":    params.CircuitID,
-		})
-		return
-	}
-	helpers.PrintCurrentScene(project)
-	fmt.Printf("Created Circuit: %s\n", helpers.SPrettyPrint(newCircuit))
-	ctx.JSON(http.StatusOK, gin.H{})
-}
-
-func CreateCircuitUndo(ctx *gin.Context) {
-	var params CreateCircuitParams
-	if !helpers.BindParams(&params, ctx) {
-		return
-	}
-
-	var project = projectstate.GetProject()
-	currentScene := project.GetCurrentScene()
-
-	helpers.PrintCurrentScene(project)
-
-	if err := currentScene.DeleteCircuit(params.CircuitID); err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"error":      "Circuit does not exist.",
-			"circuit-id": params.CircuitID,
-		})
-		return
-	}
-
-	helpers.PrintCurrentScene(project)
-	ctx.JSON(http.StatusOK, gin.H{})
-}
-
 type WireParams struct {
 	WireID            projectstate.IDType `binding:"required"`
 	ProducerCircuitID projectstate.IDType
@@ -162,6 +99,10 @@ func CreateWireDo(ctx *gin.Context) {
 			"specified-index": params.ConsumerPinIdx,
 		})
 	}
+
+	// TODO: Check whether the wire is originating from an ICInput circuit or going into an ICOutput
+	// 		 circuit and, if so, appropriately increment the NConsumerPins and NProducerPins property
+	//		 of those circuits
 	var newWire = projectstate.Wire{
 		ID:          params.WireID,
 		FromCircuit: params.ProducerCircuitID,
@@ -211,6 +152,69 @@ func CreateWireUndo(ctx *gin.Context) {
 	delete(toCircuit.AttachedWires, wire.ID)
 
 	delete(currentScene.Wires, params.WireID)
+
+	helpers.PrintCurrentScene(project)
+	ctx.JSON(http.StatusOK, gin.H{})
+}
+
+type CreateCircuitParams struct {
+	CircuitID   projectstate.IDType ``
+	CircuitType string              `binding:"required"`
+	LocScr      math.Vec2           `binding:"required"`
+}
+
+func CreateCircuitDo(ctx *gin.Context) {
+	var params CreateCircuitParams
+	if !helpers.BindParams(&params, ctx) {
+		return
+	}
+
+	var project = projectstate.GetProject()
+	currentScene := project.GetCurrentScene()
+
+	newCircuit, ok := projectstate.DefaultCircuits[strings.ToLower(params.CircuitType)]
+
+	if !ok {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error":        "Invalid circuit type.",
+			"circuit-type": params.CircuitType,
+		})
+	}
+
+	newCircuit.ID = params.CircuitID
+	newCircuit.PosWrl = project.View.ScreenToWorld(params.LocScr)
+	newCircuit.AttachedWires = map[projectstate.IDType]*projectstate.Wire{}
+
+	if err := currentScene.AddCircuit(params.CircuitID, newCircuit); err != nil {
+		ctx.JSON(http.StatusConflict, gin.H{
+			"error": err.Error(),
+			"id":    params.CircuitID,
+		})
+		return
+	}
+	helpers.PrintCurrentScene(project)
+	fmt.Printf("Created Circuit: %s\n", helpers.SPrettyPrint(newCircuit))
+	ctx.JSON(http.StatusOK, gin.H{})
+}
+
+func CreateCircuitUndo(ctx *gin.Context) {
+	var params CreateCircuitParams
+	if !helpers.BindParams(&params, ctx) {
+		return
+	}
+
+	var project = projectstate.GetProject()
+	currentScene := project.GetCurrentScene()
+
+	helpers.PrintCurrentScene(project)
+
+	if err := currentScene.DeleteCircuit(params.CircuitID); err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error":      "Circuit does not exist.",
+			"circuit-id": params.CircuitID,
+		})
+		return
+	}
 
 	helpers.PrintCurrentScene(project)
 	ctx.JSON(http.StatusOK, gin.H{})

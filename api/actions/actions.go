@@ -17,10 +17,13 @@ func ConfigHandlers(router gin.IRouter) {
 	router.POST("/touch-screen-zoom/undo", TouchScreenZoomUndo)
 
 	router.POST("/select-circuit/do", SelectCircuitDo)
-	router.POST("/select-circuit/undo", DeselectCircuitDo)
+	router.POST("/select-circuit/undo", SelectCircuitUndo)
 
-	router.POST("/deselect-circuit/do", DeselectCircuitDo)
+	router.POST("/deselect-circuit/do", SelectCircuitUndo)
 	router.POST("/deselect-circuit/undo", SelectCircuitDo)
+
+	router.POST("/deselect-all/do", DeselectAllDo)
+	router.POST("/deselect-all/undo", DeselectAllUndo)
 
 	router.POST("/drag-selection/do", DragSelectionDo)
 	router.POST("/drag-selection/undo", DragSelectionUndo)
@@ -33,6 +36,12 @@ func ConfigHandlers(router gin.IRouter) {
 
 	router.POST("/delete-wire/do", CreateWireUndo)
 	router.POST("/delete-wire/undo", CreateWireDo)
+
+	router.POST("/create-ic/do", CreateICDo)
+	router.POST("/create-ic/undo", CreateICUndo)
+
+	router.POST("switch-scene/do", SwitchSceneDo)
+	router.POST("switch-scene/undo", SwitchSceneUndo)
 
 	router.POST("/noop", Noop)
 }

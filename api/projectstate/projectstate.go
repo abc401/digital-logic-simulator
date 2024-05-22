@@ -12,7 +12,7 @@ const DEFAULT_SCENE_ID = IDType(0)
 var project = ProjectType{
 	Scenes: map[IDType]*Scene{
 		DEFAULT_SCENE_ID: {
-			ID:        DEFAULT_SCENE_ID,
+			ID:        DEFAULT_SCENE_ID.ToNullable(),
 			Name:      DEFAULT_SCENE_NAME,
 			ICInputs:  NullableID{},
 			ICOutputs: NullableID{},
@@ -24,6 +24,7 @@ var project = ProjectType{
 	SelectedCircuits: map[IDType]bool{},
 	SelectedWires:    map[IDType]bool{},
 	View:             math.NewViewManager(),
+	ICs:              map[IDType]string{},
 }
 
 func (project *ProjectType) GetCurrentScene() *Scene {
@@ -36,9 +37,9 @@ func GetProject() *ProjectType {
 
 type IDType uint64
 
-func (id *IDType) ToNullable() NullableID {
+func (id IDType) ToNullable() NullableID {
 	return NullableID{
-		id:    *id,
+		id:    id,
 		valid: true,
 	}
 }
@@ -147,6 +148,34 @@ type Circuit struct {
 	Props         CircuitProps
 }
 
+func NewICInputs() *Circuit {
+	return &Circuit{
+		ID:            CUSTOM_CIRCUIT_INPUTS_ID,
+		CircuitType:   "customcircuitinputs",
+		PosWrl:        math.NewVec2(90, 220),
+		NConsumerPins: 0,
+		NProducerPins: 1,
+		AttachedWires: map[IDType]*Wire{},
+		Props: CircuitProps{
+			"label": "CustomCircuitInputs",
+		},
+	}
+}
+
+func NewICOutputs() *Circuit {
+	return &Circuit{
+		ID:            CUSTOM_CIRCUIT_OUTPUTS_ID,
+		CircuitType:   "customcircuitoutputs",
+		PosWrl:        math.NewVec2(90, 220),
+		NConsumerPins: 1,
+		NProducerPins: 0,
+		AttachedWires: map[IDType]*Wire{},
+		Props: CircuitProps{
+			"label": "CustomCircuitOutputs",
+		},
+	}
+}
+
 type Wire struct {
 	ID IDType
 
@@ -157,13 +186,29 @@ type Wire struct {
 	ToPin     uint64
 }
 
+const CUSTOM_CIRCUIT_INPUTS_ID = IDType(0)
+const CUSTOM_CIRCUIT_OUTPUTS_ID = IDType(1)
+
 type Scene struct {
-	ID        IDType
+	ID        NullableID
 	Name      string
 	ICInputs  NullableID
 	ICOutputs NullableID
 	Circuits  map[IDType]*Circuit
 	Wires     map[IDType]*Wire
+}
+
+func NewSceneWithIO(name string) *Scene {
+	return &Scene{
+		Name:      name,
+		ICInputs:  CUSTOM_CIRCUIT_INPUTS_ID.ToNullable(),
+		ICOutputs: CUSTOM_CIRCUIT_OUTPUTS_ID.ToNullable(),
+		Circuits: map[IDType]*Circuit{
+			CUSTOM_CIRCUIT_INPUTS_ID:  NewICInputs(),
+			CUSTOM_CIRCUIT_OUTPUTS_ID: NewICOutputs(),
+		},
+		Wires: map[IDType]*Wire{},
+	}
 }
 
 func (scene *Scene) HasObject(id IDType) bool {
@@ -221,6 +266,7 @@ type ProjectType struct {
 	SelectedCircuits map[IDType]bool
 	SelectedWires    map[IDType]bool
 	View             math.ViewManager
+	ICs              map[IDType]string
 }
 
 func (project *ProjectType) DeselectAll() {
