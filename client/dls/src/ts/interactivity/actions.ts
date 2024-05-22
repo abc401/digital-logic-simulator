@@ -90,6 +90,7 @@ export function dragSelection(delta: Vec2) {
 	}
 }
 
+// Api implemented
 export class NoopUserAction implements UserAction {
 	name = 'Noop';
 	do(): void {}
@@ -584,6 +585,7 @@ export class DeselectCircuitUserAction implements UserAction {
 	}
 }
 
+// Api Implemented
 export class SwitchSceneUserAction implements UserAction {
 	name = 'SwitchSceneUserAction';
 	private fromSceneID: ID;
@@ -763,6 +765,7 @@ export class CreateICUserAction implements UserAction {
 	}
 }
 
+// Api implemented
 export class RenameICUserAction implements UserAction {
 	name = 'RenameICUserAction';
 
@@ -787,10 +790,13 @@ export class RenameICUserAction implements UserAction {
 		currentScene.get().refreshICLabels();
 	}
 	async hitDoEndpoint() {
-		return await fetch(actionURL('noop'), { method: 'POST' });
+		return await fetch(actionURL('/rename-ic/do'), { method: 'POST', body: JSON.stringify(this) });
 	}
 	async hitUndoEndpoint() {
-		return await fetch(actionURL('noop'), { method: 'POST' });
+		return await fetch(actionURL('/rename-ic/undo'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
 }
 

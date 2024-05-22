@@ -46,7 +46,7 @@ func CreateICDo(ctx *gin.Context) {
 		}
 	}
 
-	project.Scenes[params.SceneID] = projectstate.NewSceneWithIO(params.ICName)
+	project.Scenes[params.SceneID] = projectstate.NewSceneWithIO(params.SceneID, params.ICName)
 	project.ICs[params.SceneID] = strings.ToLower(params.ICName)
 
 	fmt.Printf("\n\nProject: %s\n\n", helpers.SPrettyPrint(project))
@@ -81,4 +81,58 @@ func CreateICUndo(ctx *gin.Context) {
 	fmt.Printf("\n\nProject: %s\n\n", helpers.SPrettyPrint(project))
 
 	ctx.JSON(http.StatusOK, gin.H{})
+}
+
+func RenameICDo(ctx *gin.Context) {
+	type Params struct {
+		ID   projectstate.IDType
+		From string
+		To   string
+	}
+	var params Params
+	if !helpers.BindParams(&params, ctx) {
+		return
+	}
+
+	var project = projectstate.GetProject()
+	if _, ok := project.ICs[params.ID]; !ok {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error": "no ic with specified id",
+			"id":    params.ID,
+		})
+		return
+	}
+
+	project.ICs[params.ID] = params.To
+	project.Scenes[params.ID].Name = params.To
+	ctx.JSON(http.StatusOK, gin.H{})
+
+	fmt.Printf("\n\nProject: %s\n\n", helpers.SPrettyPrint(project))
+}
+
+func RenameICUndo(ctx *gin.Context) {
+	type Params struct {
+		ID   projectstate.IDType
+		From string
+		To   string
+	}
+	var params Params
+	if !helpers.BindParams(&params, ctx) {
+		return
+	}
+
+	var project = projectstate.GetProject()
+	if _, ok := project.ICs[params.ID]; !ok {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error": "no ic with specified id",
+			"id":    params.ID,
+		})
+		return
+	}
+
+	project.ICs[params.ID] = params.From
+	project.Scenes[params.ID].Name = params.From
+	ctx.JSON(http.StatusOK, gin.H{})
+
+	fmt.Printf("\n\nProject: %s\n\n", helpers.SPrettyPrint(project))
 }

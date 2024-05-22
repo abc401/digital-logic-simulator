@@ -52,9 +52,14 @@
 >
 	<!-- {'absolute right-0 top-1/2 -translate-y-1/2 px-3 py-2 text-sm hover:bg-neutral-500/50'} -->
 	<button
-		class="material-symbols-outlined | px-3 py-2 text-sm hover:bg-neutral-500/50"
+		class={clsx('material-symbols-outlined | px-3 py-2 text-sm ', {
+			'hover:bg-neutral-500/50': sceneId !== 0,
+			'text-transparent': sceneId === 0
+		})}
 		on:click={() => {
-			renaming = true;
+			if (sceneId != 0) {
+				renaming = true;
+			}
 			// input.focus();
 			// integratedCircuits.rename(sceneId, name + ' renamed');
 		}}>edit</button

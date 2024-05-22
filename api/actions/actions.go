@@ -43,6 +43,9 @@ func ConfigHandlers(router gin.IRouter) {
 	router.POST("switch-scene/do", SwitchSceneDo)
 	router.POST("switch-scene/undo", SwitchSceneUndo)
 
+	router.POST("rename-ic/do", RenameICDo)
+	router.POST("rename-ic/undo", RenameICUndo)
+
 	router.POST("/noop", Noop)
 }
 

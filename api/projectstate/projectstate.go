@@ -198,8 +198,9 @@ type Scene struct {
 	Wires     map[IDType]*Wire
 }
 
-func NewSceneWithIO(name string) *Scene {
+func NewSceneWithIO(id IDType, name string) *Scene {
 	return &Scene{
+		ID:        id.ToNullable(),
 		Name:      name,
 		ICInputs:  CUSTOM_CIRCUIT_INPUTS_ID.ToNullable(),
 		ICOutputs: CUSTOM_CIRCUIT_OUTPUTS_ID.ToNullable(),
