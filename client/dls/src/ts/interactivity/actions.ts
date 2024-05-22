@@ -621,15 +621,9 @@ export class SwitchSceneUserAction implements UserAction {
 
 		console.log('SwitchSceneUserAction.do');
 		toScene.refreshICLabels();
-		// for (const [, { instances }] of toScene.customCircuitInstances) {
-		// 	for (const ic of instances) {
-		// 		ic.refreshLabel();
-		// 	}
-		// }
+
 		currentScene.set(toScene);
 		sceneManager.deselectAll();
-		// sceneManager.selectedCircuits = new Set();
-		// sceneManager.selectedWires = new Set();
 	}
 
 	undo(): void {
@@ -642,14 +636,8 @@ export class SwitchSceneUserAction implements UserAction {
 		console.log('SwitchSceneUserAction.undo');
 		fromScene.refreshICLabels();
 
-		// for (const [, { instances }] of fromScene.customCircuitInstances) {
-		// 	for (const ic of instances) {
-		// 		ic.refreshLabel();
-		// 	}
-		// }
 		currentScene.set(fromScene);
 
-		// sceneManager.selectedCircuits = new Set();
 		sceneManager.deselectAllCircuits();
 		const scene = sceneManager.scenes.get(this.fromSceneID);
 		if (scene == null) {
@@ -682,12 +670,20 @@ export class SwitchSceneUserAction implements UserAction {
 		}
 	}
 	async hitDoEndpoint() {
-		return await fetch(actionURL('noop'), { method: 'POST' });
+		return await fetch(actionURL('switch-scene/do'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
 	async hitUndoEndpoint() {
-		return await fetch(actionURL('noop'), { method: 'POST' });
+		return await fetch(actionURL('switch-scene/undo'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
 }
+
+// Api implemented
 export class CreateICUserAction implements UserAction {
 	name = 'CreateICUserAction';
 
@@ -742,12 +738,31 @@ export class CreateICUserAction implements UserAction {
 		icInstantiators.removeInstantiator(this.sceneID);
 	}
 	async hitDoEndpoint() {
-		return await fetch(actionURL('noop'), { method: 'POST' });
+		if (this.scene == null) {
+			throw Error();
+		}
+
+		const body = {
+			sceneID: this.sceneID,
+			icName: this.scene.name
+		};
+
+		return await fetch(actionURL('/create-ic/do'), { method: 'POST', body: JSON.stringify(body) });
 	}
 	async hitUndoEndpoint() {
-		return await fetch(actionURL('noop'), { method: 'POST' });
+		if (this.scene == null) {
+			throw Error();
+		}
+
+		const body = {
+			sceneID: this.sceneID,
+			icName: this.scene.name
+		};
+
+		return await fetch(actionURL('create-ic/undo'), { method: 'POST', body: JSON.stringify(body) });
 	}
 }
+
 export class RenameICUserAction implements UserAction {
 	name = 'RenameICUserAction';
 
@@ -832,9 +847,15 @@ export class DeselectAllUserAction implements UserAction {
 		}
 	}
 	async hitDoEndpoint() {
-		return await fetch(actionURL('noop'), { method: 'POST' });
+		return await fetch(actionURL('deselect-all/do'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
 	async hitUndoEndpoint() {
-		return await fetch(actionURL('noop'), { method: 'POST' });
+		return await fetch(actionURL('deselect-all/undo'), {
+			method: 'POST',
+			body: JSON.stringify(this)
+		});
 	}
 }
