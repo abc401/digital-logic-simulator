@@ -6,12 +6,12 @@ import (
 	"strings"
 
 	"github.com/abc401/digital-logic-simulator/api/helpers"
-	"github.com/abc401/digital-logic-simulator/api/projectstate"
+	"github.com/abc401/digital-logic-simulator/api/state"
 	"github.com/gin-gonic/gin"
 )
 
 type CreateICParams struct {
-	SceneID projectstate.IDType
+	SceneID state.IDType
 	ICName  string `binding:"required"`
 }
 
@@ -22,9 +22,9 @@ func CreateICDo(ctx *gin.Context) {
 		return
 	}
 
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 
-	if params.SceneID == projectstate.DEFAULT_SCENE_ID {
+	if params.SceneID == state.DEFAULT_SCENE_ID {
 		ctx.JSON(http.StatusConflict, gin.H{
 			"error": "cannot reference scene 0 (Main scene) for custom circuit",
 		})
@@ -46,7 +46,7 @@ func CreateICDo(ctx *gin.Context) {
 		}
 	}
 
-	project.Scenes[params.SceneID] = projectstate.NewSceneWithIO(params.SceneID, params.ICName)
+	project.Scenes[params.SceneID] = state.NewSceneWithIO(params.SceneID, params.ICName)
 	project.ICs[params.SceneID] = strings.ToLower(params.ICName)
 
 	fmt.Printf("\n\nProject: %s\n\n", helpers.SPrettyPrint(project))
@@ -60,9 +60,9 @@ func CreateICUndo(ctx *gin.Context) {
 		return
 	}
 
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 
-	if params.SceneID == projectstate.DEFAULT_SCENE_ID {
+	if params.SceneID == state.DEFAULT_SCENE_ID {
 		ctx.JSON(http.StatusConflict, gin.H{
 			"error": "scene 0 (Main Scene) is not a custom ic",
 		})
@@ -85,7 +85,7 @@ func CreateICUndo(ctx *gin.Context) {
 
 func RenameICDo(ctx *gin.Context) {
 	type Params struct {
-		ID   projectstate.IDType
+		ID   state.IDType
 		From string
 		To   string
 	}
@@ -94,7 +94,7 @@ func RenameICDo(ctx *gin.Context) {
 		return
 	}
 
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 	if _, ok := project.ICs[params.ID]; !ok {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error": "no ic with specified id",
@@ -112,7 +112,7 @@ func RenameICDo(ctx *gin.Context) {
 
 func RenameICUndo(ctx *gin.Context) {
 	type Params struct {
-		ID   projectstate.IDType
+		ID   state.IDType
 		From string
 		To   string
 	}
@@ -121,7 +121,7 @@ func RenameICUndo(ctx *gin.Context) {
 		return
 	}
 
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 	if _, ok := project.ICs[params.ID]; !ok {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error": "no ic with specified id",

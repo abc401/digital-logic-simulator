@@ -5,15 +5,15 @@ import (
 	"net/http"
 
 	"github.com/abc401/digital-logic-simulator/api/helpers"
-	"github.com/abc401/digital-logic-simulator/api/projectstate"
+	"github.com/abc401/digital-logic-simulator/api/state"
 	"github.com/gin-gonic/gin"
 )
 
 type SwitchSceneParams struct {
-	FromSceneID      projectstate.IDType
-	ToSceneID        projectstate.IDType
-	SelectedCircuits []projectstate.IDType
-	SelectedWires    []projectstate.IDType
+	FromSceneID      state.IDType
+	ToSceneID        state.IDType
+	SelectedCircuits []state.IDType
+	SelectedWires    []state.IDType
 }
 
 func SwitchSceneDo(ctx *gin.Context) {
@@ -23,7 +23,7 @@ func SwitchSceneDo(ctx *gin.Context) {
 		return
 	}
 
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 	if _, ok := project.Scenes[params.ToSceneID]; !ok {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error": "no scene with specified id",
@@ -42,7 +42,7 @@ func SwitchSceneUndo(ctx *gin.Context) {
 		return
 	}
 
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 	if _, ok := project.Scenes[params.FromSceneID]; !ok {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error": "no scene with specified id",

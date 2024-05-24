@@ -46,6 +46,9 @@ func ConfigHandlers(router gin.IRouter) {
 	router.POST("rename-ic/do", RenameICDo)
 	router.POST("rename-ic/undo", RenameICUndo)
 
+	router.POST("set-prop/do", SetCircuitPropDo)
+	router.POST("set-prop/undo", SetCircuitPropUndo)
+
 	router.POST("/noop", Noop)
 }
 

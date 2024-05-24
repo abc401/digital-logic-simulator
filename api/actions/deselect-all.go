@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	"github.com/abc401/digital-logic-simulator/api/helpers"
-	"github.com/abc401/digital-logic-simulator/api/projectstate"
+	"github.com/abc401/digital-logic-simulator/api/state"
 	"github.com/gin-gonic/gin"
 )
 
 func DeselectAllDo(ctx *gin.Context) {
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 
 	project.DeselectAll()
 
@@ -18,8 +18,8 @@ func DeselectAllDo(ctx *gin.Context) {
 
 func DeselectAllUndo(ctx *gin.Context) {
 	type Params struct {
-		SelectedWires    []projectstate.IDType `json:"selectedWireIDs"`
-		SelectedCircuits []projectstate.IDType `json:"selectedCircuitIDs"`
+		SelectedWires    []state.IDType `json:"selectedWireIDs"`
+		SelectedCircuits []state.IDType `json:"selectedCircuitIDs"`
 	}
 	var params Params
 
@@ -27,7 +27,7 @@ func DeselectAllUndo(ctx *gin.Context) {
 		return
 	}
 
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 	var currentScene = project.GetCurrentScene()
 
 	for _, id := range params.SelectedWires {

@@ -488,10 +488,25 @@ export class SetCircuitPropUserAction implements UserAction {
 		circuitProps.refresh();
 	}
 	async hitDoEndpoint() {
-		return await fetch(actionURL('noop'), { method: 'POST' });
+		const body = {
+			sceneID: this.sceneID,
+			circuitID: this.circuitID,
+			propName: this.propName,
+			valueToSet: String(this.valueToSet),
+			currentValue: String(this.currentValue)
+		};
+
+		return await fetch(actionURL('/set-prop/do'), { method: 'POST', body: JSON.stringify(body) });
 	}
 	async hitUndoEndpoint() {
-		return await fetch(actionURL('noop'), { method: 'POST' });
+		const body = {
+			sceneID: this.sceneID,
+			circuitID: this.circuitID,
+			propName: this.propName,
+			valueToSet: String(this.valueToSet),
+			currentValue: String(this.currentValue)
+		};
+		return await fetch(actionURL('/set-prop/undo'), { method: 'POST', body: JSON.stringify(body) });
 	}
 }
 

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/abc401/digital-logic-simulator/api/projectstate"
+	"github.com/abc401/digital-logic-simulator/api/state"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 )
@@ -25,7 +25,7 @@ func BindParams(target interface{}, ctx *gin.Context) bool {
 	return true
 }
 
-func PrintCurrentScene(project *projectstate.ProjectType) {
+func PrintCurrentScene(project *state.ProjectType) {
 	fmt.Printf("\n\n[Info] Circuit in current scene:\n%s\n\n", SPrettyPrint(project.GetCurrentScene()))
 }
 

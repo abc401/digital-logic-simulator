@@ -6,15 +6,15 @@ import (
 	"strings"
 
 	"github.com/abc401/digital-logic-simulator/api/helpers"
-	"github.com/abc401/digital-logic-simulator/api/projectstate"
+	"github.com/abc401/digital-logic-simulator/api/state"
 	"github.com/abc401/digital-logic-simulator/math"
 	"github.com/gin-gonic/gin"
 )
 
 type WireParams struct {
-	WireID            projectstate.IDType `binding:"required"`
-	ProducerCircuitID projectstate.IDType
-	ConsumerCircuitID projectstate.IDType
+	WireID            state.IDType `binding:"required"`
+	ProducerCircuitID state.IDType
+	ConsumerCircuitID state.IDType
 	ProducerPinIdx    uint64
 	ConsumerPinIdx    uint64
 }
@@ -27,7 +27,7 @@ func CreateWireDo(ctx *gin.Context) {
 		return
 	}
 
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 	currentScene := project.GetCurrentScene()
 
 	helpers.PrintCurrentScene(project)
@@ -87,13 +87,13 @@ func CreateWireDo(ctx *gin.Context) {
 
 	producerCircuit := currentScene.GetCircuit(params.ProducerCircuitID)
 
-	if params.ProducerPinIdx > producerCircuit.NProducerPins-1 {
+	if params.ProducerPinIdx > producerCircuit.NOutputPins-1 {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error":           "producer circuit does not have a pin at specified index",
 			"specified-index": params.ProducerPinIdx,
 		})
 	}
-	if params.ConsumerPinIdx > consumerCircuit.NConsumerPins-1 {
+	if params.ConsumerPinIdx > consumerCircuit.NInputPins-1 {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"error":           "consumer circuit does not have a pin at specified index",
 			"specified-index": params.ConsumerPinIdx,
@@ -103,7 +103,7 @@ func CreateWireDo(ctx *gin.Context) {
 	// TODO: Check whether the wire is originating from an ICInput circuit or going into an ICOutput
 	// 		 circuit and, if so, appropriately increment the NConsumerPins and NProducerPins property
 	//		 of those circuits
-	var newWire = projectstate.Wire{
+	var newWire = state.Wire{
 		ID:          params.WireID,
 		FromCircuit: params.ProducerCircuitID,
 		FromPin:     params.ProducerPinIdx,
@@ -114,10 +114,18 @@ func CreateWireDo(ctx *gin.Context) {
 	currentScene.Wires[params.WireID] = &newWire
 	var fromCircuit = currentScene.GetCircuit(params.ProducerCircuitID)
 
-	fromCircuit.AttachedWires[params.WireID] = &newWire
+	fromCircuit.OutputWires[newWire.FromPin] = &newWire
+	if fromCircuit.CircuitType == "customcircuitinputs" {
+		fromCircuit.NOutputPins++
+		fromCircuit.OutputWires = append(fromCircuit.OutputWires, nil)
+	}
 
 	var toCircuit = currentScene.GetCircuit(params.ConsumerCircuitID)
-	toCircuit.AttachedWires[params.WireID] = &newWire
+	toCircuit.InputWires[newWire.ToPin] = &newWire
+	if toCircuit.CircuitType == "customcircuitoutputs" {
+		toCircuit.NInputPins++
+		toCircuit.InputWires = append(toCircuit.InputWires, nil)
+	}
 
 	helpers.PrintCurrentScene(project)
 	ctx.JSON(http.StatusOK, gin.H{})
@@ -130,7 +138,7 @@ func CreateWireUndo(ctx *gin.Context) {
 		return
 	}
 
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 	currentScene := project.GetCurrentScene()
 
 	helpers.PrintCurrentScene(project)
@@ -146,10 +154,10 @@ func CreateWireUndo(ctx *gin.Context) {
 	var wire = currentScene.GetWire(params.WireID)
 
 	var fromCircuit = currentScene.GetCircuit(wire.FromCircuit)
-	delete(fromCircuit.AttachedWires, wire.ID)
+	fromCircuit.OutputWires[wire.FromPin] = nil
 
 	var toCircuit = currentScene.GetCircuit(wire.ToCircuit)
-	delete(toCircuit.AttachedWires, wire.ID)
+	toCircuit.InputWires[wire.ToPin] = nil
 
 	delete(currentScene.Wires, params.WireID)
 
@@ -158,9 +166,9 @@ func CreateWireUndo(ctx *gin.Context) {
 }
 
 type CreateCircuitParams struct {
-	CircuitID   projectstate.IDType ``
-	CircuitType string              `binding:"required"`
-	LocScr      math.Vec2           `binding:"required"`
+	CircuitID   state.IDType ``
+	CircuitType string       `binding:"required"`
+	LocScr      math.Vec2    `binding:"required"`
 }
 
 func CreateCircuitDo(ctx *gin.Context) {
@@ -169,10 +177,10 @@ func CreateCircuitDo(ctx *gin.Context) {
 		return
 	}
 
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 	currentScene := project.GetCurrentScene()
 
-	newCircuit, ok := projectstate.DefaultCircuits[strings.ToLower(params.CircuitType)]
+	newCircuit, ok := state.DefaultCircuits[strings.ToLower(params.CircuitType)]
 
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -183,7 +191,8 @@ func CreateCircuitDo(ctx *gin.Context) {
 
 	newCircuit.ID = params.CircuitID
 	newCircuit.PosWrl = project.View.ScreenToWorld(params.LocScr)
-	newCircuit.AttachedWires = map[projectstate.IDType]*projectstate.Wire{}
+	newCircuit.InputWires = make([]*state.Wire, newCircuit.NInputPins)
+	newCircuit.OutputWires = make([]*state.Wire, newCircuit.NOutputPins)
 
 	if err := currentScene.AddCircuit(params.CircuitID, newCircuit); err != nil {
 		ctx.JSON(http.StatusConflict, gin.H{
@@ -203,7 +212,7 @@ func CreateCircuitUndo(ctx *gin.Context) {
 		return
 	}
 
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 	currentScene := project.GetCurrentScene()
 
 	helpers.PrintCurrentScene(project)

@@ -1,15 +1,16 @@
 package actions
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/abc401/digital-logic-simulator/api/helpers"
-	"github.com/abc401/digital-logic-simulator/api/projectstate"
+	"github.com/abc401/digital-logic-simulator/api/state"
 	"github.com/gin-gonic/gin"
 )
 
 type SelectCircuitParams struct {
-	CircuitID projectstate.IDType `json:"circuitID"`
+	CircuitID state.IDType `json:"circuitID"`
 }
 
 func SelectCircuitDo(ctx *gin.Context) {
@@ -18,7 +19,7 @@ func SelectCircuitDo(ctx *gin.Context) {
 		return
 	}
 
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 	var currentScene = project.GetCurrentScene()
 
 	if !currentScene.HasObject(params.CircuitID) {
@@ -30,7 +31,18 @@ func SelectCircuitDo(ctx *gin.Context) {
 
 	var circuit = currentScene.GetCircuit(params.CircuitID)
 
-	for _, wire := range circuit.AttachedWires {
+	for _, wire := range circuit.InputWires {
+		if wire == nil {
+			continue
+		}
+		if (wire.FromCircuit == circuit.ID && project.SelectedCircuits[wire.ToCircuit]) || (wire.ToCircuit == circuit.ID && project.SelectedCircuits[wire.FromCircuit]) {
+			project.SelectedWires[wire.ID] = true
+		}
+	}
+	for _, wire := range circuit.OutputWires {
+		if wire == nil {
+			continue
+		}
 		if (wire.FromCircuit == circuit.ID && project.SelectedCircuits[wire.ToCircuit]) || (wire.ToCircuit == circuit.ID && project.SelectedCircuits[wire.FromCircuit]) {
 			project.SelectedWires[wire.ID] = true
 		}
@@ -38,6 +50,7 @@ func SelectCircuitDo(ctx *gin.Context) {
 
 	project.SelectedCircuits[circuit.ID] = true
 
+	fmt.Printf("\n\nProject: %s\n\n", helpers.SPrettyPrint(project))
 	ctx.JSON(http.StatusOK, gin.H{
 		"selected-circuits": project.SelectedCircuits,
 		"selected-wires":    project.SelectedWires,
@@ -48,7 +61,7 @@ func SelectCircuitUndo(ctx *gin.Context) {
 	if !helpers.BindParams(&params, ctx) {
 		return
 	}
-	var project = projectstate.GetProject()
+	var project = state.GetProject()
 	var currentScene = project.GetCurrentScene()
 
 	if !project.GetCurrentScene().HasObject(params.CircuitID) {
@@ -60,13 +73,22 @@ func SelectCircuitUndo(ctx *gin.Context) {
 
 	var circuit = currentScene.GetCircuit(params.CircuitID)
 
-	for _, wire := range circuit.AttachedWires {
+	for _, wire := range circuit.InputWires {
+		if wire == nil {
+			continue
+		}
+		delete(project.SelectedWires, wire.ID)
+	}
+	for _, wire := range circuit.OutputWires {
+		if wire == nil {
+			continue
+		}
 		delete(project.SelectedWires, wire.ID)
 	}
 
 	delete(project.SelectedCircuits, circuit.ID)
 
-	helpers.PrintCurrentScene(project)
+	fmt.Printf("\n\nProject: %s\n\n", helpers.SPrettyPrint(project))
 	ctx.JSON(http.StatusOK, gin.H{
 		"selected-circuits": project.SelectedCircuits,
 		"selected-wires":    project.SelectedWires,
