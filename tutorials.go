@@ -4,7 +4,7 @@ import "github.com/abc401/digital-logic-simulator/models"
 
 const FIRST_TUTORIAL_TITLE = "index"
 
-var Tutorials = []models.Article{
+var Tutorials = []*models.Article{
 	{
 		LinkTitle:    FIRST_TUTORIAL_TITLE,
 		DisplayTitle: "Introduction",
@@ -24,5 +24,180 @@ var Tutorials = []models.Article{
 		LinkTitle:    "encoder-decoder",
 		DisplayTitle: "Encoder/Decoder",
 		Content:      `<h1>Encoder/Decoder</h1> <h2>Encoder</h2> <p> An encoder is a digital circuit that converts a set of input signals into a coded output representation. It is commonly used in digital communication systems, data transmission, and control systems to convert various types of data into a more compact format for efficient transmission or processing. Encoders are also used in digital-to-analog conversion, error detection, and data compression. There are several types of encoders, each designed for specific applications: </p> <h3>Priority Encoder</h3> <p> A priority encoder is used to encode multiple input signals into a binary code based on the priority of the input signals. It ensures that only the highest-priority active input is encoded, ignoring lower-priority inputs.  Priority encoders are commonly used in interrupt handling in microprocessors and in data communication systems where certain signals need to be processed first.  </p> <h3>Decimal to BCD Encoder</h3> <p> This type of encoder converts decimal (base-10) numbers into binary-coded decimal (BCD) format. It is often used in digital display systems and digital clocks where decimal digits are displayed using binary-coded representation.  </p> <h3>Rotary Encoder</h3> <p> A rotary encoder is a type of sensor that converts the angular position or rotation of a shaft into an analog or digital signal. It is commonly used in robotics, industrial controls, and consumer electronics for measuring rotation or angular displacement.  </p> <h3>Absolute Encoder</h3> <p> An absolute encoder provides a unique digital code for each position of a rotating shaft. It can determine the exact position of the shaft without needing a reference point. Absolute encoders are used in applications where precise positioning is critical, such as in industrial automation and robotics.  </p> <h3>Gray Code Encoder</h3> <p> Gray code is a binary numeral system where two consecutive values differ in only one bit. A Gray code encoder converts binary numbers into Gray code. Gray code is used in mechanical encoders and in applications where reducing errors in data transmission is important.  </p> <h3>Magnetic Encoder</h3> <p> A magnetic encoder uses magnetic fields to determine the position of a shaft or object. It is used in automotive applications, such as in electronic throttle control systems and anti-lock braking systems (ABS), as well as in robotics and industrial automation.  </p> <p> Encoders play a crucial role in modern digital systems by enabling the conversion of various types of data into a format that is suitable for processing, transmission, or control. Their ability to efficiently encode data helps improve the performance and reliability of digital systems in a wide range of applications.  </p> <h2>Decoder</h2> <p> A decoder is a digital circuit that performs the opposite function of an encoder. It takes a coded input and decodes it into a set of output signals. Decoders are essential components in digital systems for tasks such as address decoding in memory systems, selecting specific inputs in multiplexers, and converting coded data into a format that can be easily understood by other parts of the system. There are several types of decoders, each designed for specific applications: </p> <h3>Binary Decoder</h3> <p> A binary decoder is the most basic type of decoder, which converts a binary-coded input into one of multiple output lines. The number of output lines corresponds to the number of possible input combinations. For example, a 2-to-4 binary decoder has two input lines and four output lines, with each output line representing one of the possible binary combinations of the input lines.  </p> <h3>Decimal Decoder</h3> <p> A decimal decoder converts a binary-coded decimal (BCD) input into one of ten output lines, each representing a decimal digit (0-9). Decimal decoders are used in digital display systems and digital clocks to convert BCD numbers into a format suitable for driving a display.  </p> <h3>7-Segment Decoder</h3> <p> A 7-segment decoder is a specialized decoder used for driving 7-segment LED displays. It converts a 4-bit binary-coded input into signals that can illuminate the segments of a 7-segment display to represent decimal digits (0-9) and some alphabetic characters (A-F).  </p> <h3>BCD to Excess-3 Decoder</h3> <p> This type of decoder converts BCD input into Excess-3 code, which is a binary code in which each digit is represented by adding 3 to the corresponding BCD digit. BCD to Excess-3 decoders are used in digital systems that require arithmetic operations using BCD numbers.  </p> <h3>Gray Code Decoder</h3> <p> A Gray code decoder converts Gray code input into binary output. Gray code is a binary numeral system in which two consecutive values differ in only one bit. Gray code decoders are used in applications where error detection and correction are important, such as in communication systems.  </p> <p> Decoders are essential components in digital systems for converting coded data into a format that can be easily processed, displayed, or transmitted. Their ability to decode data helps improve the efficiency and reliability of digital systems in various applications.  </p>`,
+	},
+	{
+		LinkTitle:    "clocks",
+		DisplayTitle: "Clocks",
+		Content: `
+	<h1>Clock</h1>
+    <p>
+      A clock in a digital logic simulator is a crucial component that regulates
+      the timing of operations within the simulated digital circuit. It mimics
+      the function of a real-world clock, providing a rhythmic signal that
+      determines when the circuit should transition between different states.
+    </p>
+
+    <p>
+      In digital logic, circuits operate based on discrete signals that
+      represent binary values (0 or 1). These signals change their state in
+      response to certain events, such as the rising or falling edge of a clock
+      signal. The clock signal itself is typically a square wave that oscillates
+      between two voltage levels (e.g., 0V and 5V).
+    </p>
+
+    <p>
+      The clock signal is used to synchronize the behavior of different parts of
+      the digital circuit. When the clock signal transitions from one state to
+      another (e.g., from 0 to 1), it indicates the beginning of a new clock
+      cycle. During each clock cycle, the circuit performs its operations, and
+      the outputs are updated based on the inputs and the current state of the
+      circuit.
+    </p>
+
+    <p>
+      The frequency of the clock signal determines the speed at which the
+      circuit operates. A higher frequency allows the circuit to perform
+      operations more quickly, but it also requires more power and can introduce
+      issues such as signal skew and timing violations.
+    </p>
+
+    <p>
+      In a digital logic simulator, the clock is often represented by a clock
+      component that can be configured with a specific frequency. The simulator
+      then uses this clock signal to drive the simulation, advancing the circuit
+      through each clock cycle and updating the state of the circuit
+      accordingly.
+    </p>
+
+    <p>
+      When designing digital circuits, it's important to consider the timing
+      requirements imposed by the clock signal. For example, certain operations
+      may need to be completed within a certain number of clock cycles to ensure
+      proper functioning of the circuit. Failure to meet these timing
+      requirements can result in errors or unexpected behavior.
+    </p>
+		`,
+	},
+	{
+		LinkTitle:    "flipflops",
+		DisplayTitle: "FlipFlops",
+		Content: `
+	<h1>FlipFlop</h1>
+    <p>
+      A flip-flop is a fundamental building block in digital logic that is used
+      to store binary information. It is a type of sequential logic circuit,
+      meaning its output depends not only on its current input but also on its
+      previous state.
+    </p>
+
+    <p>
+      In a digital logic simulator, a flip-flop is typically represented as a
+      component with inputs and outputs. The most common types of flip-flops are
+      the D flip-flop, the JK flip-flop, the T flip-flop, and the SR flip-flop.
+    </p>
+
+    <h2>D flipflop</h2>
+    <p>
+      The D flip-flop, or data flip-flop, has a single data input (D), a clock
+      input (CLK), and two outputs: Q and Q' (the inverse of Q). When the clock
+      signal transitions from low to high (rising edge), the value of D is
+      transferred to the output Q. This means that the flip-flop stores the
+      value of D and holds it until the next rising edge of the clock signal.
+    </p>
+    <h2>JK flipflop</h2>
+    <p>
+      The JK flip-flop is similar to the D flip-flop but has two additional
+      inputs: J (set) and K (reset). When both J and K are high, the flip-flop
+      toggles its output on each clock cycle. When J is high and K is low, the
+      flip-flop sets its output to high (Q = 1). When J is low and K is high,
+      the flip-flop resets its output to low (Q = 0). And when both J and K are
+      low, the flip-flop holds its current state.
+    </p>
+    <h2>T flip-flop</h2>
+    <p>
+      The T flip-flop, or toggle flip-flop, toggles its output on each clock
+      cycle when its input (T) is high. It is useful for creating frequency
+      dividers and counters.
+    </p>
+    <h2>SR flipflop</h2>
+    <p>
+      The SR flipflop, or set-reset flip-flop, has two inputs: S (set) and R
+      (reset). When S is high and R is low, the flip-flop sets its output to
+      high (Q = 1). When R is high and S is low, the flip-flop resets its output
+      to low (Q = 0). When both S and R are low, the flip-flop holds its current
+      state. This flip-flop is useful for creating memory elements and
+      sequential circuits.
+    </p>
+    <p>
+      In a digital logic simulator, flip-flops are used to store intermediate
+      results, create memory elements, and implement sequential logic circuits
+      such as counters, shift registers, and finite state machines.
+      Understanding how flip-flops work and how to use them is essential for
+      designing complex digital circuits in a simulator.
+    </p>
+		`,
+	},
+	{
+		LinkTitle:    "latches",
+		DisplayTitle: "Latches",
+		Content: `
+	    <h1>Latches</h1>
+    <p>
+      In digital logic, a latch is a circuit that can store one bit of
+      information. Latches are similar to flip-flops but are level sensitive,
+      meaning they can change their output whenever the input changes and the
+      clock signal meets certain conditions, rather than only changing on a
+      clock edge like a flip-flop. Latches are often used in digital systems for
+      temporary storage or as building blocks for more complex circuits. There
+      are several types of latches, with the most common being the SR latch, the
+      D latch, and the JK latch.
+    </p>
+    <h2>SR Latch</h2>
+    <p>
+      The SR latch has two inputs, S (set) and R (reset), and two outputs, Q and
+      Q'. When S is high and R is low, the Q output is set to high and the Q'
+      output is set to low. When R is high and S is low, the Q output is set to
+      low and the Q' output is set to high. When both S and R are low, the latch
+      holds its previous state. The SR latch is level-sensitive, meaning its
+      outputs can change as long as the inputs are held at the appropriate
+      levels.
+    </p>
+    <h2>D Latch</h2>
+    <p>
+      The D latch has a single data input (D), a clock input (CLK), and two
+      outputs, Q and Q'. When the clock signal transitions to a specific level
+      (either high or low, depending on the latch type), the value of D is
+      transferred to the output Q. The D latch is level-sensitive and can change
+      its output whenever the input changes, as long as the clock signal meets
+      the latch's timing requirements.
+    </p>
+    <h2>JK Latch</h2>
+    <p>
+      The JK latch is similar to the SR latch but includes an additional input,
+      K (kill). The JK latch has two stable states, like the SR latch, but the
+      inputs have different meanings. When J=K=1, the latch toggles its state,
+      meaning if Q=1, it becomes 0, and if Q=0, it becomes 1. This behavior is
+      similar to a T flip-flop. The JK latch is level-sensitive and can change
+      its output whenever the input changes and the clock signal meets the
+      latch's timing requirements.
+    </p>
+    <p>
+      Latches are used in digital logic simulators to store intermediate values,
+      create temporary storage elements, and implement certain types of
+      circuits. They are especially useful in asynchronous circuits, where
+      timing constraints are less rigid than in synchronous circuits that use
+      flip-flops. Latches can be used to hold data temporarily before it is
+      transferred to a flip-flop or to create feedback loops in digital systems.
+    </p>
+
+    <p>
+      In summary, latches are level-sensitive storage elements used in digital
+      logic to temporarily store one bit of information. They are similar to
+      flip-flops but are more flexible in terms of when they can change their
+      output. Latches are commonly used in digital systems for temporary
+      storage, feedback loops, and other applications where asynchronous
+      behavior is desired.
+    </p>	
+		`,
 	},
 }
