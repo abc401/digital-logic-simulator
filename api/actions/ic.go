@@ -38,7 +38,7 @@ func CreateICDo(ctx *gin.Context) {
 	}
 
 	for _, name := range project.ICs {
-		if name == strings.ToLower(params.ICName) {
+		if strings.EqualFold(name, params.ICName) {
 			ctx.JSON(http.StatusConflict, gin.H{
 				"error": "proposed name is already taken",
 				"name":  params.ICName,
@@ -47,7 +47,7 @@ func CreateICDo(ctx *gin.Context) {
 	}
 
 	project.Scenes[params.SceneID] = state.NewSceneWithIO(params.SceneID, params.ICName)
-	project.ICs[params.SceneID] = strings.ToLower(params.ICName)
+	project.ICs[params.SceneID] = params.ICName
 
 	fmt.Printf("\n\nProject: %s\n\n", helpers.SPrettyPrint(project))
 	ctx.JSON(http.StatusOK, gin.H{})

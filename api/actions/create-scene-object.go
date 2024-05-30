@@ -183,10 +183,37 @@ func CreateCircuitDo(ctx *gin.Context) {
 	newCircuit, ok := state.DefaultCircuits[strings.ToLower(params.CircuitType)]
 
 	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error":        "Invalid circuit type.",
-			"circuit-type": params.CircuitType,
-		})
+		var sceneID = -1
+		var icType = ""
+		for id, ic := range project.ICs {
+			if !strings.EqualFold(ic, params.CircuitType) {
+				continue
+			}
+			sceneID = int(id)
+			icType = ic
+		}
+
+		if sceneID == -1 {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"error":        "Invalid circuit type.",
+				"circuit-type": params.CircuitType,
+			})
+		}
+
+		var targetScene = project.Scenes[state.IDType(sceneID)]
+
+		var icInputsID, _ = targetScene.ICInputs.Unwrap()
+		var ICInputs = targetScene.GetCircuit(icInputsID)
+
+		var icOutputsID, _ = targetScene.ICOutputs.Unwrap()
+		var ICOutputs = targetScene.GetCircuit(icOutputsID)
+
+		newCircuit = state.Circuit{
+			CircuitType: icType,
+			NInputPins:  ICInputs.NInputPins,
+			NOutputPins: ICOutputs.NOutputPins,
+			Props:       state.CircuitProps{},
+		}
 	}
 
 	newCircuit.ID = params.CircuitID
