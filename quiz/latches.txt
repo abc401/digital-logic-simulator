@@ -1,0 +1,69 @@
+How does a latch differ from a flip-flop?
+ Latches are edge-triggered, while flip-flops are level-sensitive.
+ Latches can only store one bit of information, while flip-flops can store multiple bits.
+ Latches change their output whenever the input changes and the clock signal meets certain conditions, while flip-flops only change on a clock edge.
+ Latches are only used for temporary storage, while flip-flops are used for long-term storage.
+3
+
+What happens to the output of an SR latch when both the set (S) and reset (R) inputs are low?
+ The output is set to high
+ The output is reset to low
+ The output holds its previous state
+ The output toggles between high and low
+3
+
+How does a D latch differ from an SR latch?
+ A D latch has two inputs, while an SR latch has three inputs.
+ A D latch has a clock input, while an SR latch does not.
+ A D latch can only store one bit, while an SR latch can store multiple bits.
+ A D latch transfers the input value to the output on a clock edge, while an SR latch can change
+4
+
+What additional input does a JK latch have compared to an SR latch?
+ Kill (K)
+ Data (D)
+ Clock (CLK)
+ Toggle (T)
+4
+
+What is the main advantage of using latches in asynchronous circuits?
+ They are faster than flip-flops
+ They are more flexible in terms of timing requirements
+ They can store more bits of information
+ They consume less power than flip-flops
+ 4
+
+ What is the primary difference between a latch and a flip-flop?
+Latches are edge-triggered, while flip-flops are level-sensitive.
+Latches are level-sensitive, while flip-flops are edge-triggered.
+Latches have two stable states, while flip-flops have only one.
+Latches have a clock input, while flip-flops do not.
+2
+
+How many inputs does an SR latch have?
+One
+Two
+Three
+Four
+2
+
+In an SR latch, what is the state when both S and R inputs are low?
+Q is high, Q' is low
+Q is low, Q' is high
+Q and Q' retain their previous state
+Q and Q' are both high
+3
+
+What is the function of the D latch?
+It toggles its output on each clock edge
+It stores data and transfers it to the output on a clock edge
+It holds its output until the clock changes
+It converts serial data to parallel data
+2
+
+How does a JK latch differ from an SR latch?
+JK latch has an additional input, K
+JK latch has an additional output, Q'
+JK latch has a clock input
+JK latch has three stable states
+1

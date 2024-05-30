@@ -1,0 +1,69 @@
+Which of the following best describes the AND gate?
+Takes two inputs and outputs their sum
+Takes two inputs and outputs their product
+Takes two inputs and outputs their difference
+Takes two inputs and outputs their conjunction
+4
+
+What is the output of an AND gate if the inputs are A = 0 and B = 1?
+0
+1
+2
+none
+1
+
+How many binary inputs does an AND gate typically have?
+one
+two
+three
+none
+2
+
+What is the output of an OR gate if both inputs A and B are 0?
+0
+1
+all of these
+none
+1
+
+Which of the following best describes the OR gate?
+Takes two inputs and outputs their sum
+Takes two inputs and outputs their product
+all of these
+Takes two inputs and outputs their disjunction
+4
+
+What is the output of a NOT gate if the input A is 1?
+0
+1
+all of these
+none
+1
+
+How many binary inputs does a NOT gate typically have?
+0
+1
+3
+all of these
+2
+
+What is the output of a NAND gate if both inputs A and B are 1?
+0
+1
+3
+all of these
+1
+
+Which of the following best describes the XOR gate?
+Takes two inputs and outputs their sum
+Takes two inputs and outputs their product
+Takes two inputs and outputs their exclusive OR operation
+Takes two inputs and outputs their OR operation
+3
+
+What is one key property of the XOR gate?
+It can only output 1
+It can detect when the number of 1s in its inputs is odd
+It can only have two inputs
+It is used in arithmetic circuits
+2

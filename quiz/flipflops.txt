@@ -1,0 +1,69 @@
+What is the main function of a flip-flop in digital logic?
+ To perform arithmetic operations
+ To store binary information
+ To generate clock signals
+ To convert analog signals to digital signals
+2
+
+What is the purpose of the clock input in a flip-flop?
+ To control the output voltage levels
+ To synchronize the storage of data
+ To determine the type of flip-flop used
+ To provide power to the flip-flop
+2
+
+Which type of flip-flop toggles its output on each clock cycle when its input is high?
+ D flip-flop
+ JK flip-flop
+ T flip-flop
+ SR flip-flop
+3
+
+What happens to the output of an SR flip-flop when both the set (S) and reset (R) inputs are low?
+ The output is set to high
+ The output is reset to low
+ The output holds its current state
+ The output toggles on each clock cycle
+3
+
+How are flip-flops typically represented in a digital logic simulator?
+ As simple gates with multiple inputs and outputs
+ As components with only input signals
+ As components with inputs, outputs, and clock signals
+ As components with only output signals
+ 4
+
+ What is the main purpose of a flip-flop in digital logic?
+To perform arithmetic operations
+To store binary information
+To generate clock signals
+To convert analog signals to digital signals
+2
+
+Which of the following is a characteristic of sequential logic circuits?
+Output depends only on the current input
+Output depends on both current and previous inputs
+Output is purely combinatorial
+Output is independent of input
+2
+
+Which type of flip-flop has a single data input and transfers its value to the output on the rising edge of the clock signal?
+D flip-flop
+JK flip-flop
+T flip-flop
+SR flip-flop
+1
+
+What are the two outputs of a D flip-flop?
+Q and Q'
+Q and CLK
+D and Q'
+D and CLK
+1
+
+When does a JK flip-flop toggle its output?
+When J is low and K is high
+When J and K are both low
+When J and K are both high
+When J is high and K is low
+3

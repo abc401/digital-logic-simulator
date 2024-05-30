@@ -1,0 +1,69 @@
+ What is the primary function of an encoder?
+ To convert analog signals to digital signals
+ To convert digital signals to analog signals
+ To convert a set of input signals into a coded output representation
+ To decode binary-coded decimal (BCD) numbers
+3
+
+Which type of encoder is commonly used in interrupt handling in microprocessors?
+ Decimal to BCD Encoder
+ Priority Encoder
+ Rotary Encoder
+ Absolute Encoder
+2
+
+What does a priority encoder do?
+ Converts decimal numbers to binary-coded decimal (BCD) format
+ Converts binary numbers to Gray code
+ Encodes multiple input signals into a binary code based on priority
+ Converts angular position into a digital signal
+3
+
+Where is a rotary encoder commonly used?
+ In digital display systems
+ In automotive applications
+ In interrupt handling
+ In robotics and industrial control
+4
+
+What is the function of a Gray code encoder?
+ Converts binary numbers to Gray code
+ Converts Gray code to binary numbers
+ Converts decimal numbers to binary-coded decimal (BCD) format
+ Converts analog signals to digital signals
+1
+
+What is the primary function of a decoder?
+ To convert analog signals to digital signals
+ To convert digital signals to analog signals
+ To convert a coded input into a set of output signals
+ To encode data for transmission
+3
+
+What does a 7-segment decoder do?
+ Converts binary-coded decimal (BCD) input into decimal output
+ Converts Gray code input into binary output
+ Converts BCD input into Excess-3 code
+ Converts binary-coded input into signals for a 7-segment LED display
+4
+
+Where are decimal decoders commonly used?
+ In digital communication systems
+ In digital clocks and display systems
+ In automotive applications
+ In industrial automation
+2
+
+What is the function of a BCD to Excess-3 decoder?
+ Converts BCD input into decimal output
+ Converts BCD input into binary output
+ Converts BCD input into Excess-3 code
+ Converts BCD input into Gray code
+3
+
+What type of decoder is used for driving 7-segment LED displays?
+ Binary Decoder
+ Decimal Decoder
+ 7-Segment Decoder
+ Gray Code Decoder
+ 3

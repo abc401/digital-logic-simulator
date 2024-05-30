@@ -3,9 +3,11 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"math/rand"
 	"os"
+	"strconv"
+	"strings"
 
+	"github.com/abc401/digital-logic-simulator/api/helpers"
 	"github.com/abc401/digital-logic-simulator/models"
 	"github.com/go-sql-driver/mysql"
 	gormDb "gorm.io/driver/mysql"
@@ -79,19 +81,22 @@ func ConfigNextAndPrevious(tutorials []*models.Article) {
 }
 
 func AddTutorials(tutorials []*models.Article) {
+	fmt.Println("[Info] Adding tutorials")
 	db := GetGormDBCon()
+	db.Exec("delete from mcqs")
 	db.Exec("delete from articles")
 
 	ConfigNextAndPrevious(tutorials)
 	for i := 0; i < len(tutorials); i++ {
-		var tutorial = tutorials[i]
-		if tutorial.LinkTitle == "" {
-			panic("Title of tutorial is not defined")
-		}
-		if tutorial.Content == "" {
-			panic("Content of tutorial is not defined")
-		}
-		db.Create(tutorial)
+		AddTutorial(tutorials[i])
+		// var tutorial = tutorials[i]
+		// if tutorial.LinkTitle == "" {
+		// 	panic("Title of tutorial is not defined")
+		// }
+		// if tutorial.Content == "" {
+		// 	panic("Content of tutorial is not defined")
+		// }
+		// db.Create(tutorial)
 	}
 }
 
@@ -103,45 +108,88 @@ func AddTutorial(tutorial *models.Article) {
 		panic("Content of tutorial is not defined")
 	}
 
+	fmt.Println("[Info] Creating record in db: ", tutorial.LinkTitle)
 	db := GetGormDBCon()
 	db.Create(&tutorial)
 
-}
-
-func AddMCQs() {
-	stmts := []string{
-		"Hello", "How Are You?", "I am fine",
+	content, err := os.ReadFile(fmt.Sprintf("quiz/%s.txt", tutorial.LinkTitle))
+	if err != nil {
+		content = []byte("")
+		fmt.Println("[Error] ", err.Error())
 	}
-	options := []string{
-		"option", "1", "2", "qwerty", "lorem", "ipsum", "all of above",
-	}
-	article_ids := []uint{1, 2, 3, 4}
 
-	con := GetGormDBCon()
+	fmt.Println("Printing Mcqs lines: ", tutorial.LinkTitle)
+	lines := strings.Split(string(content), "\n")
 
-	for i := 0; i < 10; i++ {
+	lineIdx := SkipEmptyLines(lines, 0)
+
+	mcqs := []*models.MCQ{}
+	for lineIdx < len(lines) {
+
 		mcq := models.MCQ{}
 
-		idx := rand.Intn(len(stmts))
-		mcq.Statement = stmts[idx]
+		line := strings.Trim(lines[lineIdx], "\r \t")
+		mcq.Statement = line
 
-		idx = rand.Intn(len(options))
-		mcq.Option1 = options[idx]
+		lineIdx++
+		lineIdx = SkipEmptyLines(lines, lineIdx)
 
-		idx = rand.Intn(len(options))
-		mcq.Option2 = options[idx]
+		line = strings.Trim(lines[lineIdx], "\r \t")
+		mcq.Option1 = line
 
-		idx = rand.Intn(len(options))
-		mcq.Option3 = options[idx]
+		lineIdx++
+		lineIdx = SkipEmptyLines(lines, lineIdx)
 
-		idx = rand.Intn(len(options))
-		mcq.Option4 = options[idx]
+		line = strings.Trim(lines[lineIdx], "\r \t")
+		mcq.Option2 = line
 
-		idx = rand.Intn(len(article_ids))
-		mcq.ArticleID = article_ids[idx]
+		lineIdx++
+		lineIdx = SkipEmptyLines(lines, lineIdx)
 
-		mcq.CorrectOption = uint(rand.Intn(4) + 1)
+		line = strings.Trim(lines[lineIdx], "\r \t")
+		mcq.Option3 = line
 
-		con.Create(&mcq)
+		lineIdx++
+		lineIdx = SkipEmptyLines(lines, lineIdx)
+
+		line = strings.Trim(lines[lineIdx], "\r \t")
+		mcq.Option4 = line
+
+		lineIdx++
+		lineIdx = SkipEmptyLines(lines, lineIdx)
+
+		line = strings.Trim(lines[lineIdx], "\r \t")
+		num, err := strconv.ParseInt(line, 10, 64)
+		if err != nil {
+			fmt.Printf("[Info] tutorial: %s\n", tutorial.LinkTitle)
+			fmt.Printf("[Info] line number: %d\n", lineIdx)
+			fmt.Printf("MCQ: %s\n", helpers.SPrettyPrint(mcq))
+			panic("")
+		}
+		mcq.CorrectOption = uint(num)
+
+		lineIdx++
+		lineIdx = SkipEmptyLines(lines, lineIdx)
+
+		mcq.ArticleID = tutorial.ID
+		mcqs = append(mcqs, &mcq)
 	}
+
+	// fmt.Printf("MCQ: %s\n", helpers.SPrettyPrint(mcqs))
+	db.Create(mcqs)
+	fmt.Printf("MCQ: %s\n", helpers.SPrettyPrint(mcqs))
+
+}
+
+func SkipEmptyLines(lines []string, startLineIdx int) int {
+	for startLineIdx < len(lines) {
+		line := lines[startLineIdx]
+		trimmed := strings.Trim(line, "\r \t")
+
+		if trimmed != "" {
+			break
+		}
+		startLineIdx++
+	}
+	return startLineIdx
 }

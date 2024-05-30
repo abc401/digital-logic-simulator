@@ -22,19 +22,13 @@ func main1() {
 }
 
 func main() {
-	main1()
-	// tmp()
+	// main1()
 	// db.AutoMigrate()
-	// db.AddTutorials(Tutorials)
+	db.AddTutorials(Tutorials)
 	// db.AddTutorial(
 	// 	&models.Article{
 	// 		Title:   "",
 	// 		Content: ``,
 	// 	},
 	// )
-}
-
-func tmp() {
-	db.AddMCQs()
-
 }

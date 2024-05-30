@@ -1,0 +1,69 @@
+In a 2-to-1 multiplexer, how many input channels are there?
+ 1
+ 2
+ 3
+ 4
+2
+
+What is the purpose of a multiplexer?
+ To combine multiple signals into one
+ To select one of many input signals and route it to a single output
+ To perform arithmetic and logic operations
+ To reverse the operation of a demultiplexer
+2
+
+How many control lines does a 2-to-1 multiplexer have?
+ 1
+ 2
+ 3
+ 4
+ 1
+
+What is the output of a 2-to-1 multiplexer if the select line is 1 and input A is 0?
+ 1
+ 2
+ none
+ all of these
+ 1
+
+Where are multiplexers commonly used?
+ In digital communication systems
+ In microwave ovens
+ In automobiles
+ In household appliances
+ 1
+
+How many outputs does a demultiplexer typically have?
+ 1
+ 2
+ 3
+ 4
+ 2
+
+What is the purpose of a demultiplexer?
+ To combine multiple signals into one
+ To select one of many input signals and route it to a single output
+ To select one of many outputs based on the control inputs
+ To reverse the operation of a multiplexer
+ 3
+
+What is the output of a demultiplexer if the select line is 0 and the input is 1?
+ 1
+ 0
+ none
+ 3
+ 1
+
+Where are demultiplexers commonly used?
+ In microwave ovens
+ In digital communication systems
+ In automobiles
+ In household appliances
+2
+
+What is the opposite function of a demultiplexer?
+ Adder
+ Multiplexer
+ Decoder
+ Decoder
+ 2
