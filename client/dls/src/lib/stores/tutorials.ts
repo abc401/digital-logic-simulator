@@ -3,6 +3,7 @@ import { writable, type Invalidator, type Subscriber, type Unsubscriber } from '
 
 type FetchFunc = (url: URL) => Promise<Response>;
 export interface TutorialNav {
+	id: number;
 	link_title: string;
 	display_title: string;
 	next: string | null;
@@ -10,6 +11,7 @@ export interface TutorialNav {
 }
 
 export interface Tutorial {
+	id: number;
 	link_title: string;
 	display_title: string;
 	next: string | null;

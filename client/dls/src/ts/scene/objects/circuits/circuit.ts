@@ -114,8 +114,6 @@ export function dummyCircuit() {
 	return circuit;
 }
 
-export function drawAndCircuit(circuit: Circuit, ctx: CanvasRenderingContext2D) {}
-
 export function circuitCloneHelper(circuit: Circuit) {
 	const cloned = Object.assign({}, circuit);
 	Object.setPrototypeOf(cloned, Object.getPrototypeOf(circuit));

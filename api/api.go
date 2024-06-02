@@ -7,6 +7,7 @@ import (
 
 	"github.com/abc401/digital-logic-simulator/api/actions"
 	"github.com/abc401/digital-logic-simulator/api/helpers"
+	"github.com/abc401/digital-logic-simulator/api/state"
 	"github.com/abc401/digital-logic-simulator/db"
 	"github.com/abc401/digital-logic-simulator/models"
 
@@ -22,9 +23,12 @@ func ConfigHandelers(router gin.IRouter) {
 	router.Use(CorsMiddleWare)
 	router.Use(helpers.PrintReqBody)
 
-	tutorialsRouter := router.Group("/tutorials")
-	tutorialsRouter.GET("/nav", TutorialsNav)
-	tutorialsRouter.GET("/:link_title", GetTutorial)
+	tutorials := router.Group("/tutorials")
+	tutorials.GET("/nav", TutorialsNav)
+	tutorials.GET("/:link_title", GetTutorial)
+	tutorials.GET("/:link_title/quiz", GetQuiz)
+
+	router.GET("/project/", GetProjectState)
 
 	action := router.Group("/action")
 	actions.ConfigHandlers(action)
@@ -33,6 +37,10 @@ func ConfigHandelers(router gin.IRouter) {
 func CorsMiddleWare(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Next()
+}
+
+func GetProjectState(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, state.GetProject())
 }
 
 func GetTutorial(ctx *gin.Context) {
@@ -44,22 +52,22 @@ func GetTutorial(ctx *gin.Context) {
 	con := db.GetGormDBCon()
 	tutorial := models.Article{}
 
-	con.Model(&models.Article{}).Preload("MCQs").Find(&tutorial)
+	con.Model(&models.Article{}).Where("link_title = ?", title).Find(&tutorial)
 	fmt.Println("Tutorial: ", tutorial.LinkTitle)
 
 	type Res struct {
-		LinkTitle    string       `json:"link_title"`
-		DisplayTitle string       `json:"display_title"`
-		Previous     *string      `json:"previous"`
-		Next         *string      `json:"next"`
-		Content      string       `json:"content"`
-		MCQs         []models.MCQ `json:"mcqs"`
+		ID           uint    `json:"id"`
+		LinkTitle    string  `json:"link_title"`
+		DisplayTitle string  `json:"display_title"`
+		Previous     *string `json:"previous"`
+		Next         *string `json:"next"`
+		Content      string  `json:"content"`
 	}
 	res := Res{
+		ID:           tutorial.ID,
 		LinkTitle:    tutorial.LinkTitle,
 		DisplayTitle: tutorial.DisplayTitle,
 		Content:      tutorial.Content,
-		MCQs:         []models.MCQ{},
 	}
 	if tutorial.Previous.Valid {
 		res.Previous = &tutorial.Previous.String
@@ -68,31 +76,31 @@ func GetTutorial(ctx *gin.Context) {
 		res.Next = &tutorial.Next.String
 	}
 
-	for i := 0; i < 5; i++ {
-		rnd := rand.Intn(len(tutorial.MCQs))
-		res.MCQs = append(res.MCQs, tutorial.MCQs[rnd])
-	}
+	fmt.Printf("\n\nTutorial: %s\n\n", helpers.SPrettyPrint(res))
 
 	ctx.JSON(http.StatusOK, res)
 
 }
 
+type Res struct {
+	ID           uint    `json:"id"`
+	LinkTitle    string  `json:"link_title"`
+	DisplayTitle string  `json:"display_title"`
+	Previous     *string `json:"previous"`
+	Next         *string `json:"next"`
+}
+
 func TutorialsNav(ctx *gin.Context) {
-	type Res struct {
-		LinkTitle    string  `json:"link_title"`
-		DisplayTitle string  `json:"display_title"`
-		Previous     *string `json:"previous"`
-		Next         *string `json:"next"`
-	}
 
 	con := db.GetGormDBCon()
 	tutorials := []models.Article{}
-	con.Select("link_title", "display_title", "previous", "next").Find(&tutorials)
+	con.Select("id", "link_title", "display_title", "previous", "next").Find(&tutorials)
 	res := []Res{}
 	for i := 0; i < len(tutorials); i++ {
 		tutorial := tutorials[i]
 
 		currRes := Res{
+			ID:           tutorial.ID,
 			LinkTitle:    tutorial.LinkTitle,
 			DisplayTitle: tutorial.DisplayTitle,
 		}
@@ -111,4 +119,35 @@ func TutorialsNav(ctx *gin.Context) {
 		res = append(res, currRes)
 	}
 	ctx.JSON(http.StatusOK, res)
+}
+
+func GetQuiz(ctx *gin.Context) {
+
+	// I am getting very bored of this project and its a pain in the ass changing this parameter's name to be something like
+	// `tutorials_id` so i'm not going to bother with that for the sake of my sanity
+	tutorialID, found := ctx.Params.Get("link_title")
+
+	if !found {
+		panic("Wrong Parameter name")
+	}
+	fmt.Println("Tutorial ID: ", tutorialID)
+
+	con := db.GetGormDBCon()
+	var tutorial = Res{}
+	mcqs := []*models.MCQ{}
+
+	con.Model(&models.Article{}).Select("id", "link_title", "display_title", "previous", "next").Where("id = ?", tutorialID).Find(&tutorial)
+	con.Model(&models.MCQ{}).Where("article_id = ?", tutorialID).Find(&mcqs)
+	const n = 5
+	for i := 0; uint64(i) < n; i++ {
+		var randomIdx = rand.Intn(len(mcqs))
+		mcqs[i], mcqs[randomIdx] = mcqs[randomIdx], mcqs[i]
+	}
+
+	// fmt.Printf("\n\nTutorial: %s\n\n", helpers.SPrettyPrint(tutorial))
+	ctx.JSON(http.StatusOK, gin.H{
+		"tutorial": tutorial,
+		"mcqs":     mcqs[0:n],
+	})
+
 }

@@ -10,20 +10,32 @@
 </script>
 
 {@html $currentTut?.content}
-<nav>
-	{#if previous != null}
-		<a
-			data-sveltekit-preload-data="off"
-			style="float: inline-start;"
-			href={`/tutorials/${previous.link_title}`}>Previous</a
-		>
-	{/if}
 
-	{#if next != null}
-		<a
-			data-sveltekit-preload-data="off"
-			style="float: inline-end;"
-			href={`/tutorials/${next.link_title}`}>Next</a
-		>
-	{/if}
+<nav class="tut-nav">
+	<div>
+		{#if previous != null}
+			<a
+				data-sveltekit-preload-data="off"
+				class="link-btn inline-block"
+				href={`/tutorials/${previous.link_title}`}>Previous Tutorial</a
+			>
+		{/if}
+	</div>
+	<div></div>
+
+	<div>
+		{#if $currentTut?.link_title === 'index'}
+			<a
+				data-sveltekit-preload-data="off"
+				class="link-btn inline-block"
+				href={`/tutorials/${next?.link_title}`}>Next Tutorial</a
+			>
+		{:else}
+			<a
+				data-sveltekit-preload-data="off"
+				class="link-btn inline-block"
+				href={`/quizes/${$currentTut?.id}`}>Test You Knowledge</a
+			>
+		{/if}
+	</div>
 </nav>

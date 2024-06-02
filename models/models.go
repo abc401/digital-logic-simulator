@@ -15,12 +15,12 @@ type Article struct {
 }
 
 type MCQ struct {
-	ID            uint `gorm:"primarykey"`
-	Statement     string
-	Option1       string
-	Option2       string
-	Option3       string
-	Option4       string
-	CorrectOption uint
-	ArticleID     uint `gorm:"index"`
+	ID            uint   `gorm:"primarykey" json:"id"`
+	Statement     string `json:"stmt"`
+	Option1       string `json:"o1"`
+	Option2       string `json:"o2"`
+	Option3       string `json:"o3"`
+	Option4       string `json:"o4"`
+	CorrectOption uint   `json:"correctOption"`
+	ArticleID     uint   `gorm:"index" json:"articleID"`
 }
