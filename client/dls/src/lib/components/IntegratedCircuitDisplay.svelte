@@ -45,7 +45,7 @@
 </script>
 
 <div
-	class={clsx('grid grid-cols-[min-content_minmax(0,1fr)] text-start text-sm ', {
+	class={clsx('grid grid-cols-[min-content_minmax(0,1fr)] text-start text-sm font-normal ', {
 		'bg-accent': isSelected,
 		'hover:bg-neutral-700': !isSelected
 	})}

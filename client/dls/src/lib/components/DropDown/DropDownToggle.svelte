@@ -13,7 +13,7 @@
 	{...$$restProps}
 	class={clsx(
 		className,
-		'rounded-sm  text-xs [text-align:inherit] hover:bg-neutral-700 active:bg-neutral-500',
+		'rounded-sm [text-align:inherit] hover:bg-neutral-700 active:bg-neutral-500',
 		{
 			'bg-neutral-700': $open
 		}

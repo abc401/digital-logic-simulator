@@ -311,15 +311,16 @@ export class CircuitSceneObject {
 
 	tightRectWrl: Rect;
 	looseRectWrl: Rect;
-	headRectWrl: Rect;
+	// headRectWrl: Rect;
 	bodyRectWrl: Rect;
 
 	static minWidthWrl = 100;
 	static headPaddingYWrl = 10;
-	static paddingXWrl = 10;
-	static bodyPaddingYWrl = 15;
+	static paddingXWrl = 30;
+	static paddingYWrl = 30;
+	// static paddingYWrl = 15;
 	static pinRadiusWrl = PIN_EXTRUSION_WRL;
-	static labelTextSizeWrl = 10;
+	static labelTextSizeWrl = 48;
 
 	isSelected = false;
 	label: string;
@@ -333,11 +334,11 @@ export class CircuitSceneObject {
 		public ctx: CanvasRenderingContext2D | undefined = undefined
 	) {
 		this.label = parentCircuit.props.label;
-		if (ctx != null) {
-			this.headRectWrl = this.getHeadRectWrl();
-		} else {
-			this.headRectWrl = new Rect(0, 0, 0, 0);
-		}
+		// if (ctx != null) {
+		// 	this.headRectWrl = this.getHeadRectWrl();
+		// } else {
+		// 	this.headRectWrl = new Rect(0, 0, 0, 0);
+		// }
 
 		this.bodyRectWrl = this.getBodyRectWrl();
 
@@ -390,15 +391,10 @@ export class CircuitSceneObject {
 	}
 
 	private calcTightRect() {
-		return new Rect(
-			this.posWrl.x,
-			this.posWrl.y,
-			this.headRectWrl.w,
-			this.headRectWrl.h + this.bodyRectWrl.h
-		);
+		return new Rect(this.posWrl.x, this.posWrl.y, this.bodyRectWrl.w, this.bodyRectWrl.h);
 	}
 
-	private getHeadRectWrl() {
+	getLabelMetrics() {
 		if (this.ctx == null) {
 			return new Rect(0, 0, 0, 0);
 		}
@@ -410,21 +406,45 @@ export class CircuitSceneObject {
 		} else {
 			actualLabel = `${this.label}(${this.parentCircuit.circuitType})`;
 		}
+
 		const metrics = this.ctx.measureText(actualLabel);
 
 		const labelHeight =
 			Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
-		const headHeight = labelHeight + 2 * CircuitSceneObject.headPaddingYWrl;
 
 		const labelWidth =
 			Math.abs(metrics.actualBoundingBoxLeft) + Math.abs(metrics.actualBoundingBoxRight);
-		const headWidth = Math.max(
-			labelWidth + 2 * CircuitSceneObject.paddingXWrl,
-			CircuitSceneObject.minWidthWrl
-		);
 
-		return new Rect(this.posWrl.x, this.posWrl.y, headWidth, headHeight);
+		return new Rect(0, 0, labelWidth, labelHeight);
 	}
+
+	// private getHeadRectWrl() {
+	// 	if (this.ctx == null) {
+	// 		return new Rect(0, 0, 0, 0);
+	// 	}
+
+	// 	this.ctx.font = `bold ${CircuitSceneObject.labelTextSizeWrl}px "Advent Pro"`;
+	// 	let actualLabel: string;
+	// 	if (this.label === this.parentCircuit.circuitType) {
+	// 		actualLabel = this.label;
+	// 	} else {
+	// 		actualLabel = `${this.label}(${this.parentCircuit.circuitType})`;
+	// 	}
+	// 	const metrics = this.ctx.measureText(actualLabel);
+
+	// 	const labelHeight =
+	// 		Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
+	// 	const headHeight = labelHeight + 2 * CircuitSceneObject.headPaddingYWrl;
+
+	// 	const labelWidth =
+	// 		Math.abs(metrics.actualBoundingBoxLeft) + Math.abs(metrics.actualBoundingBoxRight);
+	// 	const headWidth = Math.max(
+	// 		labelWidth + 2 * CircuitSceneObject.paddingXWrl,
+	// 		CircuitSceneObject.minWidthWrl
+	// 	);
+
+	// 	return new Rect(this.posWrl.x, this.posWrl.y, headWidth, headHeight);
+	// }
 
 	private getBodyRectWrl() {
 		const maxPinNumber = Math.max(
@@ -432,14 +452,19 @@ export class CircuitSceneObject {
 			this.parentCircuit.producerPins.length
 		);
 
+		const metrics = this.getLabelMetrics();
+
 		return new Rect(
 			this.posWrl.x,
-			this.posWrl.y + this.headRectWrl.h,
-			this.headRectWrl.w,
+			this.posWrl.y,
+			Math.max(metrics.w + 2 * CircuitSceneObject.paddingXWrl, CircuitSceneObject.minWidthWrl),
 
-			CircuitSceneObject.bodyPaddingYWrl * 2 +
-				maxPinNumber * 2 * CircuitSceneObject.pinRadiusWrl +
-				(maxPinNumber - 1) * PIN_TO_PIN_DISTANCE_WRL
+			Math.max(
+				CircuitSceneObject.paddingYWrl * 2 +
+					maxPinNumber * 2 * CircuitSceneObject.pinRadiusWrl +
+					(maxPinNumber - 1) * PIN_TO_PIN_DISTANCE_WRL,
+				CircuitSceneObject.paddingYWrl * 2 + metrics.h
+			)
 		);
 	}
 
@@ -491,7 +516,7 @@ export class CircuitSceneObject {
 	}
 
 	calcRects() {
-		this.headRectWrl = this.getHeadRectWrl();
+		// this.headRectWrl = this.getHeadRectWrl();
 
 		this.bodyRectWrl = this.getBodyRectWrl();
 		this.tightRectWrl = this.calcTightRect();
@@ -510,21 +535,110 @@ export class CircuitSceneObject {
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {
-		const headRectScr = view.worldToScreenRect(this.headRectWrl);
+		/*
+const pinRadius = 7;
+const pinToPinDist = 7;
+const minCircuitWidth = 100;
+const bodyPaddingY = 15;
+const bodyPaddingX = 20;
+
+const circuitColor = "#2E556A";
+
+function drawCircuit(
+  nConsumerPins: number,
+  nProducerPins: number,
+  label: string
+) {
+  const pos = {
+    x: 100,
+    y: 100,
+  };
+
+  // render Head
+
+  ctx.font = "bold 48px 'advent pro'";
+  const metrics = ctx.measureText(label);
+  const labelHeight =
+    Math.abs(metrics.actualBoundingBoxAscent) +
+    Math.abs(metrics.actualBoundingBoxDescent);
+
+  const labelWidth =
+    Math.abs(metrics.actualBoundingBoxLeft) +
+    Math.abs(metrics.actualBoundingBoxRight);
+  const bodyWidth = Math.max(labelWidth + 2 * bodyPaddingX, minCircuitWidth);
+
+  // Body Background
+  const maxPinNumber = Math.max(nConsumerPins, nProducerPins);
+  const bodyHeight =
+    bodyPaddingY * 2 +
+    maxPinNumber * 2 * pinRadius +
+    (maxPinNumber - 1) * pinToPinDist;
+  ctx.fillStyle = circuitColor;
+  ctx.beginPath();
+  ctx.roundRect(pos.x, pos.y, bodyWidth, bodyHeight, [4, 4, 4, 4]);
+  ctx.fill();
+
+  ctx.fillStyle = "white";
+  const remainingBodySpace = bodyHeight - (labelHeight + bodyPaddingY * 2);
+  ctx.fillText(
+    label,
+    pos.x + bodyPaddingX,
+    pos.y + bodyHeight - bodyPaddingY - remainingBodySpace / 2
+  );
+
+  // ConsumerPins
+  console.log(metrics);
+  for (let i = 0; i < nConsumerPins; i++) {
+    ctx.strokeStyle = "#32424B";
+    ctx.fillStyle = "#5A6B74";
+    ctx.beginPath();
+    ctx.arc(
+      pos.x,
+      pos.y + bodyPaddingY + i * (pinRadius * 2 + pinToPinDist) + pinRadius,
+      pinRadius,
+      0,
+      360
+    );
+    ctx.stroke();
+    ctx.fill();
+  }
+
+  for (let i = 0; i < nProducerPins; i++) {
+    ctx.strokeStyle = "#32424B";
+    ctx.fillStyle = "#5A6B74";
+    ctx.beginPath();
+    ctx.arc(
+      pos.x + bodyWidth,
+      pos.y + bodyPaddingY + i * (pinRadius * 2 + pinToPinDist) + pinRadius,
+      pinRadius,
+      0,
+      360
+    );
+    ctx.stroke();
+    ctx.fill();
+  }
+}
+
+});
+
+		 */
+
+		// const headRectScr = view.worldToScreenRect(this.headRectWrl);
+		const labelMetrics = view.worldToScreenRect(this.getLabelMetrics());
 		const bodyRectScr = view.worldToScreenRect(this.bodyRectWrl);
 		const looseRectScr = view.worldToScreenRect(this.looseRectWrl);
 
-		// Head background
-		ctx.fillStyle = circuitColor;
-		ctx.beginPath();
-		ctx.roundRect(headRectScr.x, headRectScr.y, headRectScr.w, headRectScr.h, [4, 4, 0, 0]);
-		ctx.fill();
+		// // Head background
+		// ctx.fillStyle = circuitColor;
+		// ctx.beginPath();
+		// ctx.roundRect(headRectScr.x, headRectScr.y, headRectScr.w, headRectScr.h, [4, 4, 0, 0]);
+		// ctx.fill();
 
 		// Label
 		const labelSizeScr = CircuitSceneObject.labelTextSizeWrl * view.zoomLevel;
 		ctx.font = `bold ${labelSizeScr}px "Advent Pro"`;
-		ctx.fillStyle = '#fff';
 		ctx.textBaseline = 'bottom';
+
 		let actualLabel: string;
 		if (this.label === this.parentCircuit.circuitType) {
 			actualLabel = this.label;
@@ -532,11 +646,11 @@ export class CircuitSceneObject {
 			actualLabel = `${this.label}(${this.parentCircuit.circuitType})`;
 		}
 
-		ctx.fillText(
-			actualLabel,
-			headRectScr.x + CircuitSceneObject.paddingXWrl * view.zoomLevel,
-			headRectScr.y + headRectScr.h - CircuitSceneObject.headPaddingYWrl * view.zoomLevel
-		);
+		// ctx.fillText(
+		// 	actualLabel,
+		// 	headRectScr.x + CircuitSceneObject.paddingXWrl * view.zoomLevel,
+		// 	headRectScr.y + headRectScr.h - CircuitSceneObject.headPaddingYWrl * view.zoomLevel
+		// );
 
 		//render Body
 		// Head and Body separator
@@ -550,8 +664,22 @@ export class CircuitSceneObject {
 
 		ctx.fillStyle = circuitColor;
 		ctx.beginPath();
-		ctx.roundRect(bodyRectScr.x, bodyRectScr.y, bodyRectScr.w, bodyRectScr.h, [0, 0, 4, 4]);
+		ctx.roundRect(bodyRectScr.x, bodyRectScr.y, bodyRectScr.w, bodyRectScr.h, [4, 4, 4, 4]);
 		ctx.fill();
+
+		ctx.fillStyle = 'white';
+		const remainingBodySpaceY =
+			bodyRectScr.h - (labelMetrics.h + CircuitSceneObject.paddingYWrl * view.zoomLevel * 2);
+		const remainingBodySpaceX =
+			bodyRectScr.w - (labelMetrics.w + CircuitSceneObject.paddingXWrl * view.zoomLevel * 2);
+		ctx.fillText(
+			actualLabel,
+			bodyRectScr.x + CircuitSceneObject.paddingXWrl * view.zoomLevel + remainingBodySpaceX / 2,
+			bodyRectScr.y +
+				bodyRectScr.h -
+				CircuitSceneObject.paddingYWrl * view.zoomLevel -
+				remainingBodySpaceY / 2
+		);
 
 		if (this.isSelected) {
 			ctx.lineWidth = 1;

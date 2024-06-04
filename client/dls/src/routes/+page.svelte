@@ -108,7 +108,7 @@
 	<SideBar />
 
 	<TopMenu
-		class="z-10 col-span-1 col-start-[-2] row-start-1 flex flex-row gap-[1px]   border-b-[1px] border-s-[1px] border-neutral-700 px-2 text-xs"
+		class="z-10 col-span-1 col-start-[-2] row-start-1 flex flex-row gap-[1px] border-b-[1px] border-s-[1px] border-neutral-700 px-2 text-base font-normal"
 	/>
 
 	<div class="relative col-span-1 col-start-[-2] row-span-2 row-start-2 overflow-clip">

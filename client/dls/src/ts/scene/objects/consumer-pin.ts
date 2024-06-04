@@ -29,7 +29,7 @@ export class ConsumerPin {
 		return new Vec2(
 			circuitBodyRect.x,
 			circuitBodyRect.y +
-				CircuitSceneObject.bodyPaddingYWrl +
+				CircuitSceneObject.paddingYWrl +
 				this.pinIndex * (CircuitSceneObject.pinRadiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) +
 				CircuitSceneObject.pinRadiusWrl
 		);

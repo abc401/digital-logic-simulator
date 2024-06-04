@@ -59,7 +59,7 @@ export class ProducerPin {
 		return new Vec2(
 			bodyRectWrl.x + bodyRectWrl.w,
 			bodyRectWrl.y +
-				CircuitSceneObject.bodyPaddingYWrl +
+				CircuitSceneObject.paddingYWrl +
 				this.pinIndex * (CircuitSceneObject.pinRadiusWrl * 2 + PIN_TO_PIN_DISTANCE_WRL) +
 				CircuitSceneObject.pinRadiusWrl
 		);

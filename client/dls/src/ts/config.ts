@@ -1,4 +1,4 @@
-export const PIN_EXTRUSION_WRL = 7;
+export const PIN_EXTRUSION_WRL = 10;
 export const PIN_TO_PIN_DISTANCE_WRL = 10;
 
 export const SELECTED_COLOR = 'cyan';
