@@ -44,6 +44,7 @@
 	import SideBar from '@src/lib/components/SideBar.svelte';
 	import { ActionsManager } from '@src/ts/interactivity/actions-manager';
 	import { currentScene } from '@src/ts/scene/scene';
+	import { exportToFile } from '@src/ts/helpers';
 
 	$: {
 		console.log('Most recently selected circuit: ', $focusedCircuit);

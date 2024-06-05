@@ -6,6 +6,7 @@ import { PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
 import { Vec2 } from '@ts/math.js';
 import { offColor, onColor, view } from '@routes/+page.svelte';
 import { CircuitSceneObject } from './circuits/circuit.js';
+import type { View } from '@src/ts/view-manager.js';
 
 export class ConsumerPin {
 	wire: Wire | undefined;
@@ -55,22 +56,8 @@ export class ConsumerPin {
 
 	draw(ctx: CanvasRenderingContext2D) {
 		const pos = this.getLocScr();
-		// const style = getComputedStyle(document.body);
 
-		ctx.lineWidth = 5 * view.zoomLevel;
-		// ctx.strokeStyle = circuitColor + "50";
-		// ctx.beginPath();
-		// ctx.arc(
-		// 	pos.x,
-		// 	pos.y,
-		// 	CircuitSceneObject.pinRadiusWrl * viewManager.zoomLevel,
-		// 	(1 / 2) * Math.PI,
-		// 	(3 / 2) * Math.PI,
-		// 	true
-		// );
-		// ctx.stroke();
 		ctx.beginPath();
-
 		ctx.arc(pos.x, pos.y, CircuitSceneObject.pinRadiusWrl * view.zoomLevel, 0, 2 * Math.PI);
 		if (this.value) {
 			ctx.fillStyle = onColor;

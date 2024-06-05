@@ -7,6 +7,7 @@ import type { CustomCircuitInputs } from './circuits/custom-circuit-inputs.js';
 import { PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
 import { offColor, onColor, simEngine, view } from '@routes/+page.svelte';
 import { CircuitSceneObject } from './circuits/circuit.js';
+import type { View } from '@src/ts/view-manager.js';
 // import { CircuitSceneObject } from '../scene.js';
 
 export class ProducerPin {
@@ -77,26 +78,8 @@ export class ProducerPin {
 	draw(ctx: CanvasRenderingContext2D) {
 		const posScr = this.getLocScr();
 
-		// const style = getComputedStyle(document.body);
-
-		// const onColor = style.getPropertyValue('--clr-on');
-		// const offColor = style.getPropertyValue('--clr-off');
-
-		ctx.lineWidth = 5 * view.zoomLevel;
-		// ctx.strokeStyle = '#32424B';
-		// ctx.beginPath();
-		// ctx.arc(
-		// 	posScr.x,
-		// 	posScr.y,
-		// 	CircuitSceneObject.pinRadiusWrl * viewManager.zoomLevel,
-		// 	(1 / 2) * Math.PI,
-		// 	(3 / 2) * Math.PI
-		// );
-		// ctx.stroke();
-
 		ctx.beginPath();
 		ctx.arc(posScr.x, posScr.y, CircuitSceneObject.pinRadiusWrl * view.zoomLevel, 0, 2 * Math.PI);
-
 		if (this.value) {
 			ctx.fillStyle = onColor;
 		} else {

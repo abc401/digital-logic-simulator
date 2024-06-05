@@ -6,11 +6,12 @@
 	import DropDownToggle from './DropDown/DropDownToggle.svelte';
 	import DropDownMenu, { DropDownPosition } from './DropDown/DropDownMenu.svelte';
 	import DropDownItem from './DropDown/DropDownItem.svelte';
-	import { actionsManager, getSM, simEngine } from '@src/routes/+page.svelte';
+	import { actionsManager, getSM, sceneManager, simEngine } from '@src/routes/+page.svelte';
 	import { integratedCircuits } from '../stores/integrated-circuits';
 	import { currentScene, type ID } from '@src/ts/scene/scene';
 	import type { Circuit } from '@src/ts/scene/objects/circuits/circuit';
 	import { simulation } from '../stores/simulation';
+	import { exportToFile } from '@src/ts/helpers';
 
 	function createCircuit(circuitName: string, instantiator: () => Circuit) {
 		let [mouseSM, touchScreenSM] = getSM();
@@ -26,9 +27,19 @@
 </script>
 
 <div {...$$restProps}>
-	<!-- <DropDown>
-		<DropDownToggle>Add</DropDownToggle>
-		<DropDownMenu> -->
+	<DropDown>
+		<DropDownToggle class="my-1 px-3 py-1.5 ">File</DropDownToggle>
+		<DropDownMenu>
+			<DropDownItem
+				action={() => {
+					const svg = sceneManager.getCurrentScene().drawSvg();
+
+					const file = new Blob([svg]);
+					exportToFile(file, `${sceneManager.getCurrentScene().name}.svg`);
+				}}>Export</DropDownItem
+			>
+		</DropDownMenu>
+	</DropDown>
 	<DropDown>
 		<DropDownToggle class="my-1 px-3 py-1.5 ">Add</DropDownToggle>
 		<DropDownMenu position={DropDownPosition.Below}>

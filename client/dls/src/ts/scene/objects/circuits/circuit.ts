@@ -20,6 +20,7 @@ import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from '@src/ts/config.js';
 import { ConcreteObjectKind } from '../../scene-manager.js';
 import type { UserAction } from '@src/ts/interactivity/actions-manager.js';
 import { SetCircuitPropUserAction } from '@src/ts/interactivity/actions.js';
+import type { View } from '@src/ts/view-manager.js';
 // import type { Circuit } from './circuit.js';
 
 export type CircuitUpdateHandeler = (self: Circuit) => void;
@@ -535,104 +536,9 @@ export class CircuitSceneObject {
 	}
 
 	draw(ctx: CanvasRenderingContext2D) {
-		/*
-const pinRadius = 7;
-const pinToPinDist = 7;
-const minCircuitWidth = 100;
-const bodyPaddingY = 15;
-const bodyPaddingX = 20;
-
-const circuitColor = "#2E556A";
-
-function drawCircuit(
-  nConsumerPins: number,
-  nProducerPins: number,
-  label: string
-) {
-  const pos = {
-    x: 100,
-    y: 100,
-  };
-
-  // render Head
-
-  ctx.font = "bold 48px 'advent pro'";
-  const metrics = ctx.measureText(label);
-  const labelHeight =
-    Math.abs(metrics.actualBoundingBoxAscent) +
-    Math.abs(metrics.actualBoundingBoxDescent);
-
-  const labelWidth =
-    Math.abs(metrics.actualBoundingBoxLeft) +
-    Math.abs(metrics.actualBoundingBoxRight);
-  const bodyWidth = Math.max(labelWidth + 2 * bodyPaddingX, minCircuitWidth);
-
-  // Body Background
-  const maxPinNumber = Math.max(nConsumerPins, nProducerPins);
-  const bodyHeight =
-    bodyPaddingY * 2 +
-    maxPinNumber * 2 * pinRadius +
-    (maxPinNumber - 1) * pinToPinDist;
-  ctx.fillStyle = circuitColor;
-  ctx.beginPath();
-  ctx.roundRect(pos.x, pos.y, bodyWidth, bodyHeight, [4, 4, 4, 4]);
-  ctx.fill();
-
-  ctx.fillStyle = "white";
-  const remainingBodySpace = bodyHeight - (labelHeight + bodyPaddingY * 2);
-  ctx.fillText(
-    label,
-    pos.x + bodyPaddingX,
-    pos.y + bodyHeight - bodyPaddingY - remainingBodySpace / 2
-  );
-
-  // ConsumerPins
-  console.log(metrics);
-  for (let i = 0; i < nConsumerPins; i++) {
-    ctx.strokeStyle = "#32424B";
-    ctx.fillStyle = "#5A6B74";
-    ctx.beginPath();
-    ctx.arc(
-      pos.x,
-      pos.y + bodyPaddingY + i * (pinRadius * 2 + pinToPinDist) + pinRadius,
-      pinRadius,
-      0,
-      360
-    );
-    ctx.stroke();
-    ctx.fill();
-  }
-
-  for (let i = 0; i < nProducerPins; i++) {
-    ctx.strokeStyle = "#32424B";
-    ctx.fillStyle = "#5A6B74";
-    ctx.beginPath();
-    ctx.arc(
-      pos.x + bodyWidth,
-      pos.y + bodyPaddingY + i * (pinRadius * 2 + pinToPinDist) + pinRadius,
-      pinRadius,
-      0,
-      360
-    );
-    ctx.stroke();
-    ctx.fill();
-  }
-}
-
-});
-
-		 */
-
-		// const headRectScr = view.worldToScreenRect(this.headRectWrl);
 		const labelMetrics = view.worldToScreenRect(this.getLabelMetrics());
 		const bodyRectScr = view.worldToScreenRect(this.bodyRectWrl);
 		const looseRectScr = view.worldToScreenRect(this.looseRectWrl);
-
-		// // Head background
-		// ctx.fillStyle = circuitColor;
-		// ctx.beginPath();
-		// ctx.roundRect(headRectScr.x, headRectScr.y, headRectScr.w, headRectScr.h, [4, 4, 0, 0]);
-		// ctx.fill();
 
 		// Label
 		const labelSizeScr = CircuitSceneObject.labelTextSizeWrl * view.zoomLevel;
@@ -645,12 +551,6 @@ function drawCircuit(
 		} else {
 			actualLabel = `${this.label}(${this.parentCircuit.circuitType})`;
 		}
-
-		// ctx.fillText(
-		// 	actualLabel,
-		// 	headRectScr.x + CircuitSceneObject.paddingXWrl * view.zoomLevel,
-		// 	headRectScr.y + headRectScr.h - CircuitSceneObject.headPaddingYWrl * view.zoomLevel
-		// );
 
 		//render Body
 		// Head and Body separator
