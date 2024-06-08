@@ -11,16 +11,14 @@ import {
 	sceneManager,
 	simEngine,
 	view
-} from '@routes/+page.svelte';
+} from '@src/routes/dls/+page.svelte';
 import { Scene } from '@ts/scene/scene.js';
 // import { CircuitSceneObject } from './circuit.js';
 // import { CircuitSceneObject } from './circuit.js';
 import type { ID } from '../../scene.js';
 import { PIN_EXTRUSION_WRL, PIN_TO_PIN_DISTANCE_WRL } from '@src/ts/config.js';
 import { ConcreteObjectKind } from '../../scene-manager.js';
-import type { UserAction } from '@src/ts/interactivity/actions-manager.js';
 import { SetCircuitPropUserAction } from '@src/ts/interactivity/actions.js';
-import type { View } from '@src/ts/view-manager.js';
 // import type { Circuit } from './circuit.js';
 
 export type CircuitUpdateHandeler = (self: Circuit) => void;

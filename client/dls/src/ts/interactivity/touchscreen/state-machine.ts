@@ -3,7 +3,7 @@ import { Home } from './states/home.js';
 import { Panning } from './states/panning.js';
 import { Zooming } from './states/zooming.js';
 import { Illegal } from './states/Illegal.js';
-import { canvas } from '@routes/+page.svelte';
+import { canvas } from '@src/routes/dls/+page.svelte';
 
 export function getAppropriateState(touches: TouchList) {
 	if (touches.length === 0) {

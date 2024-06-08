@@ -2,7 +2,7 @@
 // import { Circle } from './math.js';
 import { Queue } from './data-structures/queue.js';
 import type { Circuit } from './scene/objects/circuits/circuit.js';
-import { sceneManager } from '@routes/+page.svelte';
+import { sceneManager } from '@src/routes/dls/+page.svelte';
 import { simulation } from '@lib/stores/simulation.js';
 
 export class SimEvent {

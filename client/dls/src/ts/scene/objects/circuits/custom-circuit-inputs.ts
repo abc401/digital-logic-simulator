@@ -1,10 +1,7 @@
-import { Vec2 } from '@ts/math.js';
-import { Scene } from '../../scene.js';
 import { UpdationStrategy } from '@ts/engine.js';
 import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
 import { Wire } from '../wire.js';
-import { ctx, sceneManager } from '@routes/+page.svelte';
 import { type Circuit, circuitCloneHelper } from './circuit.js';
 import { CircuitSceneObject } from './circuit.js';
 

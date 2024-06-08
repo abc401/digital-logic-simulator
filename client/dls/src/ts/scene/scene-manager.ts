@@ -1,11 +1,9 @@
 import { type Circuit } from './objects/circuits/circuit.js';
 import { CircuitSceneObject } from './objects/circuits/circuit.js';
-import { CustomCircuitOutputs } from './objects/circuits/custom-circuit-outputs.js';
-import { CustomCircuitInputs } from './objects/circuits/custom-circuit-inputs.js';
 import { Wire } from './objects/wire.js';
 // import { circuitCreators, domLog, secondaryCtx, viewManager } from '../main.js';
 import { Vec2 } from '@ts/math.js';
-import { actionsManager, view } from '@routes/+page.svelte';
+import { actionsManager, view } from '@src/routes/dls/+page.svelte';
 import { Scene, type ID } from './scene.js';
 import { currentScene } from './scene.js';
 import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config.js';

@@ -6,7 +6,7 @@
 	import DropDownToggle from './DropDown/DropDownToggle.svelte';
 	import DropDownMenu, { DropDownPosition } from './DropDown/DropDownMenu.svelte';
 	import DropDownItem from './DropDown/DropDownItem.svelte';
-	import { actionsManager, getSM, sceneManager, simEngine } from '@src/routes/+page.svelte';
+	import { actionsManager, getSM, sceneManager, simEngine } from '@src/routes/dls/+page.svelte';
 	import { integratedCircuits } from '../stores/integrated-circuits';
 	import { currentScene, type ID } from '@src/ts/scene/scene';
 	import type { Circuit } from '@src/ts/scene/objects/circuits/circuit';
@@ -36,7 +36,7 @@
 
 					const file = new Blob([svg]);
 					exportToFile(file, `${sceneManager.getCurrentScene().name}.svg`);
-				}}>Export</DropDownItem
+				}}>Export To SVG</DropDownItem
 			>
 		</DropDownMenu>
 	</DropDown>

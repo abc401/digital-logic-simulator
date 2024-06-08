@@ -6,7 +6,8 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				sans: ['Advent Pro', ...defaultTheme.fontFamily.sans]
+				sans: ['Advent Pro', ...defaultTheme.fontFamily.sans],
+				poppins: ['Poppins', 'sans-serif']
 			},
 			colors: {
 				off: 'var(--clr-off)',

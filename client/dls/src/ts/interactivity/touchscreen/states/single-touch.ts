@@ -9,7 +9,7 @@ import {
 } from '../state-machine';
 import { Vec2 } from '@src/ts/math';
 import { logState } from '@src/lib/stores/debugging';
-import { actionsManager } from '@src/routes/+page.svelte';
+import { actionsManager } from '@src/routes/dls/+page.svelte';
 import { Illegal } from './Illegal';
 import { Zooming } from './zooming';
 import type { ID } from '@src/ts/scene/scene';

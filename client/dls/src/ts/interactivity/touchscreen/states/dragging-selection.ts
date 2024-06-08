@@ -7,7 +7,7 @@ import {
 	type TouchScreenState,
 	type TouchScreenStateMachine
 } from '../state-machine';
-import { actionsManager, view } from '@src/routes/+page.svelte';
+import { actionsManager, view } from '@src/routes/dls/+page.svelte';
 import type { CircuitSceneObject } from '@src/ts/scene/objects/circuits/circuit';
 import { logState } from '@src/lib/stores/debugging';
 import { DragUserAction, dragSelection } from '../../actions';

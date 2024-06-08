@@ -1,7 +1,7 @@
 import { Home } from './states/home.js';
 import { ZoomUserAction, copySelectedToClipboard, pasteFromClipboard } from '../actions.js';
 import { Vec2 } from '@ts/math.js';
-import { actionsManager, canvas, view } from '@routes/+page.svelte';
+import { actionsManager, canvas, view } from '@src/routes/dls/+page.svelte';
 
 export enum MouseButton {
 	None = 0,

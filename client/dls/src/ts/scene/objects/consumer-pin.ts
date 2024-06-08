@@ -4,9 +4,8 @@ import type { Circuit } from './circuits/circuit.js';
 import type { CustomCircuitOutputs } from './circuits/custom-circuit-outputs.js';
 import { PIN_TO_PIN_DISTANCE_WRL } from '@ts/config.js';
 import { Vec2 } from '@ts/math.js';
-import { offColor, onColor, view } from '@routes/+page.svelte';
+import { offColor, onColor, view } from '@src/routes/dls/+page.svelte';
 import { CircuitSceneObject } from './circuits/circuit.js';
-import type { View } from '@src/ts/view-manager.js';
 
 export class ConsumerPin {
 	wire: Wire | undefined;

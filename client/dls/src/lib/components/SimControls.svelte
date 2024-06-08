@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { simEngine } from '@routes/+page.svelte';
+	import { simEngine } from '@src/routes/dls/+page.svelte';
 	import { simulation } from '@stores/simulation';
 </script>
 

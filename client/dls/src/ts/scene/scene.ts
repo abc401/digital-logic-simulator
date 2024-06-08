@@ -3,7 +3,7 @@ import { CustomCircuitOutputs } from './objects/circuits/custom-circuit-outputs.
 import { CustomCircuitInputs } from './objects/circuits/custom-circuit-inputs.js';
 import { Wire } from './objects/wire.js';
 import { StackList } from '@ts/data-structures/stacklist.js';
-import { circuitColor, ctx, offColor, onColor, sceneManager } from '@routes/+page.svelte';
+import { circuitColor, ctx, offColor, onColor, sceneManager } from '@src/routes/dls/+page.svelte';
 // import { integratedCircuits } from '@src/lib/stores/integrated-circuits.js';
 import { HOME_SCENE_NAME } from '@ts/config.js';
 import { writable } from 'svelte/store';

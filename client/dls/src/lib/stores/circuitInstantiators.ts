@@ -7,7 +7,7 @@ import { CustomCircuit } from '@ts/scene/objects/circuits/custom-circuit';
 import { ProcessingCircuit } from '@ts/scene/objects/circuits/processing-circuit';
 import { InputCircuit } from '@ts/scene/objects/circuits/input-circuit';
 import { writable } from 'svelte/store';
-import { sceneManager } from '@routes/+page.svelte';
+import { sceneManager } from '@src/routes/dls/+page.svelte';
 import type { ID } from '@src/ts/scene/scene';
 
 // let customCircuitInstances = new Map<number, CustomCircuit[]>();

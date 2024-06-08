@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { actionsManager, sceneManager } from '@src/routes/+page.svelte';
+	import { actionsManager, sceneManager } from '@src/routes/dls/+page.svelte';
 	import { icNames } from '@stores/integrated-circuits';
 	import { RenameICUserAction } from '@ts/interactivity/actions';
 	import { currentScene, type ID } from '@ts/scene/scene';
@@ -74,7 +74,6 @@
 				renaming = false;
 			}}
 			on:change={(ev) => {
-				console.log('helow');
 				const newName = ev.currentTarget.value;
 				if (verifyICName(newName)) {
 					actionsManager.do(new RenameICUserAction(sceneId, newName));

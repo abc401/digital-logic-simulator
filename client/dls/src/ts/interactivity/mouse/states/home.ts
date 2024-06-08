@@ -13,7 +13,7 @@ import { Wire } from '@ts/scene/objects/wire.js';
 import { Vec2 } from '@ts/math.js';
 import { CreatingWire } from './creating-wire.js';
 import { MouseDownPrimaryButton } from './mouse-down-primary-button.js';
-import { actionsManager, canvas, sceneManager, view } from '@routes/+page.svelte';
+import { actionsManager, canvas, sceneManager, view } from '@src/routes/dls/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 import { currentScene, type ID } from '@src/ts/scene/scene.js';
 import { DeleteWireUserAction } from '../../actions.js';

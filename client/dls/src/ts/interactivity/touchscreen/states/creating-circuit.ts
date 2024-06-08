@@ -10,7 +10,7 @@ import { type Circuit } from '@ts/scene/objects/circuits/circuit.js';
 import { Illegal } from './Illegal.js';
 import { Home as TouchScreenHome } from './home';
 import { Home as MouseHome } from '@ts/interactivity/mouse/states/home.js';
-import { actionsManager, mouseStateMachine, sceneManager } from '@routes/+page.svelte';
+import { actionsManager, mouseStateMachine, sceneManager } from '@src/routes/dls/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 import { CreateCircuitUserAction } from '../../actions.js';
 

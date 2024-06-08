@@ -1,11 +1,9 @@
-import { Vec2 } from '@ts/math.js';
 import { debugObjects } from '../../scene-manager.js';
 import { Scene } from '../../scene.js';
 import { UpdationStrategy } from '@ts/engine.js';
 import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
 import { Wire } from '../wire.js';
-import { ctx, sceneManager } from '@routes/+page.svelte';
 import { CustomCircuitInputs } from './custom-circuit-inputs.js';
 import { CustomCircuitOutputs } from './custom-circuit-outputs.js';
 import { type Circuit, cloneGraphAfterCircuit, circuitCloneHelper } from './circuit.js';

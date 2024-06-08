@@ -10,7 +10,7 @@ import {
 import { Home } from './home.js';
 import { ConcreteObjectKind } from '@ts/scene/scene-manager.js';
 import { Vec2 } from '@ts/math.js';
-import { actionsManager, canvas, sceneManager } from '@routes/+page.svelte';
+import { actionsManager, canvas, sceneManager } from '@src/routes/dls/+page.svelte';
 import { logState } from '@lib/stores/debugging.js';
 import { currentScene, type ID } from '@src/ts/scene/scene.js';
 import { CreateWireUserAction, DeleteWireUserAction } from '../../actions.js';

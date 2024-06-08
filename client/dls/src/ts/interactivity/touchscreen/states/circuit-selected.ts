@@ -1,4 +1,4 @@
-import type { Circuit } from '@ts/scene/objects/circuits/circuit.js';
+import type { Circuit, CircuitSceneObject } from '@ts/scene/objects/circuits/circuit.js';
 import {
 	TouchAction,
 	TouchActionKind,
@@ -7,13 +7,14 @@ import {
 	discriminateTouches,
 	findTouch
 } from '../state-machine.js';
-import { Dragging } from './dragging.js';
+// import { Dragging } from './dragging.js';
 import { Vec2 } from '@ts/math.js';
 import { Home } from './home.js';
 import { Illegal } from './Illegal.js';
 import { Zooming } from './zooming.js';
-import { canvas } from '@routes/+page.svelte';
+import { canvas } from '@src/routes/dls/+page.svelte';
 import { domLog, logState } from '@lib/stores/debugging.js';
+import { DraggingSelection } from './dragging-selection.js';
 
 export class CircuitSelected implements TouchScreenState {
 	constructor(
@@ -41,15 +42,19 @@ export class CircuitSelected implements TouchScreenState {
 		}
 
 		if (action.kind === TouchActionKind.TouchMove) {
-			let touch = findTouch(this.touchId, payload.changedTouches);
+			const touch = findTouch(this.touchId, payload.changedTouches);
 			if (touch == null) {
 				domLog("[CircuitSelectedErr] Some touch moved and it wasn't my touch");
 				throw Error();
 			}
 
-			let locScr = new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y);
-			payload.touches;
-			stateMachine.state = new Dragging(this.circuit, this.touchId, this.offsetWrl, locScr);
+			const locScr = new Vec2(touch.clientX - boundingRect.x, touch.clientY - boundingRect.y);
+			stateMachine.state = new DraggingSelection(
+				this.touchId,
+				this.circuit.sceneObject as CircuitSceneObject,
+				this.offsetWrl,
+				locScr
+			);
 		}
 		if (action.kind === TouchActionKind.TouchEnd) {
 			domLog('Invoking Circuit.onClicked');

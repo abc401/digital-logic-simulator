@@ -10,7 +10,7 @@ import { Rect, Vec2 } from '@ts/math.js';
 import { Panning } from './panning.js';
 import { Home } from './home.js';
 import { Illegal } from './Illegal.js';
-import { actionsManager, canvas, view } from '@routes/+page.svelte';
+import { actionsManager, canvas, view } from '@src/routes/dls/+page.svelte';
 import { domLog, logState } from '@lib/stores/debugging.js';
 import type { View } from '@src/ts/view-manager.js';
 import { TouchScreenZoomUserAction } from '../../actions.js';

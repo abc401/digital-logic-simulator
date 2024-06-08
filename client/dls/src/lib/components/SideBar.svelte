@@ -18,7 +18,7 @@
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 
-	import { rootDiv } from '@src/routes/+page.svelte';
+	import { rootDiv } from '@src/routes/dls/+page.svelte';
 
 	let isRetracted = true;
 

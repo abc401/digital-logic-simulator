@@ -3,7 +3,7 @@ import type { SceneObject } from '../scene-manager.js';
 import { SimEvent, UpdationStrategy } from '@ts/engine.js';
 import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
 import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
-import { offColor, onColor, sceneManager, simEngine, view } from '@routes/+page.svelte';
+import { offColor, onColor, sceneManager, simEngine, view } from '@src/routes/dls/+page.svelte';
 import { SELECTED_COLOR } from '@ts/config.js';
 import type { ID, Scene } from '../scene.js';
 

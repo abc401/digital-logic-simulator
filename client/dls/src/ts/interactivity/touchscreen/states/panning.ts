@@ -10,7 +10,7 @@ import { Vec2 } from '@ts/math.js';
 import { Home } from './home.js';
 import { Zooming } from './zooming.js';
 import { Illegal } from './Illegal.js';
-import { actionsManager, view } from '@routes/+page.svelte';
+import { actionsManager, view } from '@src/routes/dls/+page.svelte';
 import { domLog, logState } from '@lib/stores/debugging.js';
 import { PanUserAction } from '../../actions.js';
 

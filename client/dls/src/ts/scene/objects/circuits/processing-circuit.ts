@@ -1,5 +1,3 @@
-import { Vec2 } from '@ts/math.js';
-import { Scene } from '../../scene.js';
 import { UpdationStrategy } from '@ts/engine.js';
 import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
@@ -14,7 +12,6 @@ import {
 	defaultPropTypes
 } from './circuit.js';
 import { CircuitSceneObject } from './circuit.js';
-import { ctx } from '@src/routes/+page.svelte';
 
 export class ProcessingCircuit implements Circuit {
 	simFrameAllocated = false;

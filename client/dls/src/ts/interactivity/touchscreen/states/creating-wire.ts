@@ -12,7 +12,7 @@ import { ConcreteObjectKind } from '@ts/scene/scene-manager.js';
 import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
 import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
 import { Home } from './home.js';
-import { actionsManager, sceneManager } from '@routes/+page.svelte';
+import { actionsManager, sceneManager } from '@src/routes/dls/+page.svelte';
 import { logState } from '@src/lib/stores/debugging.js';
 import { CreateWireUserAction } from '../../actions.js';
 import { currentScene, type ID } from '@src/ts/scene/scene.js';

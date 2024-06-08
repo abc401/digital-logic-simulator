@@ -2,7 +2,7 @@
 </script>
 
 <script lang="ts">
-	import { rootDiv, sceneManager } from '@routes/+page.svelte';
+	import { rootDiv, sceneManager } from '@src/routes/dls/+page.svelte';
 	import { integratedCircuits } from '@src/lib/stores/integrated-circuits';
 	import IntegratedCircuitDisplay from './IntegratedCircuitDisplay.svelte';
 </script>

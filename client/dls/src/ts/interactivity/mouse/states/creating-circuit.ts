@@ -3,7 +3,7 @@ import {
 	canvas,
 	sceneManager,
 	touchScreenStateMachine
-} from '@routes/+page.svelte';
+} from '@src/routes/dls/+page.svelte';
 import {
 	MouseAction,
 	MouseActionKind,

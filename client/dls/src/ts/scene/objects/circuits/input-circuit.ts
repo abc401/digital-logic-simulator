@@ -1,9 +1,7 @@
-import { Vec2 } from '@ts/math.js';
-import { Scene } from '../../scene.js';
 import { SimEvent, UpdationStrategy } from '@ts/engine.js';
 import { ConsumerPin } from '../consumer-pin.js';
 import { ProducerPin } from '../producer-pin.js';
-import { ctx, simEngine } from '@routes/+page.svelte';
+import { simEngine } from '@src/routes/dls/+page.svelte';
 import { type Circuit, circuitCloneHelper, type Props, CircuitPropType } from './circuit.js';
 import { CircuitSceneObject } from './circuit.js';
 

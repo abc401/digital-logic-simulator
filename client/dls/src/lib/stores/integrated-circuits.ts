@@ -1,4 +1,4 @@
-import { actionsManager, sceneManager } from '@routes/+page.svelte';
+import { actionsManager, sceneManager } from '@src/routes/dls/+page.svelte';
 import { writable } from 'svelte/store';
 import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config';
 import { type ID } from '@src/ts/scene/scene';
@@ -48,18 +48,6 @@ export const integratedCircuits = {
 			return integratedCircuits;
 		});
 	},
-	// getSceneIdFor(circuitName: string) {
-	// 	let sceneId: number | undefined = -1;
-	// 	const unsubscribe = subscribe((value) => {
-	// 		sceneId = value.get(circuitName);
-	// 	});
-	// 	unsubscribe();
-	// 	if (sceneId === -1) {
-	// 		return undefined;
-	// 	} else {
-	// 		return sceneId;
-	// 	}
-	// },
 	getName(id: ID) {
 		let name = '';
 		const unsub = subscribe((value) => {

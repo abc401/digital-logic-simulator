@@ -1,5 +1,5 @@
 import { logState } from '@src/lib/stores/debugging';
-import { canvas, sceneManager, view } from '@src/routes/+page.svelte';
+import { canvas, sceneManager, view } from '@src/routes/dls/+page.svelte';
 import { Vec2 } from '@src/ts/math';
 import type { Circuit } from '@src/ts/scene/objects/circuits/circuit';
 import type { ConsumerPin } from '@src/ts/scene/objects/consumer-pin';
