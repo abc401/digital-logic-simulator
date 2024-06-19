@@ -43,21 +43,7 @@ export class CustomCircuitInputs implements Circuit {
 		return circuitCloneHelper(this);
 	}
 
-	// configSceneObject(posWrl: Vec2, scene: Scene | undefined = undefined): void {
-	// 	// const parentScene = scene || sceneManager.getCurrentScene();
-	// 	// if (parentScene.customCircuitInputs != null) {
-	// 	// 	throw Error();
-	// 	// }
-
-	// 	// this.sceneObject = CircuitSceneObject.new(this, posWrl, scene, ctx);
-	// 	// this.sceneObject.deletable = false;
-	// 	// // sceneManager.currentScene.customCircuitInputs = this.sceneObject.id;
-	// 	// parentScene.customCircuitInputs = this;
-	// 	throw Error();
-	// }
-	onSceneObjectConfigured(): void {
-		// throw Error();
-	}
+	onSceneObjectConfigured(): void {}
 
 	setValues(pins: ConsumerPin[]) {
 		for (let i = 0; i < this.producerPins.length - 1; i++) {

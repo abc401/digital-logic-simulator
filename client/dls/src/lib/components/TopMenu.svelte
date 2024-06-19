@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { circuitInstanciators, icInstantiators } from '@src/lib/stores/circuitInstantiators';
+	import { circuitInstantiators, icInstantiators } from '@src/lib/stores/circuitInstantiators';
 	import { CreatingCircuit as CreatingCircuitMouse } from '@ts/interactivity/mouse/states/creating-circuit';
 	import { CreatingCircuit as CreatingCircuitTouchScreen } from '@ts/interactivity/touchscreen/states/creating-circuit';
 	import DropDown from './DropDown/DropDown.svelte';
@@ -8,10 +8,10 @@
 	import DropDownItem from './DropDown/DropDownItem.svelte';
 	import { actionsManager, getSM, sceneManager, simEngine } from '@src/routes/dls/+page.svelte';
 	import { integratedCircuits } from '../stores/integrated-circuits';
-	import { currentScene, type ID } from '@src/ts/scene/scene';
 	import type { Circuit } from '@src/ts/scene/objects/circuits/circuit';
 	import { simulation } from '../stores/simulation';
 	import { exportToFile } from '@src/ts/helpers';
+	import { currentScene } from '@stores/currentScene';
 
 	function createCircuit(circuitName: string, instantiator: () => Circuit) {
 		let [mouseSM, touchScreenSM] = getSM();
@@ -32,10 +32,15 @@
 		<DropDownMenu>
 			<DropDownItem
 				action={() => {
-					const svg = sceneManager.getCurrentScene().drawSvg();
+					const currentScene = sceneManager.getCurrentScene();
+					if (currentScene == null) {
+						throw Error();
+					}
+
+					const svg = currentScene.drawSvg();
 
 					const file = new Blob([svg]);
-					exportToFile(file, `${sceneManager.getCurrentScene().name}.svg`);
+					exportToFile(file, `${currentScene.name}.svg`);
 				}}>Export To SVG</DropDownItem
 			>
 		</DropDownMenu>
@@ -43,10 +48,10 @@
 	<DropDown>
 		<DropDownToggle class="my-1 px-3 py-1.5 ">Add</DropDownToggle>
 		<DropDownMenu position={DropDownPosition.Below}>
-			{#each Object.keys(circuitInstanciators) as circuitName (circuitName)}
+			{#each Object.keys(circuitInstantiators) as circuitName (circuitName)}
 				<DropDownItem
 					action={() => {
-						createCircuit(circuitName, circuitInstanciators[circuitName]);
+						createCircuit(circuitName, circuitInstantiators[circuitName]);
 					}}>{circuitName}</DropDownItem
 				>
 			{/each}
@@ -94,7 +99,7 @@
 			<DropDownToggle class="my-1 px-3 py-1.5 ">ICs</DropDownToggle>
 			<DropDownMenu position={DropDownPosition.Below}>
 				{#each Object.entries($icInstantiators) as [id, instantiator] (id)}
-					{#if +id !== currentScene_.id}
+					{#if +id !== currentScene_?.id}
 						<DropDownItem
 							action={() => {
 								createCircuit(integratedCircuits.getName(+id), instantiator);

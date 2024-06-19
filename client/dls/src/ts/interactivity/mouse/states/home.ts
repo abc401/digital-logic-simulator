@@ -4,19 +4,20 @@ import {
 	MouseStateMachine,
 	type MouseState,
 	MouseButton
-} from '../state-machine.js';
-import { ConcreteObjectKind } from '@ts/scene/scene-manager.js';
-import type { Circuit } from '@ts/scene/objects/circuits/circuit.js';
-import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
-import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
-import { Wire } from '@ts/scene/objects/wire.js';
-import { Vec2 } from '@ts/math.js';
-import { CreatingWire } from './creating-wire.js';
-import { MouseDownPrimaryButton } from './mouse-down-primary-button.js';
+} from '../state-machine';
+import { ConcreteObjectKind } from '@ts/scene/scene-manager';
+import type { Circuit } from '@ts/scene/objects/circuits/circuit';
+import { ProducerPin } from '@ts/scene/objects/producer-pin';
+import { ConsumerPin } from '@ts/scene/objects/consumer-pin';
+import { Wire } from '@ts/scene/objects/wire';
+import { Vec2 } from '@ts/math';
+import { CreatingWire } from './creating-wire';
+import { MouseDownPrimaryButton } from './mouse-down-primary-button';
 import { actionsManager, canvas, sceneManager, view } from '@src/routes/dls/+page.svelte';
-import { logState } from '@lib/stores/debugging.js';
-import { currentScene, type ID } from '@src/ts/scene/scene.js';
-import { DeleteWireUserAction } from '../../actions.js';
+import { logState } from '@lib/stores/debugging';
+import { type ID } from '@src/ts/scene/scene';
+import { currentScene } from '@stores/currentScene';
+import { DeleteWireUserAction } from '../../actions';
 
 export class Home implements MouseState {
 	constructor() {
@@ -78,7 +79,11 @@ export class Home implements MouseState {
 				const pin = focusObject.object as ConsumerPin;
 
 				if (pin.wire != null) {
-					actionsManager.do(new DeleteWireUserAction(pin.wire, currentScene.get().id as ID));
+					const currentScene_ = currentScene.get();
+					if (currentScene_ == null) {
+						throw Error();
+					}
+					actionsManager.do(new DeleteWireUserAction(pin.wire, currentScene_.id as ID));
 					// pin.wire.detach();
 				}
 

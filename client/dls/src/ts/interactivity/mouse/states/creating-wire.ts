@@ -1,24 +1,24 @@
-import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
-import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
-import { Wire } from '@ts/scene/objects/wire.js';
-import {
-	MouseAction,
-	MouseActionKind,
-	type MouseState,
-	MouseStateMachine
-} from '../state-machine.js';
-import { Home } from './home.js';
-import { ConcreteObjectKind } from '@ts/scene/scene-manager.js';
-import { Vec2 } from '@ts/math.js';
+import { ProducerPin } from '@ts/scene/objects/producer-pin';
+import { ConsumerPin } from '@ts/scene/objects/consumer-pin';
+import { Wire } from '@ts/scene/objects/wire';
+import { MouseAction, MouseActionKind, type MouseState, MouseStateMachine } from '../state-machine';
+import { Home } from './home';
+import { ConcreteObjectKind } from '@ts/scene/scene-manager';
+import { Vec2 } from '@ts/math';
 import { actionsManager, canvas, sceneManager } from '@src/routes/dls/+page.svelte';
-import { logState } from '@lib/stores/debugging.js';
-import { currentScene, type ID } from '@src/ts/scene/scene.js';
-import { CreateWireUserAction, DeleteWireUserAction } from '../../actions.js';
+import { logState } from '@lib/stores/debugging';
+import { type ID } from '@src/ts/scene/scene';
+import { currentScene } from '@stores/currentScene';
+import { CreateWireUserAction, DeleteWireUserAction } from '../../actions';
 
 export class CreatingWire implements MouseState {
 	constructor(private wire: Wire) {
 		logState('CreatingWire');
-		currentScene.get().wireBeingCreated = wire;
+		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+		currentScene_.wireBeingCreated = wire;
 
 		// console.log("Wire: ", wire);
 		// console.log("consumerPin: ", wire.getConsumerPin()?.wire);
@@ -51,7 +51,11 @@ export class CreatingWire implements MouseState {
 			) {
 				const pin = focusObject.object as ConsumerPin;
 				if (pin.wire != null) {
-					actionsManager.do(new DeleteWireUserAction(pin.wire, currentScene.get().id as ID));
+					const currentScene_ = currentScene.get();
+					if (currentScene_ == null) {
+						throw Error();
+					}
+					actionsManager.do(new DeleteWireUserAction(pin.wire, currentScene_.id as ID));
 				}
 
 				this.wire.setConsumerPin(pin);
@@ -66,6 +70,9 @@ export class CreatingWire implements MouseState {
 				return;
 			}
 			const currentScene_ = currentScene.get();
+			if (currentScene_ == null) {
+				throw Error();
+			}
 			currentScene_.wireBeingCreated = undefined;
 			actionsManager.do(new CreateWireUserAction(currentScene_.id as ID, this.wire));
 			// this.wire.register(currentScene_);

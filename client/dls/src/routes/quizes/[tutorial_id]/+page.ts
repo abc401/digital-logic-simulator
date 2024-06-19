@@ -1,5 +1,5 @@
 import type { TutorialNav } from '@src/lib/stores/tutorials.js';
-import { apiURL } from '@src/ts/api.js';
+import { apiURL } from '@src/ts/api/helpers';
 
 export interface MCQ {
 	id: number;

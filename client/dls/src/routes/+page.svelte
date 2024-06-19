@@ -1,5 +1,8 @@
 <script>
+	import '@src/app.css';
 	import './style.css';
+
+	import sampleProject from '@ts/api/sample-project.json';
 </script>
 
 <svelte:head>
@@ -15,7 +18,13 @@
 		</div>
 	</nav>
 	<div class="text-box">
-		<h1>Digital Logic <br />Simulator</h1>
-		<a data-sveltekit-preload-data="off" href="/dls" class="hero-btn custom-blur">Start Creating</a>
+		<h1 class="m-10 text-2xl leading-tight">Digital Logic Simulator</h1>
+		<a href="/dls" class="hero-btn custom-blur">Start Creating</a>
+
+		<!-- .hero-btn:hover {
+	border: 1px solid #f44336;
+	background: #f44336;
+	transition: 1s;
+} -->
 	</div>
 </section>

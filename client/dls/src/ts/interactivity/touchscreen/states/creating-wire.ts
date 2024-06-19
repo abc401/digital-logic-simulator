@@ -1,4 +1,4 @@
-import { Wire } from '@ts/scene/objects/wire.js';
+import { Wire } from '@ts/scene/objects/wire';
 import {
 	TouchAction,
 	TouchActionKind,
@@ -6,21 +6,26 @@ import {
 	TouchScreenStateMachine,
 	discriminateTouches,
 	getLocScr
-} from '../state-machine.js';
-import { Illegal } from './Illegal.js';
-import { ConcreteObjectKind } from '@ts/scene/scene-manager.js';
-import { ConsumerPin } from '@ts/scene/objects/consumer-pin.js';
-import { ProducerPin } from '@ts/scene/objects/producer-pin.js';
-import { Home } from './home.js';
+} from '../state-machine';
+import { Illegal } from './Illegal';
+import { ConcreteObjectKind } from '@ts/scene/scene-manager';
+import { ConsumerPin } from '@ts/scene/objects/consumer-pin';
+import { ProducerPin } from '@ts/scene/objects/producer-pin';
+import { Home } from './home';
 import { actionsManager, sceneManager } from '@src/routes/dls/+page.svelte';
-import { logState } from '@src/lib/stores/debugging.js';
-import { CreateWireUserAction } from '../../actions.js';
-import { currentScene, type ID } from '@src/ts/scene/scene.js';
+import { logState } from '@src/lib/stores/debugging';
+import { CreateWireUserAction } from '../../actions';
+import { type ID } from '@src/ts/scene/scene';
+import { currentScene } from '@stores/currentScene';
 
 export class CreatingWire implements TouchScreenState {
 	constructor(private wire: Wire) {
 		logState('CreatingWire');
-		currentScene.get().wireBeingCreated = wire;
+		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+		currentScene_.wireBeingCreated = wire;
 	}
 	update(stateMachine: TouchScreenStateMachine, action: TouchAction): void {
 		const payload = action.payload;
@@ -66,6 +71,9 @@ export class CreatingWire implements TouchScreenState {
 				return;
 			}
 			const currentScene_ = currentScene.get();
+			if (currentScene_ == null) {
+				throw Error();
+			}
 			currentScene_.wireBeingCreated = undefined;
 			actionsManager.do(new CreateWireUserAction(currentScene_.id as ID, this.wire));
 			this.wire.detach();

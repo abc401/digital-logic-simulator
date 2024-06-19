@@ -1,4 +1,4 @@
-import { apiURL } from '@src/ts/api';
+import { apiURL } from '@src/ts/api/helpers';
 import { writable, type Invalidator, type Subscriber, type Unsubscriber } from 'svelte/store';
 
 type FetchFunc = (url: URL) => Promise<Response>;

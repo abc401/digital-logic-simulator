@@ -31,15 +31,12 @@ export enum CircuitPropType {
 
 export type Props = { label: string; [key: string]: any };
 export type PropTypes = { [key: string]: CircuitPropType };
+
+/**
+ * @returns false if the provided value cannot be set and otherwise true
+ */
 export type PropSetter = (circuit: Circuit, value: any) => boolean;
 export type PropSetters = { [key: string]: PropSetter };
-
-// function identitiyPropSetter(name: string) {
-// 	return function (circuit: Circuit, value: any) {
-// 		circuit.props[name] = value;
-// 		return true;
-// 	};
-// }
 
 export const defaultPropTypes: PropTypes = {
 	label: CircuitPropType.String
@@ -346,7 +343,7 @@ export class CircuitSceneObject {
 		this.parentScene = new Scene();
 	}
 
-	static newWithID(
+	static newRegistered(
 		id: ID,
 		parentCircuit: Circuit,
 		posWrl: Vec2,
@@ -356,7 +353,11 @@ export class CircuitSceneObject {
 		const sceneObject = new CircuitSceneObject(parentCircuit, posWrl, ctx);
 
 		if (parentScene == null) {
-			sceneObject.parentScene = sceneManager.getCurrentScene();
+			const currentScene = sceneManager.getCurrentScene();
+			if (currentScene == null) {
+				throw Error();
+			}
+			sceneObject.parentScene = currentScene;
 		} else {
 			sceneObject.parentScene = parentScene;
 		}
@@ -375,7 +376,11 @@ export class CircuitSceneObject {
 		const sceneObject = new CircuitSceneObject(parentCircuit, posWrl, ctx);
 
 		if (parentScene == null) {
-			sceneObject.parentScene = sceneManager.getCurrentScene();
+			const currentScene = sceneManager.getCurrentScene();
+			if (currentScene == null) {
+				throw Error();
+			}
+			sceneObject.parentScene = currentScene;
 		} else {
 			sceneObject.parentScene = parentScene;
 		}

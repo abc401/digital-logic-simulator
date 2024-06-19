@@ -26,11 +26,10 @@ export class CustomCircuitOutputs implements Circuit {
 	constructor() {
 		this.sceneObject = undefined;
 		const nConsumerPins = 1;
-		const nProducerPins = 0;
+
+		this.producerPins = Array(0);
 
 		this.consumerPins = new Array(nConsumerPins);
-
-		this.producerPins = Array(nProducerPins);
 
 		for (let i = 0; i < this.consumerPins.length; i++) {
 			this.consumerPins[i] = new ConsumerPin(this, i);
@@ -57,9 +56,7 @@ export class CustomCircuitOutputs implements Circuit {
 		}
 	}
 
-	onSceneObjectConfigured(): void {
-		// throw Error();
-	}
+	onSceneObjectConfigured(): void {}
 
 	static addPin(self: CustomCircuitOutputs) {
 		const newPinIndex = self.consumerPins.length;

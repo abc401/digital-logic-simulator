@@ -115,14 +115,14 @@ func CreateWireDo(ctx *gin.Context) {
 	var fromCircuit = currentScene.GetCircuit(params.ProducerCircuitID)
 
 	fromCircuit.OutputWires[newWire.FromPin] = &newWire
-	if fromCircuit.CircuitType == "customcircuitinputs" {
+	if fromCircuit.CircuitType == "customcircuitinputs" && (newWire.FromPin == fromCircuit.NOutputPins-1) {
 		fromCircuit.NOutputPins++
 		fromCircuit.OutputWires = append(fromCircuit.OutputWires, nil)
 	}
 
 	var toCircuit = currentScene.GetCircuit(params.ConsumerCircuitID)
 	toCircuit.InputWires[newWire.ToPin] = &newWire
-	if toCircuit.CircuitType == "customcircuitoutputs" {
+	if toCircuit.CircuitType == "customcircuitoutputs" && (newWire.ToPin == toCircuit.NInputPins-1) {
 		toCircuit.NInputPins++
 		toCircuit.InputWires = append(toCircuit.InputWires, nil)
 	}
@@ -180,7 +180,7 @@ func CreateCircuitDo(ctx *gin.Context) {
 	var project = state.GetProject()
 	currentScene := project.GetCurrentScene()
 
-	newCircuit, ok := state.DefaultCircuits[strings.ToLower(params.CircuitType)]
+	newCircuit, ok := state.DefaultCircuits[params.CircuitType]
 
 	if !ok {
 		var sceneID = -1

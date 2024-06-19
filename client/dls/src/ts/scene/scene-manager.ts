@@ -5,7 +5,7 @@ import { Wire } from './objects/wire.js';
 import { Vec2 } from '@ts/math.js';
 import { actionsManager, view } from '@src/routes/dls/+page.svelte';
 import { Scene, type ID } from './scene.js';
-import { currentScene } from './scene.js';
+import { currentScene } from '@stores/currentScene';
 import { HOME_SCENE_ID, HOME_SCENE_NAME } from '@ts/config.js';
 import { focusedCircuit } from '@lib/stores/focusedCircuit.js';
 import type { ProducerPin } from './objects/producer-pin.js';
@@ -51,14 +51,12 @@ export class SceneManager {
 
 	constructor() {
 		// this.currentScene = new Scene();
-
 		// this.newScene();
-		const defaultScene = new Scene();
-		defaultScene.name = HOME_SCENE_NAME;
-		this.registerSceneWithID(HOME_SCENE_ID, defaultScene);
-
-		// this.setCurrentScene(HOME_SCENE_ID);
-		currentScene.setWithoutCommitting(defaultScene);
+		// const defaultScene = new Scene();
+		// defaultScene.name = HOME_SCENE_NAME;
+		// this.registerSceneWithID(HOME_SCENE_ID, defaultScene);
+		// // this.setCurrentScene(HOME_SCENE_ID);
+		// currentScene.setWithoutCommitting(defaultScene);
 	}
 
 	getNextSceneID() {
@@ -77,9 +75,12 @@ export class SceneManager {
 		if (scene == null) {
 			throw Error();
 		}
-		if (this.getCurrentScene().name === scene.name) {
+		const currentScene = this.getCurrentScene();
+
+		if (currentScene != null && currentScene.name === scene.name) {
 			throw Error();
 		}
+
 		this.scenes.delete(id);
 		scene.id = undefined;
 	}
@@ -124,6 +125,9 @@ export class SceneManager {
 
 	draw(ctx: CanvasRenderingContext2D) {
 		const currentScene = this.getCurrentScene();
+		if (currentScene == null) {
+			throw Error();
+		}
 
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 		// for (let id of this.currentScene.wires.values()) {
@@ -199,6 +203,9 @@ export class SceneManager {
 
 	selectCircuit(id: ID) {
 		const currentScene = this.getCurrentScene();
+		if (currentScene == null) {
+			throw Error();
+		}
 		const circuit = currentScene.idToCircuit.get(id);
 
 		if (circuit == null) {
@@ -271,6 +278,9 @@ export class SceneManager {
 	}
 	selectCircuitUnchecked(id: ID) {
 		const currentScene = this.getCurrentScene();
+		if (currentScene == null) {
+			throw Error();
+		}
 		const circuit = currentScene.idToCircuit.get(id);
 
 		if (circuit == null) {
@@ -285,6 +295,9 @@ export class SceneManager {
 
 	deselectCircuit(id: ID) {
 		const currentScene = this.getCurrentScene();
+		if (currentScene == null) {
+			throw Error();
+		}
 		const circuit = currentScene.idToCircuit.get(id);
 
 		if (circuit == null) {
@@ -356,6 +369,9 @@ export class SceneManager {
 		// }
 		// return undefined;
 		const currentScene = this.getCurrentScene();
+		if (currentScene == null) {
+			throw Error();
+		}
 		for (const circuit of currentScene.circuits.topToBottom()) {
 			if (!circuit.data.looseCollisionCheck(view.screenToWorld(locScr))) {
 				continue;

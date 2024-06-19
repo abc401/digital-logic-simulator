@@ -51,7 +51,7 @@ export class Scene {
 		console.trace();
 
 		const customInputs = new CustomCircuitInputs();
-		const inputsSceneObject = CircuitSceneObject.newWithID(
+		const inputsSceneObject = CircuitSceneObject.newRegistered(
 			scene.getNextID(),
 			customInputs,
 			new Vec2(90, 220),
@@ -65,7 +65,7 @@ export class Scene {
 		scene.customCircuitInputs = customInputs;
 
 		const customOutputs = new CustomCircuitOutputs();
-		const outputsSceneObject = CircuitSceneObject.newWithID(
+		const outputsSceneObject = CircuitSceneObject.newRegistered(
 			scene.getNextID(),
 			customOutputs,
 			new Vec2(240, 220),
@@ -106,6 +106,10 @@ export class Scene {
 		this.idToCircuit.set(id, circuit);
 		circuit.id = id;
 
+		if (id + 1 > this.currentObjectID) {
+			this.currentObjectID = id + 1;
+		}
+
 		this.circuits.push(circuit);
 		if (this.name != HOME_SCENE_NAME) {
 			this.tmpCircuits.add(circuit);
@@ -140,6 +144,10 @@ export class Scene {
 
 		this.idToWire.set(id, wire);
 		wire.id = id;
+
+		if (id + 1 > this.currentObjectID) {
+			this.currentObjectID = id + 1;
+		}
 
 		this.wires.push(wire);
 		if (this.name != HOME_SCENE_NAME) {
@@ -186,6 +194,7 @@ export class Scene {
 			}
 			entries.lastUpdateIdx = scene.lastUpdateIdx;
 		}
+		console.log(`${this.name} Scene: `, this);
 	}
 
 	refreshICLabels() {
@@ -302,34 +311,6 @@ ${innerSVG}
 </svg>`;
 	}
 }
-
-const { subscribe, set } = writable(new Scene());
-
-export const currentScene = {
-	subscribe,
-	get: function () {
-		let scene: Scene = {} as Scene;
-		const unsub = subscribe((value) => {
-			scene = value;
-		});
-		unsub();
-		return scene;
-	},
-	setWithoutCommitting(scene: Scene) {
-		set(scene);
-	},
-	set: function (scene: Scene) {
-		const currentScene_ = this.get();
-		if (scene === currentScene_) {
-			return;
-		}
-
-		currentScene_.commitTmpObjects();
-
-		scene.reEvaluateICs();
-		set(scene);
-	}
-};
 
 function drawCircuitSVG(circuit: CircuitSceneObject, view: View) {
 	const labelMetrics = view.worldToScreenRect(circuit.getLabelMetrics());

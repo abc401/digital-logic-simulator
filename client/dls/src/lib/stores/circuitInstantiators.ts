@@ -30,7 +30,7 @@ export const icInstanciator = (sceneId: ID) => () => {
 	return circuit;
 };
 
-export const circuitInstanciators: { [key: string]: () => Circuit } = {
+export const circuitInstantiators: { [key: string]: () => Circuit } = {
 	Input: () => {
 		return new InputCircuit(false) as Circuit;
 	},
@@ -185,13 +185,22 @@ export const circuitInstanciators: { [key: string]: () => Circuit } = {
 const { subscribe, update } = writable<{ [key: ID]: () => Circuit }>({});
 export const icInstantiators = {
 	subscribe,
-	removeInstantiator: function (id: ID) {
+	get() {
+		let instantiators: { [key: ID]: () => Circuit } = {};
+
+		const unsub = subscribe((value) => {
+			instantiators = value;
+		});
+		unsub();
+		return instantiators;
+	},
+	removeInstantiator(id: ID) {
 		update((instantiators) => {
 			delete instantiators[id];
 			return instantiators;
 		});
 	},
-	newInstantiator: function (id: ID, instantiator: () => Circuit) {
+	newInstantiator(id: ID, instantiator: () => Circuit) {
 		update((instantiators) => {
 			instantiators[id] = instantiator;
 			return instantiators;

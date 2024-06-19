@@ -28,17 +28,22 @@ func ConfigHandelers(router gin.IRouter) {
 	tutorials.GET("/:link_title", GetTutorial)
 	tutorials.GET("/:link_title/quiz", GetQuiz)
 
-	router.GET("/project/", GetProjectState)
+	router.GET("/project", GetProjectState)
+	router.GET("/project/reset-state", ResetProjectState)
 
 	action := router.Group("/action")
 	actions.ConfigHandlers(action)
 }
-
 func CorsMiddleWare(ctx *gin.Context) {
 	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.Next()
 }
 
+func ResetProjectState(ctx *gin.Context) {
+	*state.GetProject() = state.NewProject()
+	ctx.JSON(http.StatusOK, gin.H{})
+
+}
 func GetProjectState(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, state.GetProject())
 }

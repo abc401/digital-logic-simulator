@@ -8,6 +8,7 @@ import { CustomCircuitInputs } from './custom-circuit-inputs.js';
 import { CustomCircuitOutputs } from './custom-circuit-outputs.js';
 import { type Circuit, cloneGraphAfterCircuit, circuitCloneHelper } from './circuit.js';
 import { CircuitSceneObject } from './circuit.js';
+import { sceneManager } from '@src/routes/dls/+page.svelte';
 
 export class CustomCircuit implements Circuit {
 	updationStrategy = UpdationStrategy.Immediate;
@@ -97,13 +98,19 @@ export class CustomCircuit implements Circuit {
 	}
 
 	updateCircuitGraph() {
+		console.log(`[updateCircuitGraph]: `, this);
+
+		const scene = sceneManager.scenes.get(this.scene.id as number);
+		if (scene == null) {
+			throw Error();
+		}
 		this.circuits = [];
 		this.wires = [];
 
 		const circuitCloneMapping = new Map<Circuit, Circuit>();
 		const wireCloneMapping = new Map<Wire, Wire>();
 
-		for (const circuit of this.scene.circuits.topToBottom()) {
+		for (const circuit of scene.circuits.topToBottom()) {
 			cloneGraphAfterCircuit(
 				circuit.data.parentCircuit,
 				this.circuits,
@@ -113,20 +120,20 @@ export class CustomCircuit implements Circuit {
 			);
 		}
 
-		if (this.scene.customCircuitInputs == null) {
+		if (scene.customCircuitInputs == null) {
 			throw Error();
 		}
 
-		const newCustomInputs = circuitCloneMapping.get(this.scene.customCircuitInputs);
+		const newCustomInputs = circuitCloneMapping.get(scene.customCircuitInputs);
 		if (newCustomInputs == null) {
 			throw Error();
 		}
 		this.customInputs = newCustomInputs as CustomCircuitInputs;
 
-		if (this.scene.customCircuitOutputs == null) {
+		if (scene.customCircuitOutputs == null) {
 			throw Error();
 		}
-		const newCustomOutputs = circuitCloneMapping.get(this.scene.customCircuitOutputs);
+		const newCustomOutputs = circuitCloneMapping.get(scene.customCircuitOutputs);
 		if (newCustomOutputs == null) {
 			throw Error();
 		}

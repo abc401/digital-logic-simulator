@@ -32,6 +32,7 @@ func SwitchSceneDo(ctx *gin.Context) {
 		return
 	}
 	project.CurrentSceneID = params.ToSceneID
+	project.SelectedCircuits = map[state.IDType]bool{}
 	ctx.JSON(http.StatusOK, gin.H{})
 	fmt.Printf("\n\nProject State: %s\n\n", helpers.SPrettyPrint(project))
 }

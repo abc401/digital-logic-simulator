@@ -1,0 +1,164 @@
+{
+	"CurrentSceneID": 1,
+	"Scenes": {
+		"0": {
+			"ID": {
+				"ID": 0,
+				"Valid": true
+			},
+			"Name": "Main",
+			"ICInputs": {
+				"ID": 0,
+				"Valid": false
+			},
+			"ICOutputs": {
+				"ID": 0,
+				"Valid": false
+			},
+			"Circuits": {
+				"0": {
+					"ID": 0,
+					"CircuitType": "not",
+					"PosWrl": {
+						"X": 322,
+						"Y": 203
+					},
+					"NInputPins": 1,
+					"NOutputPins": 1,
+					"InputWires": [null],
+					"OutputWires": [null],
+					"Props": {
+						"label": "Not"
+					}
+				}
+			},
+			"Wires": {}
+		},
+		"1": {
+			"ID": {
+				"ID": 1,
+				"Valid": true
+			},
+			"Name": "New Circuit",
+			"ICInputs": {
+				"ID": 0,
+				"Valid": true
+			},
+			"ICOutputs": {
+				"ID": 1,
+				"Valid": true
+			},
+			"Circuits": {
+				"0": {
+					"ID": 0,
+					"CircuitType": "customcircuitinputs",
+					"PosWrl": {
+						"X": -447.14432989690704,
+						"Y": -98.30927835051537
+					},
+					"NInputPins": 0,
+					"NOutputPins": 2,
+					"InputWires": [],
+					"OutputWires": [
+						{
+							"ID": 3,
+							"FromCircuit": 0,
+							"FromPin": 0,
+							"ToCircuit": 2,
+							"ToPin": 0
+						},
+						null
+					],
+					"Props": {
+						"label": "CustomCircuitInputs"
+					}
+				},
+				"1": {
+					"ID": 1,
+					"CircuitType": "customcircuitoutputs",
+					"PosWrl": {
+						"X": 128.659793814433,
+						"Y": 263.8144329896907
+					},
+					"NInputPins": 2,
+					"NOutputPins": 0,
+					"InputWires": [
+						{
+							"ID": 4,
+							"FromCircuit": 2,
+							"FromPin": 0,
+							"ToCircuit": 1,
+							"ToPin": 0
+						},
+						null
+					],
+					"OutputWires": [],
+					"Props": {
+						"label": "CustomCircuitOutputs"
+					}
+				},
+				"2": {
+					"ID": 2,
+					"CircuitType": "not",
+					"PosWrl": {
+						"X": -118.09278350515461,
+						"Y": 340.96907216494844
+					},
+					"NInputPins": 1,
+					"NOutputPins": 1,
+					"InputWires": [
+						{
+							"ID": 3,
+							"FromCircuit": 0,
+							"FromPin": 0,
+							"ToCircuit": 2,
+							"ToPin": 0
+						}
+					],
+					"OutputWires": [
+						{
+							"ID": 4,
+							"FromCircuit": 2,
+							"FromPin": 0,
+							"ToCircuit": 1,
+							"ToPin": 0
+						}
+					],
+					"Props": {
+						"label": "Not"
+					}
+				}
+			},
+			"Wires": {
+				"3": {
+					"ID": 3,
+					"FromCircuit": 0,
+					"FromPin": 0,
+					"ToCircuit": 2,
+					"ToPin": 0
+				},
+				"4": {
+					"ID": 4,
+					"FromCircuit": 2,
+					"FromPin": 0,
+					"ToCircuit": 1,
+					"ToPin": 0
+				}
+			}
+		}
+	},
+	"SelectedCircuits": {
+		"0": true
+	},
+	"SelectedWires": {},
+	"View": {
+		"ZoomLevel": 0.388,
+		"PanOffset": {
+			"X": 143.82,
+			"Y": 178.704
+		}
+	},
+	"ICs": {
+		"1": "New Circuit"
+	}
+}

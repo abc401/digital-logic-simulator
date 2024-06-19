@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { actionsManager, sceneManager } from '@src/routes/dls/+page.svelte';
+	import type { ID } from '@src/ts/scene/scene';
 	import { icNames } from '@stores/integrated-circuits';
 	import { RenameICUserAction } from '@ts/interactivity/actions';
-	import { currentScene, type ID } from '@ts/scene/scene';
+	import { currentScene } from '@stores/currentScene';
 	import clsx from 'clsx';
 
 	export let sceneId: ID;
 	export let name: string;
 
-	$: isSelected = ($currentScene.id as ID) === sceneId;
+	$: isSelected = ($currentScene?.id as ID) === sceneId;
 
 	let renaming = false;
 	let input: HTMLInputElement | undefined;

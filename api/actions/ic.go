@@ -46,7 +46,9 @@ func CreateICDo(ctx *gin.Context) {
 		}
 	}
 
-	project.Scenes[params.SceneID] = state.NewSceneWithIO(params.SceneID, params.ICName)
+	fmt.Printf("id: %+v, idNullable: %+v", params.SceneID, params.SceneID.ToNullable())
+	var newScene = state.NewSceneWithIO(params.SceneID, params.ICName)
+	project.Scenes[params.SceneID] = newScene
 	project.ICs[params.SceneID] = params.ICName
 
 	fmt.Printf("\n\nProject: %s\n\n", helpers.SPrettyPrint(project))

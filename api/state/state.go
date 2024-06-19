@@ -33,6 +33,27 @@ var project = ProjectType{
 	ICs:              map[IDType]string{},
 }
 
+func NewProject() ProjectType {
+	return ProjectType{
+		Scenes: map[IDType]*Scene{
+			DEFAULT_SCENE_ID: {
+				ID:        DEFAULT_SCENE_ID.ToNullable(),
+				Name:      DEFAULT_SCENE_NAME,
+				ICInputs:  NullableID{},
+				ICOutputs: NullableID{},
+				Circuits:  map[IDType]*Circuit{},
+				Wires:     map[IDType]*Wire{},
+			},
+		},
+		CurrentSceneID:   DEFAULT_SCENE_ID,
+		SelectedCircuits: map[IDType]bool{},
+		SelectedWires:    map[IDType]bool{},
+		View:             math.NewViewManager(),
+		ICs:              map[IDType]string{},
+	}
+
+}
+
 func (project *ProjectType) GetCurrentScene() *Scene {
 	return project.Scenes[project.CurrentSceneID]
 }
@@ -45,36 +66,36 @@ type IDType uint64
 
 func (id IDType) ToNullable() NullableID {
 	return NullableID{
-		id:    id,
-		valid: true,
+		ID:    id,
+		Valid: true,
 	}
 }
 
 type NullableID struct {
-	id    IDType
-	valid bool
+	ID    IDType
+	Valid bool
 }
 
 func (id *NullableID) Some(validID IDType) *NullableID {
-	id.id = validID
-	id.valid = true
+	id.ID = validID
+	id.Valid = true
 	return id
 }
 
 func (id *NullableID) None() *NullableID {
-	id.valid = false
+	id.Valid = false
 	return id
 }
 
 func (id *NullableID) Unwrap() (IDType, bool) {
-	return id.id, id.valid
+	return id.ID, id.Valid
 }
 
 type CircuitProps map[string]interface{}
 
 var DefaultCircuits = map[string]Circuit{
-	"input": {
-		CircuitType: "input",
+	"Input": {
+		CircuitType: "Input",
 
 		NInputPins:  0,
 		NOutputPins: 1,
@@ -83,8 +104,8 @@ var DefaultCircuits = map[string]Circuit{
 			"value": false,
 		},
 	},
-	"and": {
-		CircuitType: "and",
+	"And": {
+		CircuitType: "And",
 
 		NInputPins:  2,
 		NOutputPins: 1,
@@ -93,8 +114,8 @@ var DefaultCircuits = map[string]Circuit{
 			"inputs": 2,
 		},
 	},
-	"or": {
-		CircuitType: "or",
+	"Or": {
+		CircuitType: "Or",
 
 		NInputPins:  2,
 		NOutputPins: 1,
@@ -103,8 +124,8 @@ var DefaultCircuits = map[string]Circuit{
 			"inputs": 2,
 		},
 	},
-	"not": {
-		CircuitType: "not",
+	"Not": {
+		CircuitType: "Not",
 
 		NInputPins:  1,
 		NOutputPins: 1,
@@ -112,8 +133,8 @@ var DefaultCircuits = map[string]Circuit{
 			"label": "Not",
 		},
 	},
-	"nand": {
-		CircuitType: "nand",
+	"Nand": {
+		CircuitType: "Nand",
 
 		NInputPins:  2,
 		NOutputPins: 1,
@@ -122,8 +143,8 @@ var DefaultCircuits = map[string]Circuit{
 			"inputs": 2,
 		},
 	},
-	"nor": {
-		CircuitType: "nor",
+	"Nor": {
+		CircuitType: "Nor",
 
 		NInputPins:  2,
 		NOutputPins: 1,
@@ -132,8 +153,8 @@ var DefaultCircuits = map[string]Circuit{
 			"inputs": 2,
 		},
 	},
-	"xor": {
-		CircuitType: "xor",
+	"Xor": {
+		CircuitType: "Xor",
 
 		NInputPins:  2,
 		NOutputPins: 1,
@@ -142,8 +163,8 @@ var DefaultCircuits = map[string]Circuit{
 			"inputs": 2,
 		},
 	},
-	"xnor": {
-		CircuitType: "xnor",
+	"Xnor": {
+		CircuitType: "Xnor",
 
 		NInputPins:  2,
 		NOutputPins: 1,

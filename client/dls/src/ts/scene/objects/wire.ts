@@ -24,12 +24,45 @@ export class Wire implements SceneObject {
 		console.log('[Wire Constructor]');
 	}
 
-	static newRegistered(producerPin: ProducerPin | undefined, consumerPin: ConsumerPin | undefined) {
+	static newRegisteredWithID(
+		producerPin: ProducerPin | undefined,
+		consumerPin: ConsumerPin | undefined,
+		scene: Scene,
+		id: ID
+	) {
 		console.log('[Wire Constructor]');
 		const wire = new Wire();
 
+		scene.registerWireWithId(id, wire);
+
+		if (producerPin != null) {
+			wire.setProducerPin(producerPin);
+		}
+
+		if (consumerPin != null) {
+			wire.setConsumerPin(consumerPin);
+		}
+
+		if (producerPin != null && consumerPin != null) {
+			Wire.update(wire);
+		}
+
+		return wire;
+	}
+
+	static newInCurrentScene(
+		producerPin: ProducerPin | undefined,
+		consumerPin: ConsumerPin | undefined
+	) {
+		console.log('[Wire Constructor]');
+		const wire = new Wire();
+
+		const currentScene = sceneManager.getCurrentScene();
+		if (currentScene == null) {
+			throw Error();
+		}
 		// this.id =
-		sceneManager.getCurrentScene().registerWire(wire);
+		currentScene.registerWire(wire);
 
 		if (producerPin != null) {
 			// producerPin.attachWire(this);
@@ -144,7 +177,11 @@ export class Wire implements SceneObject {
 			this.producerPin = undefined;
 		}
 		if (this.id != null) {
-			sceneManager.getCurrentScene().unregisterWire(this.id);
+			const currentScene = sceneManager.getCurrentScene();
+			if (currentScene == null) {
+				throw Error();
+			}
+			currentScene.unregisterWire(this.id);
 		}
 		// console.log(`wire ${this.id} has been detached`);
 	}

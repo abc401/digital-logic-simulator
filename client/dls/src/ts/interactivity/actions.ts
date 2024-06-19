@@ -8,7 +8,8 @@ import {
 } from '@ts/scene/objects/circuits/circuit';
 import { Wire } from '@ts/scene/objects/wire';
 import type { UserAction } from './actions-manager';
-import { Scene, currentScene, type ID } from '../scene/scene';
+import { Scene, type ID } from '../scene/scene';
+import { currentScene } from '@stores/currentScene';
 import type { Vec2 } from '../math';
 import { circuitProps, focusedCircuit } from '@src/lib/stores/focusedCircuit';
 import { domLog } from '@src/lib/stores/debugging';
@@ -16,7 +17,7 @@ import { icNames } from '@src/lib/stores/integrated-circuits';
 import { icInstantiators, icInstanciator } from '@src/lib/stores/circuitInstantiators';
 import { integratedCircuits } from '@src/lib/stores/integrated-circuits';
 import type { View } from '../view-manager';
-import { actionURL } from '../api';
+import { actionURL } from '../api/helpers';
 
 export const DUMMY_HOSTNAME = 'this-url-should-not-be-fetched';
 const DUMMY_URL = new URL(`http://${DUMMY_HOSTNAME}/`);
@@ -67,6 +68,9 @@ export function pasteFromClipboard() {
 	sceneManager.deselectAll();
 
 	const currentScene_ = currentScene.get();
+	if (currentScene_ == null) {
+		throw Error();
+	}
 
 	for (const wire of clonedWires) {
 		// wire.configSceneObject();
@@ -237,7 +241,7 @@ export class CreateCircuitUserAction implements UserAction {
 		const circuit = this.instantiator();
 		const currentScene = sceneManager.getCurrentScene();
 
-		CircuitSceneObject.newWithID(
+		CircuitSceneObject.newRegistered(
 			this.circuitID,
 			circuit,
 			view.screenToWorld(this.locScr),
@@ -515,7 +519,11 @@ export class SelectCircuitUserAction implements UserAction {
 	name = 'SelectCircuitUserAction';
 	private sceneID: ID;
 	constructor(private circuitID: ID) {
-		const sceneID = currentScene.get().id;
+		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+		const sceneID = currentScene_.id;
 		if (sceneID == null) {
 			throw Error();
 		}
@@ -530,13 +538,23 @@ export class SelectCircuitUserAction implements UserAction {
 		}
 	}
 	do(): void {
-		if (currentScene.get().id != this.sceneID) {
+		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+
+		if (currentScene_.id != this.sceneID) {
 			throw Error();
 		}
 		sceneManager.selectCircuit(this.circuitID);
 	}
 	undo(): void {
-		if (currentScene.get().id != this.sceneID) {
+		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+
+		if (currentScene_.id != this.sceneID) {
 			throw Error();
 		}
 		sceneManager.deselectCircuit(this.circuitID);
@@ -560,7 +578,11 @@ export class DeselectCircuitUserAction implements UserAction {
 	name = 'DeselectCircuitUserAction';
 	private sceneID: ID;
 	constructor(private circuitID: ID) {
-		const sceneID = currentScene.get().id;
+		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+		const sceneID = currentScene_.id;
 		if (sceneID == null) {
 			throw Error();
 		}
@@ -575,13 +597,22 @@ export class DeselectCircuitUserAction implements UserAction {
 		}
 	}
 	do(): void {
-		if (currentScene.get().id != this.sceneID) {
+		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+		if (currentScene_.id != this.sceneID) {
 			throw Error();
 		}
 		sceneManager.deselectCircuit(this.circuitID);
 	}
 	undo(): void {
-		if (currentScene.get().id != this.sceneID) {
+		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+
+		if (currentScene_.id != this.sceneID) {
 			throw Error();
 		}
 		sceneManager.selectCircuit(this.circuitID);
@@ -610,6 +641,10 @@ export class SwitchSceneUserAction implements UserAction {
 
 	constructor(private toSceneID: ID) {
 		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+
 		if (currentScene_.id == null) {
 			throw Error();
 		}
@@ -797,12 +832,22 @@ export class RenameICUserAction implements UserAction {
 	}
 
 	do(): void {
+		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+
 		integratedCircuits.rename(this.id, this.to);
-		currentScene.get().refreshICLabels();
+		currentScene_.refreshICLabels();
 	}
 	undo(): void {
+		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+
 		integratedCircuits.rename(this.id, this.from);
-		currentScene.get().refreshICLabels();
+		currentScene_.refreshICLabels();
 	}
 	async hitDoEndpoint() {
 		return await fetch(actionURL('/rename-ic/do'), { method: 'POST', body: JSON.stringify(this) });
@@ -824,7 +869,11 @@ export class DeselectAllUserAction implements UserAction {
 	private selectedCircuitIDs = new Array<ID>();
 
 	constructor() {
-		const currentSceneID = currentScene.get().id;
+		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+		const currentSceneID = currentScene_.id;
 		if (currentSceneID == null) {
 			throw Error();
 		}
@@ -844,13 +893,21 @@ export class DeselectAllUserAction implements UserAction {
 		}
 	}
 	do(): void {
-		if (currentScene.get().id != this.currentSceneID) {
+		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+		if (currentScene_.id != this.currentSceneID) {
 			throw Error();
 		}
 		sceneManager.deselectAll();
 	}
 	undo(): void {
 		const currentScene_ = currentScene.get();
+		if (currentScene_ == null) {
+			throw Error();
+		}
+
 		if (currentScene_.id != this.currentSceneID) {
 			throw Error();
 		}

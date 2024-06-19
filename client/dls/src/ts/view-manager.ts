@@ -21,6 +21,11 @@ export class View {
 		this.zoomLevel = view.zoomLevel;
 		this.panOffset = view.panOffset;
 	}
+	setViewFromMembers(zoomLevel: number, panOffset: Vec2) {
+		this.zoomLevel = zoomLevel;
+		this.panOffset = panOffset;
+		return this;
+	}
 
 	pan(amountScr: Vec2) {
 		this.panOffset = this.panOffset.add(amountScr);

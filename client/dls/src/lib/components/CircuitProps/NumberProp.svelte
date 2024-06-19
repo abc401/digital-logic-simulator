@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { circuitProps } from '@src/lib/stores/focusedCircuit';
-	import { currentScene } from '@src/ts/scene/scene';
 	import {
 		CircuitPropType,
-		type Circuit,
 		getPropType,
-		getPropSetter,
-		setProp
-	} from '@ts/scene/objects/circuits/circuit';
+		setProp,
+		type Circuit
+	} from '@src/ts/scene/objects/circuits/circuit';
 
 	export let name: string;
 	export let circuit: Circuit;
