@@ -20,6 +20,7 @@ func BindParams(target interface{}, ctx *gin.Context) bool {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
+		ctx.Abort()
 		return false
 	}
 	return true

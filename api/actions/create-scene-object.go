@@ -100,9 +100,6 @@ func CreateWireDo(ctx *gin.Context) {
 		})
 	}
 
-	// TODO: Check whether the wire is originating from an ICInput circuit or going into an ICOutput
-	// 		 circuit and, if so, appropriately increment the NConsumerPins and NProducerPins property
-	//		 of those circuits
 	var newWire = state.Wire{
 		ID:          params.WireID,
 		FromCircuit: params.ProducerCircuitID,

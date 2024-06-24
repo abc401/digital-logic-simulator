@@ -2,7 +2,28 @@ package models
 
 import (
 	"database/sql"
+
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
+
+type HashedString string
+
+type User struct {
+	gorm.Model
+	UName    string       `gorm:"not null"`
+	Email    string       `gorm:"not null unique"`
+	Password HashedString `gorm:"not null"`
+}
+
+func (user *User) SetPassword(password string) error {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err == nil {
+		user.Password = HashedString(bytes)
+	}
+	return err
+
+}
 
 type Article struct {
 	ID           uint   `gorm:"primarykey"`

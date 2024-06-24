@@ -94,6 +94,65 @@ export function dragSelection(delta: Vec2) {
 	}
 }
 
+// export class PasteFromClipBoardUserAction implements UserAction {
+// 	pastedCircuits: Array<ID> = [];
+// 	pastedWires: Array<ID> = [];
+
+// 	constructor(
+// 		public cirucits: Array<Circuit>,
+// 		public wires: Array<Wire>
+// 	) {}
+// 	name = 'PasteFromClipBoardUserAction';
+// 	do(): void {
+// 		const clonedCircuits = new Array<Circuit>();
+// 		const clonedWires = new Array<Wire>();
+
+// 		const circuitCloneMapping = new Map<Circuit, Circuit>();
+// 		const wireCloneMapping = new Map<Wire, Wire>();
+// 		for (const circuit of clipboard.circuits) {
+// 			cloneGraphAfterCircuit(
+// 				circuit,
+// 				clonedCircuits,
+// 				clonedWires,
+// 				circuitCloneMapping,
+// 				wireCloneMapping
+// 			);
+// 		}
+
+// 		sceneManager.deselectAll();
+
+// 		const currentScene_ = currentScene.get();
+// 		if (currentScene_ == null) {
+// 			throw Error();
+// 		}
+
+// 		for (const wire of clonedWires) {
+// 			// wire.configSceneObject();
+// 			wire.register(currentScene_);
+// 			if (wire.id == null) {
+// 				throw Error();
+// 			}
+
+// 			this.pastedWires.push(wire.id);
+// 		}
+
+// 		for (const circuit of clonedCircuits) {
+// 			if (circuit.sceneObject == null) {
+// 				throw Error();
+// 			}
+
+// 			CircuitSceneObject.new(circuit, circuit.sceneObject.tightRectWrl.xy, currentScene_, ctx);
+// 			// circuit.configSceneObject(circuit.sceneObject.tightRectWrl.xy, undefined);
+// 			sceneManager.selectCircuit(circuit.sceneObject.id as ID);
+// 			this.pastedCircuits.push(circuit.sceneObject.id as ID);
+// 		}
+// 	}
+// 	hitDoEndpoint(): Promise<Response> {}
+// 	hitUndoEndpoint(): Promise<Response> {}
+
+// 	undo(): void {}
+// }
+
 // Api implemented
 export class NoopUserAction implements UserAction {
 	name = 'Noop';
@@ -218,7 +277,7 @@ export class CreateCircuitUserAction implements UserAction {
 	constructor(
 		private targetSceneID: ID,
 
-		// DO NOT remove this property, this is a parameter for the api.
+		// do NOT remove this property, this is a parameter for the api.
 		// It will not be used on the client side.
 		private circuitType: string,
 

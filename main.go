@@ -22,6 +22,7 @@ func main1() {
 
 func main() {
 	main1()
+	// db.IsUserRegistered(models.User{Email: "a@b.c"})
 	// db.AutoMigrate()
 	// db.AddTutorials(Tutorials)
 	// db.AddTutorial(

@@ -17,11 +17,12 @@ import (
 const Dsn = "root:1234@tcp(localhost:3306)/dls"
 
 var cfg = mysql.Config{
-	User:   "root",
-	Passwd: "1234",
-	Net:    "tcp",
-	Addr:   "127.0.0.1:3306",
-	DBName: "dls",
+	User:      "root",
+	Passwd:    "1234",
+	Net:       "tcp",
+	Addr:      "127.0.0.1:3306",
+	DBName:    "dls",
+	ParseTime: true,
 }
 
 func GetDBCon() *sql.DB {
@@ -53,6 +54,11 @@ func AutoMigrate() {
 		fmt.Fprintf(os.Stderr, "Could not auto migrate: %s\n", err.Error())
 		panic("")
 	}
+	err = db.AutoMigrate(&models.User{})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Could not auto migrate: %s\n", err.Error())
+		panic("")
+	}
 	fmt.Println("Successfully auto migrated")
 }
 
@@ -80,6 +86,12 @@ func ConfigNextAndPrevious(tutorials []*models.Article) {
 
 }
 
+func IsUserRegistered(con *gorm.DB, email string) bool {
+	var dest []models.User
+	con.Model(&models.User{}).Where("email = ?", email).First(&dest)
+	return len(dest) > 0
+}
+
 func AddTutorials(tutorials []*models.Article) {
 	fmt.Println("[Info] Adding tutorials")
 	db := GetGormDBCon()
@@ -89,14 +101,6 @@ func AddTutorials(tutorials []*models.Article) {
 	ConfigNextAndPrevious(tutorials)
 	for i := 0; i < len(tutorials); i++ {
 		AddTutorial(tutorials[i])
-		// var tutorial = tutorials[i]
-		// if tutorial.LinkTitle == "" {
-		// 	panic("Title of tutorial is not defined")
-		// }
-		// if tutorial.Content == "" {
-		// 	panic("Content of tutorial is not defined")
-		// }
-		// db.Create(tutorial)
 	}
 }
 

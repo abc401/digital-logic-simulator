@@ -31,6 +31,8 @@ func ConfigHandelers(router gin.IRouter) {
 	router.GET("/project", GetProjectState)
 	router.GET("/project/reset-state", ResetProjectState)
 
+	router.POST("/signup", SignUp)
+
 	action := router.Group("/action")
 	actions.ConfigHandlers(action)
 }
