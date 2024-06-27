@@ -3,7 +3,6 @@ package helpers
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -36,24 +35,4 @@ func SPrettyPrint(val interface{}) string {
 		log.Fatalf(err.Error())
 	}
 	return string(json)
-}
-
-func PrintReqBody(ctx *gin.Context) {
-	var body map[string]interface{}
-
-	if err := ctx.ShouldBindBodyWith(&body, binding.JSON); err != nil && err != io.EOF {
-
-		fmt.Println("Could not read request body: ", err.Error())
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Could not read request body",
-		})
-		panic("")
-	}
-
-	fmt.Println("Request Body: ", SPrettyPrint(body))
-
-	// ctx.Request.Body = io.NopCloser(bytes.NewReader(body))
-
-	ctx.Next()
-
 }

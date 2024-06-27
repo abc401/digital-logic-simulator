@@ -25,6 +25,14 @@ func (user *User) SetPassword(password string) error {
 
 }
 
+func (user *User) VerifyPassword(providedPassword string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(providedPassword))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 type Article struct {
 	ID           uint   `gorm:"primarykey"`
 	LinkTitle    string `gorm:"index"`

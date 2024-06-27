@@ -86,10 +86,22 @@ func ConfigNextAndPrevious(tutorials []*models.Article) {
 
 }
 
-func IsUserRegistered(con *gorm.DB, email string) bool {
+func GetUser(con *gorm.DB, email string) *models.User {
 	var dest []models.User
 	con.Model(&models.User{}).Where("email = ?", email).First(&dest)
-	return len(dest) > 0
+	if len(dest) > 0 {
+		return &dest[0]
+	}
+	return nil
+}
+
+func GetUserByID(con *gorm.DB, uid uint) *models.User {
+	var dest []models.User
+	con.Model(&models.User{}).Where("id = ?", uid).First(&dest)
+	if len(dest) > 0 {
+		return &dest[0]
+	}
+	return nil
 }
 
 func AddTutorials(tutorials []*models.Article) {

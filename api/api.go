@@ -7,6 +7,7 @@ import (
 
 	"github.com/abc401/digital-logic-simulator/api/actions"
 	"github.com/abc401/digital-logic-simulator/api/helpers"
+	"github.com/abc401/digital-logic-simulator/api/middlewares"
 	"github.com/abc401/digital-logic-simulator/api/state"
 	"github.com/abc401/digital-logic-simulator/db"
 	"github.com/abc401/digital-logic-simulator/models"
@@ -20,25 +21,47 @@ var AllowedOrigins = []string{
 
 func ConfigHandelers(router gin.IRouter) {
 
-	router.Use(CorsMiddleWare)
-	router.Use(helpers.PrintReqBody)
+	router.Use(middlewares.CorsMiddleWare)
+	router.Use(middlewares.PrintReqBody)
 
 	tutorials := router.Group("/tutorials")
 	tutorials.GET("/nav", TutorialsNav)
 	tutorials.GET("/:link_title", GetTutorial)
+
+	// The `link_title` parameter in this end point probably needs to be renamed to something like `tutorials_id`
+	// but I'm getting very bored of this project and its a pain in the ass to do so, and thus, I'm not going to.
 	tutorials.GET("/:link_title/quiz", GetQuiz)
 
 	router.GET("/project", GetProjectState)
 	router.GET("/project/reset-state", ResetProjectState)
 
 	router.POST("/signup", SignUp)
+	router.POST("/signin", GenToken)
+
+	var user = router.Group("/user")
+	user.Use(middlewares.Auth)
+	user.GET("/info", UserInfo)
 
 	action := router.Group("/action")
 	actions.ConfigHandlers(action)
 }
-func CorsMiddleWare(ctx *gin.Context) {
-	ctx.Header("Access-Control-Allow-Origin", "*")
-	ctx.Next()
+
+func UserInfo(ctx *gin.Context) {
+
+	var email, exists = ctx.Get("email")
+	if !exists {
+		panic("Auth middleware did not provide email")
+	}
+	var uid any
+	uid, exists = ctx.Get("uid")
+	if !exists {
+		panic("Auth middleware did not provide uid")
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"email": email,
+		"uid":   uid,
+	})
 }
 
 func ResetProjectState(ctx *gin.Context) {
@@ -46,6 +69,7 @@ func ResetProjectState(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{})
 
 }
+
 func GetProjectState(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, state.GetProject())
 }
